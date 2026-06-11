@@ -6,6 +6,30 @@ This site is a static Next.js export. The deployment output is the `out/` folder
 npm run build
 ```
 
+## GitHub Pages / github.io
+
+This repository includes `.github/workflows/deploy-github-pages.yml`.
+
+After pushing to GitHub, open the repository settings:
+
+```text
+Settings -> Pages -> Source -> GitHub Actions
+```
+
+Then push to `master` or `main`. GitHub Actions will build the Next.js static export and deploy `out/`.
+
+For an organization-level github.io site, use this repository name:
+
+```text
+HydroAgent-Lab.github.io
+```
+
+The public URL will be:
+
+```text
+https://hydroagent-lab.github.io/
+```
+
 ## Recommended Option: Vercel
 
 Use this if you want the simplest setup.
@@ -70,4 +94,3 @@ Check these routes:
 - `/zh/research/`
 - `/zh/team/`
 - `/zh/contact/`
-
