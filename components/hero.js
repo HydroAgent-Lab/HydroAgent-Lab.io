@@ -17,6 +17,7 @@ export function Hero({ lang = "en", content }) {
       />
       <div className="brand-hero-scrim" aria-hidden="true" />
       <div className="brand-hero-media" aria-hidden="true">
+        <img className="brand-swirl-image" src="/assets/hydroagent-mark.svg" alt="" />
         <span className="brand-arc arc-one" />
         <span className="brand-arc arc-two" />
         <span className="brand-arc arc-three" />

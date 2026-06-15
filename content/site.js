@@ -154,6 +154,36 @@ export const siteContent = {
           }
         ]
       },
+      thinkingSection: {
+        eyebrow: "How HydroAgent Thinks",
+        title: "Workflow first. Models trusted. Prompts subordinate. Explanations visible.",
+        text:
+          "HydroAgent is organized around how flood forecasting work actually happens. The agent does not replace hydrologic models or expert authority. It coordinates context, tools, prompts, and explanations around a structured operating workflow.",
+        items: [
+          {
+            title: "Workflow before model",
+            text: "Forecasting starts from operational context: event state, basin behavior, update cycle, and release responsibility."
+          },
+          {
+            title: "Model as evidence",
+            text: "Hydrologic models remain the scientific evidence base. The agent helps review, compare, and explain their outputs."
+          },
+          {
+            title: "Skill before prompt",
+            text: "Validated tools and repeatable workflow skills are called directly. Prompts guide coordination, not scientific computation."
+          },
+          {
+            title: "Explainability before accuracy claims",
+            text: "Every recommendation should carry the reasoning, assumptions, uncertainty, and unresolved watchpoints behind it."
+          }
+        ]
+      },
+      humanSection: {
+        eyebrow: "Human-Centered AI",
+        title: "Built to reason alongside hydrologists, not replace the models they trust.",
+        text:
+          "HydroAgent-Lab treats the agent as an operating layer for human judgment. It reads context, organizes evidence, keeps revision history visible, and prepares review-ready decisions for the people who remain accountable."
+      },
       clientSection: {
         eyebrow: "Who It Serves",
         title: "Built for teams that need a modern AI operating layer, not another static dashboard.",
@@ -889,6 +919,36 @@ export const siteContent = {
             text: "围绕试点、机构沟通与研究合作提供配套支持。"
           }
         ]
+      },
+      thinkingSection: {
+        eyebrow: "HydroAgent 如何思考",
+        title: "工作流优先，模型可信，提示词从属，解释可见。",
+        text:
+          "HydroAgent 围绕洪水预报真实业务来组织。它不替代水文模型，也不替代专家责任，而是把情境、工具、提示词与解释放进结构化工作流中协同运行。",
+        items: [
+          {
+            title: "工作流先于模型",
+            text: "预报从业务情境开始：事件状态、流域行为、更新节奏与发布责任。"
+          },
+          {
+            title: "模型作为证据",
+            text: "水文模型仍然是科学证据基础。智能体帮助复核、比较并解释模型输出。"
+          },
+          {
+            title: "技能先于提示词",
+            text: "经过验证的工具和可复用流程能力应被直接调用。提示词负责协调，而不是替代科学计算。"
+          },
+          {
+            title: "解释先于准确率口号",
+            text: "每个建议都应该带着推理过程、假设、不确定性与未解决关注点。"
+          }
+        ]
+      },
+      humanSection: {
+        eyebrow: "以人为中心的 AI",
+        title: "与水文学家一起推理，而不是替代他们信任的模型。",
+        text:
+          "HydroAgent-Lab 把智能体视为人类判断的操作层。它读取情境、组织证据、保留修订历史，并为最终负责的人准备可审核的业务决策。"
       },
       clientSection: {
         eyebrow: "服务对象",

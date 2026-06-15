@@ -20,7 +20,7 @@ export function SiteShell({ children, lang = "en" }) {
       <header className="site-header">
         <Link className="brand" href={localizeHref(lang, "/")}>
           <span className="brand-mark">
-            <span className="brand-wave" />
+            <img src="/assets/hydroagent-mark.svg" alt="" aria-hidden="true" />
           </span>
           <span className="brand-copy">
             <strong>

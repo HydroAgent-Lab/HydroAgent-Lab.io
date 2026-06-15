@@ -89,6 +89,49 @@ function BusinessMap({ content, lang }) {
   );
 }
 
+function AgentThinking({ content }) {
+  const section = content.home.thinkingSection;
+
+  return (
+    <section className="agent-thinking">
+      <div className="agent-thinking-head">
+        <p className="eyebrow">{section.eyebrow}</p>
+        <h2>{section.title}</h2>
+        <p>{section.text}</p>
+      </div>
+      <div className="agent-thinking-steps">
+        {section.items.map((item, index) => (
+          <article className="agent-thinking-step" key={item.title}>
+            <span>{String(index + 1).padStart(2, "0")}</span>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function HumanCenteredAgent({ content }) {
+  const section = content.home.humanSection;
+
+  return (
+    <section className="human-agent">
+      <div className="human-agent-copy">
+        <p className="eyebrow">{section.eyebrow}</p>
+        <h2>{section.title}</h2>
+        <p>{section.text}</p>
+      </div>
+      <div className="hydrograph-panel" aria-hidden="true">
+        <img src="/assets/hydroagent-mark.svg" alt="" />
+        <svg viewBox="0 0 1200 300" preserveAspectRatio="none">
+          <path d="M0,235 C150,230 230,225 320,215 C400,206 440,120 520,80 C580,52 640,55 700,120 C760,184 820,210 920,224 C1020,238 1120,239 1200,235" />
+        </svg>
+      </div>
+    </section>
+  );
+}
+
 function ProofStatement({ lang }) {
   const copy =
     lang === "zh"
@@ -124,6 +167,8 @@ export function HomePageContent({ lang = "en" }) {
       <main className="main-content">
         <Hero lang={lang} content={content} />
         <BrandManifesto lang={lang} />
+        <AgentThinking content={content} />
+        <HumanCenteredAgent content={content} />
         <ArchitectureWorld content={content} />
         <BusinessMap content={content} lang={lang} />
         <ProofStatement lang={lang} />
