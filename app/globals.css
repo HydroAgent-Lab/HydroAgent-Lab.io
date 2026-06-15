@@ -5975,3 +5975,112 @@ html {
     grid-template-columns: 1fr;
   }
 }
+
+/* Wide page leads: avoid narrow-column hero layouts on large screens. */
+.page-lead {
+  width: min(100%, 1680px) !important;
+  min-height: calc(100vh - var(--nav-height));
+  padding: clamp(64px, 8vh, 112px) clamp(56px, 7vw, 132px) !important;
+  display: grid !important;
+  grid-template-columns: minmax(520px, 0.56fr) minmax(440px, 0.44fr) !important;
+  gap: clamp(56px, 7vw, 132px) !important;
+  align-items: center !important;
+  justify-content: stretch !important;
+}
+
+.page-lead-main,
+.page-lead-side {
+  width: 100%;
+  max-width: none !important;
+}
+
+.page-lead h1 {
+  max-width: 13.5ch !important;
+  font-size: clamp(58px, 5.8vw, 112px) !important;
+  line-height: 0.98 !important;
+  text-wrap: balance;
+}
+
+.lang-zh .page-lead h1 {
+  max-width: 12.5ch !important;
+  font-size: clamp(64px, 5.9vw, 118px) !important;
+  line-height: 1.02 !important;
+}
+
+.page-lead-side > p {
+  max-width: 720px !important;
+  font-size: clamp(19px, 1.25vw, 24px) !important;
+  line-height: 1.62 !important;
+}
+
+.page-lead-facts {
+  width: 100%;
+  max-width: none !important;
+  margin-top: clamp(36px, 5vh, 70px) !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0 !important;
+  border-top: 1px solid rgba(220, 236, 248, 0.18);
+  border-bottom: 1px solid rgba(220, 236, 248, 0.12);
+}
+
+.page-lead-fact {
+  min-height: 116px;
+  padding: clamp(20px, 2vw, 30px) clamp(18px, 2vw, 32px) !important;
+  border: 0 !important;
+  border-right: 1px solid rgba(220, 236, 248, 0.12) !important;
+  background: transparent !important;
+}
+
+.page-lead-fact:last-child {
+  border-right: 0 !important;
+}
+
+.page-lead-fact span,
+.page-lead-fact strong {
+  overflow-wrap: anywhere;
+}
+
+.page-lead-fact strong {
+  font-size: clamp(17px, 1.1vw, 22px) !important;
+  line-height: 1.35 !important;
+}
+
+@media (max-width: 1180px) {
+  .page-lead {
+    min-height: auto;
+    grid-template-columns: 1fr !important;
+    align-items: start !important;
+  }
+
+  .page-lead h1,
+  .lang-zh .page-lead h1 {
+    max-width: 14ch !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .page-lead {
+    padding: 44px 22px 58px !important;
+    gap: 30px !important;
+  }
+
+  .page-lead h1,
+  .lang-zh .page-lead h1 {
+    font-size: clamp(42px, 13vw, 64px) !important;
+  }
+
+  .page-lead-facts {
+    grid-template-columns: 1fr !important;
+  }
+
+  .page-lead-fact {
+    min-height: 0;
+    border-right: 0 !important;
+    border-bottom: 1px solid rgba(220, 236, 248, 0.12) !important;
+  }
+
+  .page-lead-fact:last-child {
+    border-bottom: 0 !important;
+  }
+}
