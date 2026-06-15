@@ -150,6 +150,7 @@ export const siteContent = {
         { path: "/workflow", label: "Workflow" },
         { path: "/research", label: "Research" },
         { path: "/team", label: "Team" },
+        { path: "/careers", label: "Join Us" },
         { path: "/contact", label: "Contact" }
       ],
       headerCta: "Request a briefing",
@@ -990,6 +991,101 @@ export const siteContent = {
         ]
       }
     },
+    careers: {
+      hero: {
+        eyebrow: "Join HydroAgent-Lab",
+        title: "Build water intelligence with people who know the front line.",
+        text:
+          "HydroAgent-Lab is an interest-driven team for people who want AI to help real hydrologic practice. We welcome contributors who can connect science, software, product judgment, and operational responsibility.",
+        cta: "Start a conversation",
+        ctaPath: "/contact"
+      },
+      missionSection: {
+        title: "We are not hiring for headcount. We are looking for builders who can carry real work.",
+        text:
+          "This is currently a community-driven, volunteer-led effort with no funding support. The right fit is someone who wants to build useful hydrologic AI systems, produce credible evidence, and learn through serious collaboration rather than only collect a title."
+      },
+      statementSection: {
+        title: "The work is close to the problem.",
+        paragraphs: [
+          {
+            title: "Not generic AI demos",
+            text: "We work on forecasting workflows, model review, scenario preparation, release packaging, and replayable evidence."
+          },
+          {
+            title: "Not isolated academic slogans",
+            text: "Research only matters when it clarifies what a forecaster, agency, or partner can trust in an operational setting."
+          },
+          {
+            title: "Not a replacement story",
+            text: "HydroAgent is designed around human authority, visible reasoning, and expert accountability."
+          }
+        ]
+      },
+      valuesSection: {
+        title: "People who tend to thrive here.",
+        left: [
+          "You are comfortable with ambiguity and can turn a rough domain problem into a concrete artifact.",
+          "You care about evidence, not just presentation.",
+          "You can explain your work clearly to people outside your own specialty."
+        ],
+        right: [
+          "You respect hydrologic expertise and real operational constraints.",
+          "You are willing to build, test, revise, and document.",
+          "You prefer direct collaboration over inflated titles."
+        ]
+      },
+      tracksSection: {
+        eyebrow: "Open Collaboration Tracks",
+        title: "Several kinds of contributors can make the lab stronger.",
+        items: [
+          {
+            title: "Hydrology and forecasting practice",
+            text: "Bring basin knowledge, model review experience, warning-release workflows, or frontline operational questions."
+          },
+          {
+            title: "AI agents and software engineering",
+            text: "Build interfaces, orchestration, evaluation tooling, capability modules, and reliable deployment paths."
+          },
+          {
+            title: "Research and evaluation",
+            text: "Help turn workflows into research questions, validation protocols, datasets, figures, and publishable evidence."
+          },
+          {
+            title: "Product and design translation",
+            text: "Shape demos, documentation, product narratives, user research, and partner-facing workflow materials."
+          }
+        ]
+      },
+      processSection: {
+        eyebrow: "How to Join",
+        title: "Start with a focused note, not a formal application.",
+        steps: [
+          {
+            label: "01",
+            title: "Introduce your background",
+            text: "Tell us where you work or study, what you know, and what you want to contribute."
+          },
+          {
+            label: "02",
+            title: "Choose a concrete thread",
+            text: "Point to a product module, research question, workflow problem, or demo artifact you want to help with."
+          },
+          {
+            label: "03",
+            title: "Work in a small loop",
+            text: "We start with a scoped task or conversation, then decide whether deeper collaboration makes sense."
+          }
+        ]
+      },
+      ctaSection: {
+        title: "Interested in building with us?",
+        text:
+          "Send a short email with your background, preferred contribution track, and one concrete idea you would like to explore.",
+        button: "Contact the team",
+        href: "/contact"
+      }
+    },
     contact: {
       lead: {
         eyebrow: "Contact",
@@ -1074,6 +1170,7 @@ export const siteContent = {
         { path: "/workflow", label: "工作流" },
         { path: "/research", label: "研究" },
         { path: "/team", label: "团队" },
+        { path: "/careers", label: "加入我们" },
         { path: "/contact", label: "联系" }
       ],
       headerCta: "预约沟通",
@@ -1911,6 +2008,101 @@ export const siteContent = {
             text: "最有价值的工作来自真实流域、真实流程与真实业务约束。"
           }
         ]
+      }
+    },
+    careers: {
+      hero: {
+        eyebrow: "加入 HydroAgent-Lab",
+        title: "和真正理解一线问题的人一起建设水务智能。",
+        text:
+          "HydroAgent-Lab 是一个兴趣驱动的协作团队，面向希望让 AI 真正进入水文业务的人。我们欢迎能够连接科学、软件、产品判断与业务责任的贡献者。",
+        cta: "开始沟通",
+        ctaPath: "/contact"
+      },
+      missionSection: {
+        title: "我们不是为了扩充人数而招人，而是在寻找能承担真实工作的建设者。",
+        text:
+          "当前 HydroAgent-Lab 仍是社区驱动、志愿协作、暂无经费支持的项目。更适合加入的人，是希望做出有用的水文 AI 系统、形成可信证据，并在严肃协作中持续学习的人。"
+      },
+      statementSection: {
+        title: "这里的工作贴近真实问题。",
+        paragraphs: [
+          {
+            title: "不是通用 AI 演示",
+            text: "我们关注预报工作流、模型复核、情景准备、发布打包与可回放证据。"
+          },
+          {
+            title: "不是空泛学术口号",
+            text: "研究必须帮助预报员、机构或合作伙伴理解什么可以被信任，以及为什么可以被信任。"
+          },
+          {
+            title: "不是替代专家的叙事",
+            text: "HydroAgent 围绕人的发布权、可见推理和专家责任来设计。"
+          }
+        ]
+      },
+      valuesSection: {
+        title: "适合这里的人通常有这些特质。",
+        left: [
+          "能在不确定问题里推进，把粗糙的领域问题变成具体产物。",
+          "重视证据，而不仅仅是展示效果。",
+          "能把自己的工作讲清楚，让不同背景的人理解。"
+        ],
+        right: [
+          "尊重水文专业知识和真实业务约束。",
+          "愿意构建、测试、修订和记录。",
+          "更看重直接协作，而不是头衔包装。"
+        ]
+      },
+      tracksSection: {
+        eyebrow: "开放协作方向",
+        title: "不同类型的贡献者都可以让这个团队更强。",
+        items: [
+          {
+            title: "水文与预报业务",
+            text: "带来流域知识、模型复核经验、预警发布流程或一线业务问题。"
+          },
+          {
+            title: "AI 智能体与软件工程",
+            text: "建设界面、编排、评估工具、能力模块和可靠部署路径。"
+          },
+          {
+            title: "研究与评估",
+            text: "把工作流转化为研究问题、验证协议、数据集、图件和可发表证据。"
+          },
+          {
+            title: "产品与设计转译",
+            text: "打磨演示、文档、产品叙事、用户研究和面向合作伙伴的工作流材料。"
+          }
+        ]
+      },
+      processSection: {
+        eyebrow: "如何加入",
+        title: "先发一封聚焦的邮件，而不是提交正式申请。",
+        steps: [
+          {
+            label: "01",
+            title: "介绍你的背景",
+            text: "告诉我们你在哪里学习或工作、你了解什么、你希望贡献什么。"
+          },
+          {
+            label: "02",
+            title: "选择一个具体方向",
+            text: "可以是一项产品模块、一个研究问题、一个工作流痛点或一个演示材料。"
+          },
+          {
+            label: "03",
+            title: "从小闭环开始",
+            text: "我们会先从一个小任务或一次讨论开始，再判断是否进入更深入的协作。"
+          }
+        ]
+      },
+      ctaSection: {
+        title: "想和我们一起建设吗？",
+        text:
+          "请发一封简短邮件，说明你的背景、希望参与的方向，以及一个你想探索的具体想法。",
+        button: "联系团队",
+        href: "/contact"
       }
     },
     contact: {
