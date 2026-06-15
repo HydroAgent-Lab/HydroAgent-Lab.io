@@ -7220,3 +7220,219 @@ body {
     width: 128px;
   }
 }
+
+/* Screen-adaptive section rhythm and overflow fixes. */
+html {
+  scroll-snap-type: y proximity;
+  scroll-padding-top: 76px;
+}
+
+.main-content > section,
+.site-footer {
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+
+.main-content > section:not(.brand-hero) {
+  min-height: calc(100svh - 76px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.main-content > section > *,
+.content-section > *,
+.page-lead > *,
+.brand-manifesto > *,
+.architecture-world > *,
+.business-map > *,
+.cta-band > * {
+  min-width: 0;
+}
+
+.three-up-grid,
+.surface-grid,
+.capability-grid,
+.workflow-rail,
+.architecture-stack,
+.business-line-list,
+.architecture-layer-list,
+.handoff-points,
+.thesis-claims,
+.contact-steps,
+.about-leader-grid,
+.about-signal-list,
+.about-milestone-list,
+.agent-thinking-steps {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.info-card,
+.surface-card,
+.capability-card,
+.workflow-step,
+.architecture-layer,
+.architecture-world-card,
+.business-line,
+.argument-row,
+.step-card,
+.comparison-card,
+.contact-detail-card,
+.contact-callout,
+.agent-thinking-step,
+.about-leader-card,
+.about-signal-row,
+.about-milestone-row,
+.product-flow-step,
+.research-output-row,
+.person-card {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.info-card h3,
+.surface-card h3,
+.capability-card h3,
+.workflow-step h3,
+.architecture-layer h3,
+.architecture-world-card h3,
+.business-line h3,
+.step-card h3,
+.comparison-card h3,
+.agent-thinking-step h3,
+.about-leader-card h3,
+.about-signal-row strong,
+.about-milestone-row h3,
+.product-flow-step h3,
+.research-output-row h3,
+.person-card h3 {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  text-wrap: balance;
+}
+
+.info-card p,
+.surface-card p,
+.capability-card p,
+.workflow-step p,
+.architecture-layer p,
+.architecture-world-card p,
+.business-line p,
+.argument-row p,
+.step-card p,
+.comparison-card p,
+.agent-thinking-step p,
+.about-leader-card p,
+.about-signal-row p,
+.about-milestone-row p,
+.product-flow-step p,
+.research-output-row p,
+.person-card p {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.lang-zh .info-card h3,
+.lang-zh .surface-card h3,
+.lang-zh .workflow-step h3,
+.lang-zh .architecture-layer h3,
+.lang-zh .architecture-world-card h3,
+.lang-zh .business-line h3,
+.lang-zh .agent-thinking-step h3,
+.lang-zh .product-flow-step h3 {
+  font-size: clamp(22px, 2.35vw, 36px);
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+}
+
+.lang-zh .surface-card,
+.lang-zh .info-card {
+  padding-left: clamp(18px, 2vw, 30px);
+  padding-right: clamp(18px, 2vw, 30px);
+}
+
+.lang-zh .agent-thinking {
+  min-height: calc(100svh - 76px);
+  justify-content: center;
+}
+
+.lang-zh .agent-thinking-head {
+  grid-template-columns: minmax(180px, 0.24fr) minmax(0, 0.46fr) minmax(320px, 0.3fr);
+  gap: clamp(32px, 5vw, 90px);
+  align-items: center;
+}
+
+.lang-zh .agent-thinking-head h2 {
+  max-width: 9.5em;
+  font-size: clamp(44px, 5.2vw, 86px);
+  line-height: 1.06;
+  text-wrap: balance;
+}
+
+.lang-zh .agent-thinking-head > p:last-child {
+  font-size: clamp(17px, 1.35vw, 23px);
+  line-height: 1.72;
+}
+
+.lang-zh .agent-thinking-steps {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.lang-zh .agent-thinking-step {
+  min-height: 230px;
+  padding: clamp(24px, 2.4vw, 34px) clamp(18px, 2.2vw, 32px);
+}
+
+.lang-zh .agent-thinking-step h3 {
+  margin-top: clamp(28px, 3vw, 44px);
+  font-size: clamp(24px, 1.95vw, 34px);
+  line-height: 1.12;
+}
+
+.lang-zh .agent-thinking-step:nth-child(4) h3 {
+  font-size: clamp(20px, 1.55vw, 28px);
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.lang-zh .agent-thinking-step p {
+  font-size: clamp(15px, 1vw, 18px);
+}
+
+@media (max-width: 1280px) {
+  .lang-zh .agent-thinking-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lang-zh .agent-thinking-step:nth-child(4) h3 {
+    font-size: clamp(22px, 2.6vw, 34px);
+  }
+}
+
+@media (max-width: 900px) {
+  html {
+    scroll-snap-type: none;
+  }
+
+  .main-content > section:not(.brand-hero) {
+    min-height: auto;
+    display: block;
+  }
+
+  .lang-zh .agent-thinking-head,
+  .agent-thinking-head {
+    grid-template-columns: 1fr;
+  }
+
+  .lang-zh .agent-thinking-steps,
+  .agent-thinking-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .lang-zh .agent-thinking-step:nth-child(4) h3 {
+    white-space: normal;
+  }
+}
