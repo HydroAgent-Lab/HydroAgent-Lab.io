@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="HydroAgent manuscript brief and benchmark summary.">
+  <title>HydroAgent | Manuscript Brief</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <div class="brand-lockup">
+        <img class="brand-mark" src="./assets/HydroAgentLogo_transparent.svg" alt="HydroAgent logo">
+        <div class="brand-copy">
+          <span class="eyebrow">HydroAgent</span>
+          <span class="brand-subtitle">Manuscript brief</span>
+        </div>
+      </div>
+      <div class="site-header-right">
+        <nav class="site-nav">
+          <a href="./index.html#proof">Proof</a>
+          <a href="./index.html#research">Research</a>
+          <a href="./index.html#contact">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" style="padding-bottom: 24px;">
+        <div class="hero-copy">
+          <div class="eyebrow-group">
+            <span class="eyebrow">Submitted manuscript</span>
+            <span class="eyebrow accent">Current brief</span>
+          </div>
+          <h1>HydroAgent as a reviewable flood-forecasting workflow.</h1>
+          <p class="hero-lead">
+            The manuscript framing matters because it explains the system as a workflow that separates expert judgment, hydrological computation, and human approval.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="./index.html#proof">See benchmark section</a>
+            <a class="button secondary" href="./egu-2026.html">Open EGU summary</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading split">
+          <div>
+            <span class="eyebrow">Core claim</span>
+            <h2>The system is judged by workflow performance, not model theater.</h2>
+          </div>
+          <p>
+            HydroAgent is not presented as a flood-predicting chatbot. It is presented as a structured operational layer around models, evidence, and release control.
+          </p>
+        </div>
+
+        <div class="evidence-grid">
+          <article class="evidence-card">
+            <div class="evidence-topline">Judgment</div>
+            <h3>Prior judgment is explicit.</h3>
+            <p>Hydrological expertise is formalized before detailed forecast refinement begins.</p>
+          </article>
+          <article class="evidence-card">
+            <div class="evidence-topline">Execution</div>
+            <h3>Hydrological computation stays central.</h3>
+            <p>Deterministic models remain part of the core system rather than being replaced by language-model improvisation.</p>
+          </article>
+          <article class="evidence-card">
+            <div class="evidence-topline">Control</div>
+            <h3>Human approval remains explicit.</h3>
+            <p>The release boundary does not disappear behind automation, which is central to HydroAgent's trust posture.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="benchmark-panel">
+          <div class="benchmark-copy">
+            <span class="eyebrow">Current benchmark</span>
+            <h3>Early evidence already supports the workflow thesis.</h3>
+            <p>
+              In the current 14-event benchmark, the workflow completed all cases, preserved the review pause in every case, and improved runoff-volume error in 9 events relative to the Step 0 baseline.
+            </p>
+          </div>
+          <div class="benchmark-matrix">
+            <div class="matrix-header">
+              <span>Dimension</span>
+              <span>Current reading</span>
+            </div>
+            <div class="matrix-row">
+              <span>Case completion</span>
+              <span class="pill">14 / 14</span>
+            </div>
+            <div class="matrix-row">
+              <span>Review pause</span>
+              <span class="pill">Always preserved</span>
+            </div>
+            <div class="matrix-row">
+              <span>Runoff-volume error</span>
+              <span class="pill">Improved in 9 cases</span>
+            </div>
+            <div class="matrix-row">
+              <span>System reading</span>
+              <span class="pill">Workflow value is measurable</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <strong>HydroAgent</strong>
+        <p>Product-oriented operational AI with visible research proof.</p>
+      </div>
+      <div class="footer-column">
+        <span class="identity-label">Links</span>
+        <a href="./index.html">Home</a>
+        <a href="./egu-2026.html">EGU summary</a>
+        <a href="https://github.com/HydroAgent-Lab/hydro_agent" target="_blank" rel="noreferrer">GitHub</a>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
