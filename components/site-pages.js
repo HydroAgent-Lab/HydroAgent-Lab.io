@@ -87,14 +87,21 @@ function BusinessMap({ content, lang }) {
   );
 }
 
+function splitFirstSentence(str) {
+  const match = str.match(/^(.+?[。．.，])\s*(.*)/s);
+  if (!match) return [str];
+  return match[2] ? [match[1], match[2]] : [match[1]];
+}
+
 function AgentThinking({ content }) {
   const section = content.home.thinkingSection;
+  const lines = Array.isArray(section.title) ? section.title : [section.title];
 
   return (
     <section className="agent-thinking">
       <div className="agent-thinking-head">
         <p className="eyebrow">{section.eyebrow}</p>
-        <h2>{section.title}</h2>
+        <h2>{lines.map((line, i) => <span key={i} style={{ display: "block" }}>{line}</span>)}</h2>
         <p>{section.text}</p>
       </div>
       <div className="agent-thinking-steps">
@@ -144,10 +151,12 @@ function ProofStatement({ lang }) {
           points: ["Clear situation awareness", "Explainable judgment", "Actionable next step"]
         };
 
+  const lines = splitFirstSentence(copy.title);
+
   return (
     <section className="proof-statement">
       <p className="eyebrow">{copy.eyebrow}</p>
-      <h2>{copy.title}</h2>
+      <h2>{lines.map((line, i) => <span key={i} style={{ display: "block" }}>{line}</span>)}</h2>
       <div className="proof-line">
         {copy.points.map((point) => (
           <span key={point}>{point}</span>

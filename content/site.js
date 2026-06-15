@@ -156,7 +156,7 @@ export const siteContent = {
       },
       thinkingSection: {
         eyebrow: "How HydroAgent Thinks",
-        title: "Workflow first. Models trusted. Prompts subordinate. Explanations visible.",
+        title: ["Workflow first. Models trusted.", "Prompts subordinate. Explanations visible."],
         text:
           "HydroAgent is organized around how flood forecasting work actually happens. The agent does not replace hydrologic models or expert authority. It coordinates context, tools, prompts, and explanations around a structured operating workflow.",
         items: [
@@ -922,7 +922,7 @@ export const siteContent = {
       },
       thinkingSection: {
         eyebrow: "HydroAgent 如何思考",
-        title: "工作流优先，模型可信，提示词从属，解释可见。",
+        title: ["工作流优先，模型可信，", "提示词从属，解释可见。"],
         text:
           "HydroAgent 围绕洪水预报真实业务来组织。它不替代水文模型，也不替代专家责任，而是把情境、工具、提示词与解释放进结构化工作流中协同运行。",
         items: [
