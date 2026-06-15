@@ -52,6 +52,9 @@ export function SiteShell({ children, lang = "en" }) {
       {children}
       <footer className="site-footer">
         <div className="footer-brand">
+          <span className="footer-brand-mark">
+            <img src="/assets/hydroagent-mark.svg" alt="" aria-hidden="true" />
+          </span>
           <strong>HydroAgent-Lab</strong>
           <p>{content.ui.footerTitle}</p>
         </div>
