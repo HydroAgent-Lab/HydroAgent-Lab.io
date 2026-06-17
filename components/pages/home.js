@@ -18,10 +18,10 @@ export function HomePageContent({ lang = "en" }) {
             eyebrow={page.whatSection.eyebrow}
             title={page.whatSection.title}
           />
-          <ol className="editorial-list">
-            {page.whatSection.items.map((item, i) => (
-              <li className="editorial-row" key={item.slice(0, 24)}>
-                <span className="editorial-index">{`0${i + 1}`}</span>
+          <ol className="timeline">
+            {page.whatSection.items.map((item) => (
+              <li className="timeline-item" key={item.slice(0, 24)}>
+                <span className="timeline-dot" aria-hidden="true" />
                 <p>{item}</p>
               </li>
             ))}
