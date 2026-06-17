@@ -23,7 +23,8 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 20% center; /* video content weighted right */
+  transform: scale(1.4);
+  transform-origin: 30% center;
   z-index: 0;
 }
 
@@ -282,7 +283,7 @@
   }
 
   .hero-video-bg {
-    object-position: 65% center;
+    transform-origin: 50% center;
   }
 }
 

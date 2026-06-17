@@ -35,6 +35,21 @@ function ArchitectureWorld({ content }) {
   );
 }
 
+function FlipCard({ title, text }) {
+  return (
+    <article className="manifesto-card">
+      <div className="manifesto-card-inner">
+        <div className="manifesto-card-front">
+          <h3>{title}</h3>
+        </div>
+        <div className="manifesto-card-back">
+          <p>{text}</p>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 function BrandManifesto({ lang }) {
   const copy =
     lang === "zh"
@@ -42,24 +57,24 @@ function BrandManifesto({ lang }) {
           eyebrow: "核心能力",
           title: ["不是又一个水文工具，", "而是一套决策操作层。"],
           steps: [
-            { num: "01", title: "情景准备", text: "整合降雨、流域状态、历史相似场次和业务约束。" },
-            { num: "02", title: "专家判断显性化", text: "把预报员的先验判断、关注点和修正逻辑记录成可复用材料。" },
-            { num: "03", title: "模型复核与修正记录", text: "对模型输出进行复核，保留偏差原因、修正假设和证据链。" },
-            { num: "04", title: "滚动预报与版本比较", text: "在多轮更新中追踪变化、原因和影响。" },
-            { num: "05", title: "发布打包", text: "生成面向审核和发布的说明、公告草稿和交接材料。" },
-            { num: "06", title: "事后复盘", text: "保留流程记录，用于培训、评估和机构学习。" }
+            { title: "情景准备", text: "整合降雨、流域状态、历史相似场次和业务约束。" },
+            { title: "专家判断显性化", text: "把预报员的先验判断、关注点和修正逻辑记录成可复用材料。" },
+            { title: "模型复核与修正记录", text: "对模型输出进行复核，保留偏差原因、修正假设和证据链。" },
+            { title: "滚动预报与版本比较", text: "在多轮更新中追踪变化、原因和影响。" },
+            { title: "发布打包", text: "生成面向审核和发布的说明、公告草稿和交接材料。" },
+            { title: "事后复盘", text: "保留流程记录，用于培训、评估和机构学习。" }
           ]
         }
       : {
           eyebrow: "What HydroAgent Does",
           title: ["Not another hydrology tool.", "An intelligence layer for water decisions."],
           steps: [
-            { num: "01", title: "Scenario preparation", text: "Bring together rainfall, basin state, historical analogs, and operational constraints." },
-            { num: "02", title: "Expert judgment capture", text: "Record forecasters' prior judgment, watchpoints, and correction logic as reusable material." },
-            { num: "03", title: "Model review", text: "Review model outputs and keep the drivers of mismatch, correction hypotheses, and evidence chain." },
-            { num: "04", title: "Rolling forecast and version comparison", text: "Track what changed, why, and what it affects across update cycles." },
-            { num: "05", title: "Release packaging", text: "Assemble review notes, bulletin drafts, and handoff materials for issuance." },
-            { num: "06", title: "Post-event replay", text: "Preserve the process record for training, evaluation, and institutional learning." }
+            { title: "Scenario preparation", text: "Bring together rainfall, basin state, historical analogs, and operational constraints." },
+            { title: "Expert judgment capture", text: "Record forecasters' prior judgment, watchpoints, and correction logic as reusable material." },
+            { title: "Model review", text: "Review model outputs and keep the drivers of mismatch, correction hypotheses, and evidence chain." },
+            { title: "Rolling forecast and version comparison", text: "Track what changed, why, and what it affects across update cycles." },
+            { title: "Release packaging", text: "Assemble review notes, bulletin drafts, and handoff materials for issuance." },
+            { title: "Post-event replay", text: "Preserve the process record for training, evaluation, and institutional learning." }
           ]
         };
 
@@ -71,12 +86,8 @@ function BrandManifesto({ lang }) {
       </h2>
 
       <div className="manifesto-row">
-        {copy.steps.map((step, i) => (
-          <article className={`manifesto-block ${i % 2 === 0 ? "dark" : "light"}`} key={step.num}>
-            <span className="manifesto-block-num">{step.num}</span>
-            <h3>{step.title}</h3>
-            <p>{step.text}</p>
-          </article>
+        {copy.steps.map((step) => (
+          <FlipCard key={step.title} title={step.title} text={step.text} />
         ))}
       </div>
     </section>
