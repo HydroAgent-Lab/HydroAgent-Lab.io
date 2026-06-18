@@ -10,8 +10,11 @@ export const careersContent = {
     },
     missionSection: {
       title: "We are not hiring for headcount. We are looking for builders who can carry real work.",
-      text:
-        "This is currently community-driven and volunteer-led. The right fit is someone who wants to build useful systems, produce credible evidence, and learn through serious collaboration. Code and technical work are organized on GitHub; day-to-day discussion happens in WeChat groups — both free to join, with translation that helps people work across languages."
+      text: [
+        "This is currently community-driven and volunteer-led. The right fit is someone who wants to build useful systems, produce credible evidence, and learn through serious collaboration.",
+        "Code and technical work are organized on GitHub; day-to-day discussion happens in WeChat groups — both free to join, with translation that helps people work across languages.",
+        "We promise that every contribution will be seen and respected."
+      ]
     },
     valuesSection: {
       title: "People who tend to thrive here.",
@@ -28,7 +31,7 @@ export const careersContent = {
     },
     tracksSection: {
       eyebrow: "Open Collaboration Tracks",
-      title: "Several kinds of contributors can make the lab stronger.",
+      title: "What you can contribute",
       items: [
         {
           title: "Hydrology and forecasting practice",
@@ -88,8 +91,11 @@ export const careersContent = {
     },
     missionSection: {
       title: "我们不是为了扩充人数而招人，而是在寻找能承担真实工作的建设者 ",
-      text:
-        "当前项目仍是社区驱动、志愿协作、暂无经费支持。更适合加入的人，是希望做出有用系统、形成可信证据，并在严肃协作中持续学习的人。代码和技术工作主要通过 GitHub 组织；日常沟通主要在微信群进行。两者都可以免费参与，微信群的自动翻译也方便不同语言背景的人一起协作。"
+      text: [
+        "当前项目仍是社区驱动、志愿协作、暂无经费支持。更适合加入的人，是希望做出有用系统、形成可信证据，并在严肃协作中持续学习的人。",
+        "代码和技术工作主要通过 GitHub 组织；日常沟通主要在微信群进行。两者都可以免费参与，微信群的自动翻译也方便不同语言背景的人一起协作。",
+        "我们承诺，所有的贡献都会被看见与尊重。"
+      ]
     },
     valuesSection: {
       title: "适合这里的人通常有这些特质 ",
@@ -106,7 +112,7 @@ export const careersContent = {
     },
     tracksSection: {
       eyebrow: "开放协作方向",
-      title: "不同类型的贡献者都可以让这个团队更强 ",
+      title: "你可以参与的贡献",
       items: [
         {
           title: "水文与预报业务",

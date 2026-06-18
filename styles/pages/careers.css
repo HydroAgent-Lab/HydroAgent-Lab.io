@@ -45,18 +45,38 @@
 }
 
 .careers-statement-block h2 {
-  font-size: 1.75rem;
-  line-height: 1.25;
-  margin-bottom: 16px;
-  max-width: 900px;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  margin-bottom: 28px;
+  max-width: 760px;
 }
 
 .careers-statement-block p {
   font-size: 16px;
   color: var(--text-secondary);
-  line-height: 1.7;
+  line-height: 1.75;
   margin: 0;
-  max-width: 720px;
+  max-width: 760px;
+}
+
+.careers-statement-block p + p {
+  margin-top: 18px;
+}
+
+/* Lede — first line carries the hierarchy */
+.careers-statement-block p:first-of-type {
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--text);
+}
+
+/* Closing commitment — set apart with an accent rule */
+.careers-statement-block p:last-of-type {
+  margin-top: 28px;
+  padding-left: 16px;
+  border-left: 3px solid var(--accent);
+  color: var(--text);
+  font-weight: 500;
 }
 
 .careers-statement h2 {
@@ -142,6 +162,51 @@
   align-items: center;
 }
 
+.careers-contribution-row {
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.75fr);
+  gap: 56px;
+}
+
+.careers-contribution .careers-split-media {
+  aspect-ratio: 16 / 11;
+  min-height: 360px;
+  overflow: hidden;
+}
+
+.careers-contribution-video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.careers-contribution-copy {
+  max-width: 520px;
+  justify-self: start;
+}
+
+.careers-contribution-copy .eyebrow,
+.careers-process .eyebrow {
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.careers-contribution-copy h2,
+.careers-process h2 {
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.careers-contribution-copy h2 {
+  margin: 0 0 24px;
+}
+
+.careers-contribution-list {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
 .careers-split-reverse .careers-split-row {
   direction: rtl;
 }
@@ -179,6 +244,10 @@
 /* Each split column holds labeled track blocks: bold/larger heading + copy */
 .careers-split-block + .careers-split-block {
   margin-top: 28px;
+}
+
+.careers-contribution-list .careers-split-block + .careers-split-block {
+  margin-top: 0;
 }
 
 .careers-split-block h3 {
@@ -245,13 +314,6 @@
   gap: 48px;
 }
 
-.careers-process .eyebrow { margin-bottom: 12px; }
-
-.careers-process h2 {
-  font-size: 1.5rem;
-  line-height: 1.2;
-}
-
 .careers-process-list {
   display: flex;
   flex-direction: column;
@@ -267,6 +329,7 @@
   border-bottom: none;
 }
 
+.careers-contribution-list span,
 .careers-process-list span {
   font-size: 11px;
   font-weight: 600;
@@ -277,6 +340,7 @@
   margin-bottom: 4px;
 }
 
+.careers-contribution-list h3,
 .careers-process-list h3 {
   font-size: 15px;
   font-weight: 600;
@@ -320,6 +384,8 @@
 /* --- Responsive --- */
 @media (max-width: 900px) {
   .careers-split-row { grid-template-columns: 1fr; }
+  .careers-contribution-row { gap: 32px; }
+  .careers-contribution-copy { max-width: none; }
   .careers-split-reverse .careers-split-row { direction: ltr; }
   .careers-statement-grid { grid-template-columns: 1fr; }
   .careers-track-grid { grid-template-columns: 1fr; }

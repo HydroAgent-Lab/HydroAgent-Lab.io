@@ -23,7 +23,13 @@ export function CareersPageContent({ lang = "en" }) {
         <section className="careers-band careers-mission">
           <div className="careers-frame careers-statement-block">
             <h2>{page.missionSection.title}</h2>
-            <p>{page.missionSection.text}</p>
+            {Array.isArray(page.missionSection.text) ? (
+              page.missionSection.text.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))
+            ) : (
+              <p>{page.missionSection.text}</p>
+            )}
           </div>
         </section>
 
@@ -45,34 +51,31 @@ export function CareersPageContent({ lang = "en" }) {
           </div>
         </section>
 
-        <section className="careers-band careers-split">
-          <div className="careers-frame careers-split-row">
+        <section className="careers-band careers-split careers-contribution">
+          <div className="careers-frame careers-split-row careers-contribution-row">
             <div className="careers-split-media" aria-hidden="true">
-              <span />
+              <video
+                className="careers-contribution-video"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                src="/assets/assets/sky.mp4"
+              />
             </div>
-            <div className="careers-split-copy">
-              {[page.tracksSection.items[0], page.tracksSection.items[2]].map((item) => (
-                <div className="careers-split-block" key={item.title}>
-                  <h3>{item.title}</h3>
-                  <p>{item.text}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="careers-band careers-split careers-split-reverse">
-          <div className="careers-frame careers-split-row">
-            <div className="careers-split-media careers-split-media-alt" aria-hidden="true">
-              <span />
-            </div>
-            <div className="careers-split-copy">
-              {[page.tracksSection.items[1], page.tracksSection.items[3]].map((item) => (
-                <div className="careers-split-block" key={item.title}>
-                  <h3>{item.title}</h3>
-                  <p>{item.text}</p>
-                </div>
-              ))}
+            <div className="careers-split-copy careers-contribution-copy">
+              <p className="eyebrow">{page.tracksSection.eyebrow}</p>
+              <h2>{page.tracksSection.title}</h2>
+              <div className="careers-contribution-list">
+                {page.tracksSection.items.map((item, index) => (
+                  <div className="careers-split-block" key={item.title}>
+                    <span>{(index + 1).toString().padStart(2, "0")}</span>
+                    <h3>{item.title}</h3>
+                    <p>{item.text}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
