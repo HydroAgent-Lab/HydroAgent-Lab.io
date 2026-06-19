@@ -101,7 +101,7 @@ export const navContent = {
         label: "产品",
         children: [
           { id: "B1", path: "/platform", label: "洪水预报智能体" },
-          { id: "B2", path: "/capabilities", label: "能力" }
+          { id: "B2", path: "/capabilities", label: "服务" }
         ]
       },
       {
@@ -136,7 +136,7 @@ export const navContent = {
         title: "产品",
         items: [
           { path: "/platform", label: "洪水预报智能体" },
-          { path: "/capabilities", label: "能力" }
+          { path: "/capabilities", label: "服务" }
         ]
       },
       {
@@ -172,7 +172,7 @@ export const navContent = {
         "HydroAgent-Lab 服务于需要业务可信度、可部署能力与领域协作支持的机构、团队与研究伙伴。",
       primary: "联系团队",
       primaryPath: "/contact",
-      secondary: "了解能力",
+      secondary: "了解服务",
       secondaryPath: "/capabilities"
     }
   }

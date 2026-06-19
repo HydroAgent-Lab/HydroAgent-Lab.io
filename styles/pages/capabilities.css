@@ -19,6 +19,32 @@
   max-width: 72ch;
 }
 
+.capabilities-page .three-up-grid {
+  gap: 40px;
+  max-width: 1040px;
+}
+
+.capabilities-page .info-card .card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--accent);
+  text-decoration: none;
+  transition: gap var(--transition);
+}
+
+.capabilities-page .info-card .card-cta:hover {
+  gap: 10px;
+}
+
+.capabilities-page .tasks-intro {
+  margin-top: -16px;
+  margin-bottom: 28px;
+}
+
 .capability-directory {
   padding: 0 var(--gutter) 64px;
 }

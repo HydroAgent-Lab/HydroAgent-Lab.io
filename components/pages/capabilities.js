@@ -2,7 +2,7 @@ import { CtaBand } from "@/components/cta-band";
 import { PageLead } from "@/components/page-lead";
 import { SectionHeader } from "@/components/section-header";
 import { SiteShell } from "@/components/shell";
-import { getSiteContent } from "@/content/site";
+import { getSiteContent, localizeHref } from "@/content/site";
 
 export function CapabilitiesPageContent({ lang = "en" }) {
   const content = getSiteContent(lang);
@@ -29,6 +29,11 @@ export function CapabilitiesPageContent({ lang = "en" }) {
                 <span className="offering-type">{`0${index + 1}`}</span>
                 <h3>{item.title}</h3>
                 <p>{item.text}</p>
+                {item.cta ? (
+                  <a className="card-cta" href={localizeHref(lang, item.cta.path)}>
+                    {item.cta.label} <span className="action-arrow">→</span>
+                  </a>
+                ) : null}
               </article>
             ))}
           </div>
@@ -38,16 +43,23 @@ export function CapabilitiesPageContent({ lang = "en" }) {
           <SectionHeader
             eyebrow={page.tasksSection.eyebrow}
             title={page.tasksSection.title}
-            text={page.tasksSection.text}
           />
-          <ol className="editorial-list">
+          <p className="section-text tasks-intro">
+            {page.tasksSection.text.before}
+            <a href={localizeHref(lang, page.tasksSection.text.path)}>
+              {page.tasksSection.text.link}
+            </a>
+            {page.tasksSection.text.after}
+          </p>
+          <div className="three-up-grid">
             {page.tasksSection.items.map((item, i) => (
-              <li className="editorial-row" key={item.slice(0, 24)}>
-                <span className="editorial-index">{`0${i + 1}`}</span>
-                <p>{item}</p>
-              </li>
+              <article className="info-card" key={item.title}>
+                <span className="offering-type">{`0${i + 1}`}</span>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </article>
             ))}
-          </ol>
+          </div>
         </section>
 
         <CtaBand lang={lang} content={content} />
