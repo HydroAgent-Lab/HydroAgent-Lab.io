@@ -12,7 +12,16 @@ export function PlatformPageContent({ lang = "en" }) {
     <SiteShell lang={lang}>
       <main className="main-content platform-page">
         <section className="platform-hero">
-          <div className="platform-hero-backdrop" aria-hidden="true" />
+          <video
+            className="platform-hero-video"
+            src="/assets/assets/洪水场景.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
+          />
           <div className="platform-hero-scrim" aria-hidden="true" />
           <PageLead
             eyebrow={page.lead.eyebrow}
@@ -32,6 +41,24 @@ export function PlatformPageContent({ lang = "en" }) {
               </p>
             ))}
           </section>
+        </section>
+
+        <section className="content-section">
+          <SectionHeader
+            eyebrow={page.workflowSection.eyebrow}
+            title={page.workflowSection.title}
+          />
+          <ol className="timeline">
+            {page.workflowSection.items.map((item, i) => (
+              <li
+                key={item.slice(0, 24)}
+                className={`timeline-item ${i % 2 === 0 ? "tl-left" : "tl-right"}`}
+              >
+                <span className="timeline-dot" aria-hidden="true" />
+                <p>{item}</p>
+              </li>
+            ))}
+          </ol>
         </section>
 
         <section className="content-section">

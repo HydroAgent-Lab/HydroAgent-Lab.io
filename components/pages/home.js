@@ -19,21 +19,11 @@ export function HomePageContent({ lang = "en" }) {
               eyebrow={page.whatSection.eyebrow}
               title={page.whatSection.title}
             />
-            <div className="what-layout">
-              <ol className="what-steps">
-                {page.whatSection.items.map((item, i) => (
-                  <li key={item.slice(0, 24)} className="what-step">
-                    <span className="what-step-num">{i + 1}</span>
-                    <p>{item}</p>
-                  </li>
-                ))}
-              </ol>
-              <div className="what-diagram">
-                <img
-                  src="/assets/hydroagent_architecture_final.svg"
-                  alt={lang === "zh" ? "HydroAgent 架构图" : "HydroAgent architecture diagram"}
-                />
-              </div>
+            <div className="what-diagram">
+              <img
+                src="/assets/hydroagent_architecture_final.svg"
+                alt={lang === "zh" ? "HydroAgent 架构图" : "HydroAgent architecture diagram"}
+              />
             </div>
           </div>
         </section>

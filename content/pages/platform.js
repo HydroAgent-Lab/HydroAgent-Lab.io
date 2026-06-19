@@ -19,6 +19,17 @@ export const platformContent = {
         "It works alongside your existing hydrological models and forecasters to make the whole forecasting effort more organized, easier to review, and easier to reproduce. Expert review stays built in, so the people responsible confirm the key results and keep full control of what gets released."
       ]
     },
+    workflowSection: {
+      eyebrow: "What HydroAgent Does",
+      title: "A workflow layer that keeps people in charge.",
+      items: [
+        "Brings scattered forecasting information into one organized, reviewable view.",
+        "Keeps expert judgment visible and reusable, instead of locked in individual experience.",
+        "Helps teams revise, compare, and explain forecasts as conditions change.",
+        "Prepares clear, review-ready materials for the final decision and release.",
+        "Preserves a traceable record for review, training, and institutional learning."
+      ]
+    },
     signalsSection: {
       eyebrow: "Current Validation Signals",
       title: "Specific enough to discuss, early enough to test with partners.",
@@ -76,6 +87,17 @@ export const platformContent = {
       paragraphs: [
         "HydroAgent-FF 要解决的不是“让 LLM 替代水文模型”，也不是“自动替代预报员”。它把真实洪水预报工作组织成一个结构化、可复核、可复现的过程，并让预报员始终掌握关键决策。",
         "它与你现有的水文模型和预报员协同，让整个预报工作更有条理、更易复核、更易复现。人工复核始终内置其中，关键结果由负责人确认，发布什么始终由人掌控。"
+      ]
+    },
+    workflowSection: {
+      eyebrow: "HydroAgent 做什么",
+      title: "一层让人始终掌控的工作流 ",
+      items: [
+        "把分散的预报信息组织成一个有条理、可复核的整体视图 ",
+        "让专家判断可见、可复用，而不是锁在个人经验里 ",
+        "随着情况变化，帮助团队修正、对比并解释预报 ",
+        "为最终决策和发布准备清晰、可复核的材料 ",
+        "保留可追溯的记录，用于复核、培训和机构沉淀 "
       ]
     },
     signalsSection: {

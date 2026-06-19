@@ -13,15 +13,8 @@ export const homeContent = {
       videoTag: "HydroAgent-FF workflow demo"
     },
     whatSection: {
-      eyebrow: "What HydroAgent Does",
-      title: "A workflow layer that keeps people in charge.",
-      items: [
-        "Brings scattered forecasting information into one organized, reviewable view.",
-        "Keeps expert judgment visible and reusable, instead of locked in individual experience.",
-        "Helps teams revise, compare, and explain forecasts as conditions change.",
-        "Prepares clear, review-ready materials for the final decision and release.",
-        "Preserves a traceable record for review, training, and institutional learning."
-      ]
+      eyebrow: "",
+      title: "Architecture"
     },
     flagshipSection: {
       eyebrow: "Flagship Product",
@@ -74,15 +67,8 @@ export const homeContent = {
       videoTag: "洪水预报工作流演示"
     },
     whatSection: {
-      eyebrow: "HydroAgent 做什么",
-      title: "一层让人始终掌控的工作流 ",
-      items: [
-        "把分散的预报信息组织成一个有条理、可复核的整体视图 ",
-        "让专家判断可见、可复用，而不是锁在个人经验里 ",
-        "随着情况变化，帮助团队修正、对比并解释预报 ",
-        "为最终决策和发布准备清晰、可复核的材料 ",
-        "保留可追溯的记录，用于复核、培训和机构沉淀 "
-      ]
+      eyebrow: "",
+      title: "架构"
     },
     flagshipSection: {
       eyebrow: "旗舰产品",
