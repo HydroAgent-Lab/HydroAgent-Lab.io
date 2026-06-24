@@ -12,7 +12,7 @@
 }
 
 .team-page > .content-section:nth-child(even of .content-section) {
-  background: #F9FAFB;
+  background: #fff;
 }
 
 .team-about-frame {
@@ -352,6 +352,8 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
+  max-width: 720px;
+  margin: 0 auto;
 }
 
 /* Cards in the 2×2 grid stretch to equal height for a clean row baseline */
