@@ -35,27 +35,33 @@
   line-height: 1.5;
 }
 
-/* --- B. Cadence list --- */
+/* --- B. Cadence — 3-column grid --- */
 .wp-cadence-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 840px;
+  margin: 0 auto;
 }
 
 .wp-cadence-item {
-  padding: 16px 0;
-  border-top: 1px solid var(--border);
+  padding: 24px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition), box-shadow var(--transition);
 }
 
-.wp-cadence-item:last-child {
-  border-bottom: 1px solid var(--border);
+.wp-cadence-item:hover {
+  border-color: var(--accent-light);
+  box-shadow: 0 2px 12px rgba(59, 130, 246, 0.08);
 }
 
 .wp-cadence-item h3 {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   line-height: 1.3;
-  margin: 0 0 4px;
+  margin: 0 0 8px;
 }
 
 .wp-cadence-item p {
@@ -63,6 +69,12 @@
   color: var(--text-muted);
   line-height: 1.6;
   margin: 0;
+}
+
+@media (max-width: 900px) {
+  .wp-cadence-list {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* --- C. Archive section — matches Research papers section --- */
