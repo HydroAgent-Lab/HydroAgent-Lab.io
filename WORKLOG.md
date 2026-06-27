@@ -241,6 +241,13 @@ Hero 图片源 `webui_light.jpg` → `webui_black.jpg`。注意：左侧白色 s
 **Files modified:**
 - `styles/hero.css` — 移动端 Hero 改回叠加式布局 + 两图 transform 微调
 
+### 首页 Hero 手机端文字上移 + 图片下移到按钮下方（同日修订）
+
+`.hero-copy` 改 `justify-content: flex-start` + `padding-top: header+24px`（文字/按钮置顶）；主图 `translateY 5%→25%`、提问栏 `translateY -25%→-5%`（图片下移到按钮下方）。
+
+**Files modified:**
+- `styles/hero.css` — 移动端 hero-copy 顶部对齐；两图 translateY 下移
+
 ## 2026-06-24
 
 ### Events 页面排版重构

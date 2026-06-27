@@ -314,8 +314,10 @@
   /* Overlay layout: image as full-bleed background, buttons bottom-left,
      the four function cards weighted to the right, and the left→right
      gradient blur (inherited from base: scrim + .brand-hero::after). */
+  /* Text moved up (top-aligned, clearing the header) */
   .hero-copy {
-    padding: 0 16px 40px;
+    justify-content: flex-start;
+    padding: calc(var(--header-height) + 24px) 16px 24px;
     max-width: 100%;
   }
 
@@ -323,15 +325,14 @@
     font-size: 1.75rem;
   }
 
-  /* Scale up a touch; shift so the cards sit to the right of the buttons
-     and the bottom of the UI meets the buttons. */
+  /* Image moved down so the UI/cards sit below the two buttons */
   .hero-video-bg {
-    transform: scale(1.15) translateX(12%) translateY(5%);
+    transform: scale(1.15) translateX(12%) translateY(25%);
     transform-origin: 30% center;
   }
 
   .hero-bottom-bar {
-    transform: scale(1.15) translateX(12%) translateY(-25%);
+    transform: scale(1.15) translateX(12%) translateY(-5%);
   }
 
   .hero-video-tag {
