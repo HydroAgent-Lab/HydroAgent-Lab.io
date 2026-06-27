@@ -227,6 +227,20 @@ Hero 图片源 `webui_light.jpg` → `webui_black.jpg`。注意：左侧白色 s
 **Files modified:**
 - `styles/hero.css` — 移动端 hero-copy 内边距调整 + 两图 translateX 左移
 
+### 首页 Hero 手机端改为"文字在上、图在下"堆叠（同日修订）
+
+为消除"导航 symbol + Hero 标题 + 截图内品牌头"三重重复，手机端改为堆叠布局：`.hero-copy` `order:-1` 置顶（正常流、padding-top 留出 header 高度）；`.hero-video-bg` 与 `.hero-bottom-bar` 改为 `position:relative` 顺排块（natural aspect，两图相接拼回完整 UI 截图）；隐藏 scrim/`::after`/video-tag。桌面端不变。
+
+**Files modified:**
+- `styles/hero.css` — 移动端 Hero 改为文字在上、两图在下的堆叠布局
+
+### 首页 Hero 手机端改回叠加式 + 梯度模糊（同日修订）
+
+按需求手机端从堆叠改回叠加：图片满屏背景、按钮在左下、四卡片在右侧、左→右梯度模糊（scrim 与 .brand-hero::after 继承 base 自动生效）。两图 transform 稍放大并右移/下移：`.hero-video-bg` `scale(1.15) translateX(12%) translateY(5%)`、`.hero-bottom-bar` `scale(1.15) translateX(12%) translateY(-25%)`。
+
+**Files modified:**
+- `styles/hero.css` — 移动端 Hero 改回叠加式布局 + 两图 transform 微调
+
 ## 2026-06-24
 
 ### Events 页面排版重构
