@@ -11,24 +11,34 @@
   flex-direction: column;
   background: #ffffff;
   margin-top: calc(-1 * var(--header-height));
+  /* Shared horizontal scale/translateX for the two hero images. Both images
+     are 1907px-wide crops of the same screenshot and BOTH render width-based
+     (width:100% height:auto), so identical scale + translateX = perfect
+     left-right alignment at any viewport. Change here once → both update. */
+  --hero-img-scale: 0.75;
+  --hero-img-tx: 16%;
+  --hero-img-top: 160px; /* push the main image down to clear the fixed nav */
 }
 
 .brand-hero {
-  min-height: calc(100vh - var(--header-height));
+  /* .hero is pulled up by margin-top:-header to sit under the fixed nav.
+     min-height:100vh keeps the hero a full viewport tall (its bottom lands one
+     header height above the viewport bottom, leaving the copy lower-left). */
+  min-height: 100vh;
 }
 
-/* Video background — object-position pushes content rightward */
+/* Main background image — width-based (NOT object-fit:cover) so it maps its
+   1907px width to 100vw, exactly like the bottom strip. Same width model +
+   same scale/translateX → the two images stay horizontally aligned. The image
+   fills the width and keeps its natural height; vertical position via top var. */
 .hero-video-bg {
   position: absolute;
-  inset: 0;
+  top: var(--hero-img-top, 0);
+  left: 0;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  /* Weight the image content to the right ~2/3 (text sits on the left),
-     matching the original background-video setup. translateY nudges the
-     image down so its top toolbar clears the fixed nav bar. */
-  transform: scale(0.35) translateX(10%);
-  transform-origin: 30% center;
+  height: auto;
+  transform: scale(var(--hero-img-scale)) translateX(var(--hero-img-tx));
+  transform-origin: 30% top;
   z-index: 0;
 }
 
@@ -45,7 +55,10 @@
   height: auto;
   z-index: 1;
   pointer-events: none;
-  transform: scale(0.95) translateX(12.2%) translateY(-25%);
+  /* Same width model/scale as .hero-video-bg; translateX is the shared value
+     +5% so the strip sits slightly right of the main image. translateY pins it
+     near the hero bottom. */
+  transform: scale(var(--hero-img-scale)) translateX(calc(var(--hero-img-tx) + 1%)) translateY(-125%);
   transform-origin: 30% bottom;
 }
 
@@ -93,11 +106,15 @@
   );
 }
 
-/* Text overlay — bottom-left, above scrim */
+/* Text overlay — pinned bottom-left, above scrim. Absolute (not flex:1) so it
+   stays at the hero bottom regardless of whether an in-flow child gives the
+   hero extra height (the main image is now absolute/auto-height, so flex:1 no
+   longer has spare space to push the copy down). */
 .hero-copy {
-  position: relative;
+  position: absolute;
+  left: 0;
+  bottom: 0;
   z-index: 2;
-  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -105,7 +122,9 @@
      content area = max-width - gutter - 28px collapses on wide screens
      (gutter can reach ~360px), forcing 2–3 chars per line. */
   max-width: calc(var(--gutter) + 460px);
-  padding: 0 28px 80px var(--gutter);
+  /* bottom padding lifts the copy up off the very bottom → "lower-left",
+     not pinned to the corner. Increase to raise the text further. */
+  padding: 0 28px 18vh var(--gutter);
 }
 
 .hero-copy .eyebrow {
@@ -316,27 +335,26 @@
 
 /* --- Responsive --- */
 @media (max-width: 900px) {
-  /* Overlay (initial layout): full-bleed background image + bottom-left text
-     + inherited left→right gradient blur (scrim + .brand-hero::after).
-     The image is enlarged via scale. */
-  .hero-bottom-bar,
+  /* Mobile mirrors the desktop two-image layout (main cards image + bottom
+     input-bar strip), both width-based and sharing --hero-img-scale, just
+     scaled down. Overriding the shared scale shrinks BOTH images together and
+     keeps them aligned. Only the caption tag is hidden. */
+  .hero {
+    --hero-img-scale: 0.65;  /* mobile size (was 0.5, +30%); both images share it */
+    --hero-img-top: 96px;    /* main image top offset on mobile */
+    min-height: 100dvh;      /* dvh tracks the phone's visible area (≈ one screen) */
+  }
+
+  .brand-hero {
+    min-height: 100dvh;
+  }
+
   .hero-video-tag {
     display: none;
   }
 
-  /* Enlarge the full-bleed background image */
-  .hero-video-bg {
-    transform: scale(1.5) translateX(8%);
-    transform-origin: 30% center;
-  }
-
-  /* Text back at the bottom-left (initial position) */
-  .hero-copy {
-    justify-content: flex-end;
-    padding: 0 20px 56px;
-    max-width: 100%;
-  }
-
+  /* Text position consistent with desktop: bottom-left, same padding model.
+     Only the heading size is reduced for small screens. */
   .hero-copy h1 {
     font-size: 1.75rem;
   }

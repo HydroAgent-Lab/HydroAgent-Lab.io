@@ -1,6 +1,69 @@
 # Work Log
 
+## 2026-06-28
+
+### 首页 Hero 手机端改双图等比模型并缩小
+
+手机端原为单张 cover 满屏图（隐藏底栏）。改为与电脑端一致的双图 width 等比模型：取消底栏 `display:none`、删除主图 cover 覆盖（继承电脑端 width 等比），在 `.hero` 上覆盖共享 `--hero-img-scale: 0.5`（电脑端 0.75）使两图同步缩小且对齐；`--hero-img-top: 96px` 手机端主图下移量。底栏竖向/横向暂沿用电脑端值，待手机端实测再调。
+
+**Files modified:**
+- `styles/hero.css` — `@media (max-width:900px)`：双图等比、`--hero-img-scale:0.5`、`--hero-img-top:96px`，显示底栏
+
+### 首页 Hero 手机端高度与电脑端一致
+
+确认手机端无单独高度规则，本就继承电脑端 `.brand-hero { min-height:100vh }`。但手机浏览器 `100vh` 按「地址栏隐藏」的最大视口算，会比可见屏幕高，hero 显得更长。手机端媒体查询显式设 `.hero, .brand-hero { min-height: 100dvh }`，按手机实际可见高度算，使其与电脑端一样恰好一屏。电脑端 `100vh` 不变。
+
+**Files modified:**
+- `styles/hero.css` — `@media (max-width:900px)` 新增 `.hero, .brand-hero { min-height: 100dvh }`
+
+### 首页 Hero 容器铺满整屏（文字真正落到屏幕左下）
+
+文字已 `absolute bottom:0` 钉 hero 底部，但 hero 因 `margin-top:-header` + `min-height:calc(100vh - header)`，可见底边落在 `100vh - 2×header`，比屏幕底短两个导航高度，文字看似浮在中部。`.brand-hero` min-height 由 `100vh - header` 改为 `100vh + header`，hero 铺满整屏，文字落到屏幕左下角。
+
+**Files modified:**
+- `styles/hero.css` — `.brand-hero` min-height `calc(100vh - header)` → `calc(100vh + header)`
+
+### 首页 Hero 文字恢复左下（绝对定位）
+
+主图改 `height:auto` 后 hero 无在流内容撑高，`.hero-copy` 的 `flex:1 + justify-content:flex-end` 失去多余空间，文字停在内容自身位置（看似居中）。改为 `position:absolute; left:0; bottom:0` 钉死左下，不再依赖 flex 撑高。
+
+**Files modified:**
+- `styles/hero.css` — `.hero-copy` 由 `relative/flex:1` 改 `absolute/left:0/bottom:0`
+
+### 首页 Hero 两图统一 width 模型 → 精确左右对齐
+
+根因：主图 `object-fit: cover` 按视口高度放大、横向倍数随窗口高宽比变化，与底栏的 `width:100%` 等比模型不一致，故对不齐且换屏幕会偏。两图均为同一截图的 1907px 宽裁切，只要都按宽度等比即可对齐。
+
+- 主图 `.hero-video-bg`：`object-fit:cover` + `height:100%` → 改为 `width:100% / height:auto`（横向铺满整宽、纵向自然），`top: var(--hero-img-top)` 控竖向，origin 改 `30% top`。
+- 底栏 `.hero-bottom-bar`：移除之前的 `+10%/+20%` 偏移，`translateX` 回到与主图共享的 `var(--hero-img-tx)` → 两图同宽同移，任意视口精确对齐。
+- `.hero` 新增 `--hero-img-top` 变量。
+- 手机端 `@media (max-width:900px)`：补回 `inset:0 / height:100% / object-fit:cover`，保持满屏。
+
+**Files modified:**
+- `styles/hero.css` — 主图改 width 等比模型、底栏移除横向偏移、新增 `--hero-img-top`、手机端补回 cover
+
 ## 2026-06-27
+
+### 首页 Hero 底栏单独右移 20%（同日修订）
+
+主图保持 `object-fit: cover` 铺满不变；底栏 `.hero-bottom-bar` 因与主图 fit 模型不同，需额外横向偏移对齐卡片。`translateX` 由 `var(--hero-img-tx)` 改为 `calc(var(--hero-img-tx) + 20%)`（即主图横移 +20% 向右），scale 仍与主图共享。
+
+**Files modified:**
+- `styles/hero.css` — `.hero-bottom-bar` translateX 增加 `+20%` 偏移
+
+### 首页 Hero 电脑端两图左右对齐 + 缩放统一（同日修订）
+
+电脑端主图 `.hero-video-bg` 与底部输入栏 `.hero-bottom-bar` 的横向缩放/横移参数不一致（0.75/10% vs 0.95/12.2%）导致两图未对齐。改用共享 CSS 变量 `--hero-img-scale` / `--hero-img-tx`（定义在 `.hero` 上），两图同引用，横向缩放与位置完全一致、左右对齐；底栏仅保留 `translateY(-25%)` 控制竖向。以后只改 `.hero` 上两个变量即可同步两图。
+
+**Files modified:**
+- `styles/hero.css` — `.hero` 新增 `--hero-img-scale: 0.75` / `--hero-img-tx: 10%`；`.hero-video-bg` 与 `.hero-bottom-bar` 横向 transform 改引用变量
+
+### 首页 Hero 手机端背景缩放回调（同日修订）
+
+手机端 `scale(1.5)` 放得太大，图内容向上溢出顶到固定导航栏。改为 `scale(1.05) translateX(8%)`，仅略放大、留在 hero 区域内不顶导航。同时移除手机端 `.hero-copy` 的 padding/max-width 覆盖，文字定位完全沿用电脑端（bottom-left，同一 padding 模型），只保留标题字号 1.75rem 的小屏缩小。
+
+**Files modified:**
+- `styles/hero.css` — `@media (max-width: 900px)`：`.hero-video-bg` scale 1.5 → 1.05；移除 `.hero-copy` 覆盖，文字与桌面一致
 
 ### 首页 WHO IT SERVES 卡片加高
 
