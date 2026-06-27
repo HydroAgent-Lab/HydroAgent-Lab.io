@@ -27,7 +27,7 @@
   /* Weight the image content to the right ~2/3 (text sits on the left),
      matching the original background-video setup. translateY nudges the
      image down so its top toolbar clears the fixed nav bar. */
-  transform: scale(0.55) translateX(10%);
+  transform: scale(0.35) translateX(10%);
   transform-origin: 30% center;
   z-index: 0;
 }
