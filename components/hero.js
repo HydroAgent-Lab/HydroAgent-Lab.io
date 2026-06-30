@@ -13,14 +13,19 @@ export function Hero({ lang = "en", content }) {
           different hero edge) keeps their relative position constant on any
           screen: image upper-right, text lower-left, fixed gap. */}
       <div className="hero-stage">
-        {/* Product UI framed as a monitor, without a stand or base. */}
-        <div className="hero-monitor">
-          <img
-            className="hero-video-bg"
-            src="/assets/Webui.png"
-            alt=""
-            aria-hidden="true"
-          />
+        {/* Notched-rectangle screenshot sitting on two notched colour-glow
+            layers (yellow upper-left, blue lower-right). */}
+        <div className="hero-monitor-wrap">
+          <span className="hero-glow hero-glow-1" aria-hidden="true" />
+          <span className="hero-glow hero-glow-2" aria-hidden="true" />
+          <div className="hero-monitor">
+            <img
+              className="hero-video-bg"
+              src="/assets/Webui.png"
+              alt=""
+              aria-hidden="true"
+            />
+          </div>
         </div>
 
         {/* Text overlay — part of the same group as the image */}

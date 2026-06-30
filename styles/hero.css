@@ -19,7 +19,7 @@
      type scales with the viewport too. Every knob below is a % of the stage. */
   --hero-aspect: 2.35;         /* stage width ÷ height — wider/shorter so the canvas fits one screen on wide monitors */
   --hero-canvas-maxw: 1600px;  /* stop the canvas growing on ultra-wide screens */
-  --hero-img-top: 16%;         /* image top    (% of stage HEIGHT) — moved down 10% */
+  --hero-img-top: 1%;          /* image top    (% of stage HEIGHT) — raised 15% */
   --hero-img-cx: 66%;          /* image center (% of stage WIDTH)  */
   --hero-img-width: 50%;       /* image width  (% of stage WIDTH)  */
   --hero-copy-left: 8%;        /* text left    (% of stage WIDTH)  */
@@ -43,31 +43,136 @@
   aspect-ratio: var(--hero-aspect, 1.9);
 }
 
-/* Monitor shell — positioned with the same stage coordinates as the original
-   product image. The slightly deeper lower bezel reads as a display without
-   adding a stand or base. */
-.hero-monitor {
+/* Wrapper carries the stage-percentage position and the shared corner-cut size,
+   and hosts the colour-glow layers that sit BEHIND the screenshot. */
+.hero-monitor-wrap {
   position: absolute;
   top: var(--hero-img-top, 6%);
   left: var(--hero-img-cx, 66%);
   width: var(--hero-img-width, 50%);
   transform: translateX(-50%);
   z-index: 0;
+  /* corner-cut size, shared by the glow, the screenshot clip and the wash */
+  --cut: clamp(16px, 2vw, 32px);
+}
+
+/* Two soft colour-glow layers behind the screenshot — yellow upper-left, blue
+   lower-right. No clip-path: the radial gradients fade to transparent and a
+   larger blur feathers every edge (clipping would re-harden the blurred edge).
+   They still fill the screenshot's cut corners with colour. */
+.hero-glow {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-glow-1 {
+  inset: -6px;
+  filter: blur(16px);
+  opacity: 0.85;
+  background:
+    radial-gradient(55% 85% at top right, #cfe7f7 0%, rgba(207, 231, 247, 0) 100%),
+    radial-gradient(55% 85% at bottom left, #cfe7f7 0%, rgba(207, 231, 247, 0) 100%);
+}
+
+.hero-glow-2 {
+  inset: -3px;
+  filter: blur(11px);
+  opacity: 0.8;
+  background:
+    radial-gradient(46% 70% at top right, #cfe7f7 0%, rgba(207, 231, 247, 0) 100%),
+    radial-gradient(46% 70% at bottom left, #cfe7f7 0%, rgba(207, 231, 247, 0) 100%);
+}
+
+/* Frameless container; the screenshot is a notched rectangle (top-left and
+   bottom-right corners chamfered). The drop shadow is a filter so it follows the
+   chamfered outline (box-shadow would not). */
+.hero-monitor {
+  position: relative;
+  width: 100%;
+  z-index: 1;
   box-sizing: border-box;
-  padding: clamp(1px, 0.12vw, 2px) clamp(1px, 0.12vw, 2px) clamp(2px, 0.2vw, 3px);
-  background: #18202c;
-  border: 1px solid #0b111b;
-  border-radius: clamp(9px, 0.8vw, 14px);
-  box-shadow:
-    0 18px 42px rgba(15, 23, 42, 0.16),
-    0 3px 9px rgba(15, 23, 42, 0.1);
+  filter: drop-shadow(0 8px 20px rgba(15, 23, 42, 0.12));
 }
 
 .hero-video-bg {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: clamp(5px, 0.45vw, 8px);
+  /* notched rectangle: top-left + bottom-right corners cut at 45° so the colour
+     glow behind shows through at those two corners */
+  clip-path: polygon(
+    var(--cut) 0,
+    100% 0,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0 100%,
+    0 var(--cut)
+  );
+}
+
+/* Soft colour wash laid OVER the screenshot — single blue hue (matching the cut
+   bands) at the two CUT corners (upper-left + lower-right), the gradient made
+   purely by an alpha change so the UI stays crisply visible. */
+.hero-monitor::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  clip-path: polygon(
+    var(--cut) 0,
+    100% 0,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0 100%,
+    0 var(--cut)
+  );
+  background: linear-gradient(
+    135deg,
+    rgba(122, 160, 255, 0.22) 0%,
+    rgba(122, 160, 255, 0) 45%,
+    rgba(122, 160, 255, 0) 55%,
+    rgba(122, 160, 255, 0.22) 100%
+  );
+}
+
+/* Two thin white light beams sweeping along the top and bottom edges in opposite
+   directions, to mimic flowing light. Clipped to the notched shape so each beam
+   only rides its real edge. */
+.hero-monitor::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  clip-path: polygon(
+    var(--cut) 0,
+    100% 0,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0 100%,
+    0 var(--cut)
+  );
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent) no-repeat,
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent) no-repeat;
+  background-size: 45% 2px, 45% 2px;
+  background-position: -45% 0, 145% 100%;
+  animation: hero-edge-beam 3.6s linear infinite;
+}
+
+@keyframes hero-edge-beam {
+  to {
+    /* top beam exits right, bottom beam exits left */
+    background-position: 145% 0, -45% 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-monitor::before {
+    animation: none;
+  }
 }
 
 /* Mobile-only cropped card banner — hidden on desktop */
@@ -353,7 +458,7 @@
   }
 
   /* Monitor: in document flow, centered, near full width */
-  .hero-monitor {
+  .hero-monitor-wrap {
     position: static;
     transform: none;
     width: 86%;

@@ -1,5 +1,227 @@
 # Work Log
 
+## 2026-06-30
+
+### Hero 去掉缺角包边
+
+删除 `.hero-monitor-wrap::before` 整条规则(缺角斜边包边)。缺角处保留 `::after` 蓝色柔罩；直角处保留羽化柔光。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — 删除 `.hero-monitor-wrap::before`
+
+### Hero 缺角色带改为只贴斜边的包边
+
+色带由「实心填充+截图遮挡」改为精确渐变带：去掉 clip-path/inset，`inset:0`，`--d:calc(var(--cut)*0.707)`(方角→斜边垂距)，`linear-gradient(135deg/315deg)` 仅在 `[--d-5px, --d+4px]` 上色，其余透明 → 只包 45° 斜边、不沿直边、不进内部。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — `.hero-monitor-wrap::before` 改为基于 `--cut` 垂距的斜边渐变包边
+
+### Hero 修复窄屏缺角色带露出实心三角
+
+窄屏时 `12%` 实心填充比 `--cut`(16px) 还小→整块实心三角露出。改为固定 `50px` 实心(始终>缺角)，多余部分被截图盖住，只留 inset 决定的窄带。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — `.hero-monitor-wrap::before` 实心填充 `12%`→`50px`
+
+### Hero 缺角色带宽度减小 40%
+
+`wrapper::before` inset `-7px → -4.2px`，缺角蓝色色带宽度减小约 40%。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — `.hero-monitor-wrap::before` inset -4.2px
+
+### Hero 缺角柔罩统一为同款蓝
+
+`::after` 柔罩由浅蓝 `#cfe7f7` 改为同缺角色带的蓝 `#7aa0ff`(rgba 122,160,255)，保持线性透明度渐变。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — `::after` 柔罩色 → `rgba(122,160,255,…)`
+
+### Hero 统一两组背景光颜色
+
+缺角(TL/BR)锐利色带统一蓝 `#7aa0ff`(左上由 `#cfe7f7` 改蓝)；直角(TR/BL)羽化柔光两层统一浅蓝 `#cfe7f7`(左下由 `#7aa0ff`/`#cfdeff` 改浅蓝)。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — `wrapper::before` 缺角色带统一 `#7aa0ff`；`.hero-glow-1/2` 羽化统一 `#cfe7f7`
+
+### Hero 缺角锐利角光改为缺角色带(clip-path 略大)
+
+`wrapper::before` 加缺角 clip-path 并 inset -7px(比截图略大)，使其斜边在截图斜边外侧，沿缺边露出等宽实心色带、方角尖端留空；linear 角渐变把色限制在两缺角。inset 控制色带宽度。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — `.hero-monitor-wrap::before` 加缺角 clip-path + inset -7 形成等宽缺角色带
+
+### Hero 缺角锐利角光改为沿斜边楔形包裹(非填满) — 已回退
+
+试了楔形(透明角→实色沿斜边)，用户不满意，回退到沿斜边实心硬边三角(`linear-gradient(135deg/315deg, 色 0→9% 硬截断→transparent)`)。
+
+**Files modified:**
+- `styles/hero.css` — `.hero-monitor-wrap::before` 回退为实心硬边三角
+
+### Hero 缺角锐利角光改为沿斜边硬边包裹(非填满)
+
+`wrapper::before` 由 radial 圆形渐隐改为与 45° 切角斜边平行的硬边三角(`linear-gradient(135deg/315deg, 色 0→9% 硬截断→transparent)`)，实心包裹整个缺角斜边。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — `.hero-monitor-wrap::before` 改硬边三角(平行 chamfer)
+
+### Hero 颜色规则反转：缺角=锐利角光+柔罩，直角=羽化柔光
+
+形状不变(缺角仍 TL/BR)，对调颜色处理：羽化柔光 `.hero-glow` 移到直角 TR/BL；锐利角光 `wrapper::before` 移到缺角 TL/BR；彩罩 `::after` 方向 `45deg→135deg`(色落缺角 TL/BR)。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — glow 羽化移 TR/BL；锐利角光移 TL/BR；`::after` 135deg
+
+### Hero 缺角对调回左上/右下(颜色随形状协调对调)
+
+用户笔误(右下角出现两次)，按缺角=左上+右下、不缺角=右上+左下处理。clip-path 三处 replace_all 改回切 TL/BR；羽化柔光 `.hero-glow` radial 移回 TL/BR；锐利角光 `wrapper::before` 移到 TR/BL；彩罩 `::after` 方向 `135deg→45deg`(色落 TR/BL)。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — clip-path 改回 TL/BR；glow 羽化移 TL/BR；锐利角光移 TR/BL；`::after` 45deg
+
+### Hero 左上/右下：锐利角光 + 同色透明度渐变彩罩
+
+TL/BR(直角处)拆两层：新增 `.hero-monitor-wrap::before` 锐利角光(无 blur，radial `26% 38%` 小半径，只包裹边角细边；左上 `#cfe7f7`、右下 `#7aa0ff`)；`::after` 彩罩改回同色(浅蓝 `#cfe7f7`)、纯透明度渐变(`.22→0→0→.22`)的柔罩(撤销硬边三角)。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — 新增 `.hero-monitor-wrap::before` TL/BR 锐利角光；`::after` 改回同色透明度渐变
+
+### Hero 缺角与背景色对调到另一对角
+
+缺角由 TL/BR 改为 TR/BL（`clip-path` 多边形改写，截图/彩罩/流光三处同步 replace_all）。羽化背景光 `.hero-glow` radial 移到 top-right/bottom-left（保留 blur，透过缺角显柔光）。`::after` 改为左上/右下两个**硬边**三角色块（`linear-gradient` hard-stop 15%，无模糊）：左上浅蓝 `rgba(207,231,247,.55)`、右下蓝 `rgba(122,160,255,.45)`。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — clip-path 缺角改 TR/BL；glow radial 移 TR/BL(羽化)；`::after` 改 TL/BR 硬边三角(不羽化)
+
+### Hero 彩罩左上改为同背景浅蓝
+
+`::after` 彩罩左上端由 `rgba(122,160,255)` 改为同背景的浅蓝 `rgba(207,231,247)`(=`#cfe7f7`)，右下端不变。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — `::after` 左上渐变色 → `rgba(207,231,247,…)`
+
+### Hero 左上黄改为 symbol 最浅蓝
+
+两层背景光左上由黄改为 symbol 里最浅的淡蓝 `#cfe7f7`(层1/层2 统一)，右下蓝不变。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — `.hero-glow-1/2` 左上 → `#cfe7f7`
+
+### Hero 羽化背景光边缘
+
+去掉 `.hero-glow` 的 `clip-path`(裁剪在 blur 之后会把边重新切硬)，改用更大 blur 羽化所有边：层1 blur 8→16，层2 6→11。彩光仍填满截图缺角，但边缘全软。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — `.hero-glow` 移除 clip-path；`.hero-glow-1/2` blur 加大羽化
+
+### Hero 背景光加回(黄/蓝)并做缺角
+
+把两层背景光加回(层1 `#f8d36f`/`#7aa0ff`、层2 `#fcefc4`/`#cfdeff`，左上黄右下蓝)，并给 `.hero-glow` 加与截图同款 `clip-path` 缺角，使切角缺口透出黄/蓝而非白底。`--cut` 提到 `.hero-monitor-wrap` 供 glow/截图/彩罩/流光共享。`hero.js` 加回两个 `.hero-glow` span。白色流光保留。
+
+**Files modified:**
+- `styles/hero.css` — 加回 `.hero-glow-1/2` 并加缺角 clip-path；`--cut` 移至 `.hero-monitor-wrap`
+- `components/hero.js` — 加回两个 `.hero-glow` span
+
+### Hero 上下边加白色流光动画
+
+新增 `.hero-monitor::before`（z:3，裁同款缺角）放两条白色光带：上边 `background-position -45%→145%`(左→右)、下边 `145%→-45%`(右→左)，`background-size 45% 2px`，`animation hero-edge-beam 3.6s linear infinite`，模仿光线沿上/下边流动。加 `prefers-reduced-motion` 关闭动画。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — 新增 `.hero-monitor::before` 上下边白色流光 + `@keyframes hero-edge-beam` + reduced-motion 守卫
+
+### Hero 彩罩左上角也加同款蓝
+
+`::after` 改为左上+右下双端淡蓝(同 alpha 0.22)、中间(45%~55%)透明的对称 `linear-gradient(135deg, …)`。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — `::after` 渐变改左上/右下对称双蓝
+
+### Hero 去掉全部背景光，仅留图上一点蓝彩罩
+
+彻底移除两层背景光：删 `.hero-glow/.hero-glow-1/.hero-glow-2` CSS 及 `hero.js` 两个 `<span>`（wrapper 保留承载定位）。图上彩罩 `::after` 去掉黄色端，只留右下淡蓝 `linear-gradient(135deg, 透明 55% → rgba(122,160,255,.22) 100%)`。
+
+**Files modified:**
+- `styles/hero.css` — 删除 `.hero-glow*` 规则；`::after` 仅保留右下淡蓝
+- `components/hero.js` — 移除两个 `.hero-glow` span
+
+### Hero 去掉左上角背景光
+
+两层背景光去掉左上黄色 radial，只保留右下蓝(层1 `#7aa0ff`、层2 `#cfdeff`)。图上彩罩 `::after` 未动(仍含淡左上黄)。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — `.hero-glow-1/2` 移除 top-left 黄色 radial
+
+### Hero 配色调浅 + 背景光缩小 + 图上叠淡彩罩
+
+颜色再调浅：层1 `#f8d36f`/`#7aa0ff`，层2 `#fcefc4`/`#cfdeff`。背景光缩小：radial 尺寸 78%/120%→55%/85%、66%/100%→46%/70%，inset/blur/opacity 微降。新增图片上方彩罩：`--cut` 提到 `.hero-monitor` 复用；新增 `.hero-monitor::after`（与切角同形 clip-path）叠 `linear-gradient(135deg, 黄.22→透明38%→透明62%→蓝.22)`，大范围透明、线性渐隐，保持截图清晰。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — 两层光调浅缩小；`--cut` 移至 `.hero-monitor`；新增 `.hero-monitor::after` 图上淡彩罩
+
+### Hero 左上改黄 + 右下还原原始蓝
+
+按新参考图：左上由粉改暖金黄（层1 `#f3c44a`、层2 `#fbe7a8`），右下蓝从柔天蓝还原为原始蓝（层1 `#2d6cff`、层2 `#b6ccff`）。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — 左上 → `#f3c44a`/`#fbe7a8`(黄)；右下 → `#2d6cff`/`#b6ccff`(还原蓝)
+
+### Hero 右下蓝改为参考图的柔天蓝
+
+承上，把右下蓝由纯蓝改柔天蓝（偏青更淡）：层1 `#2d6cff`→`#8fcfe6`，层2 `#b6ccff`→`#c7e6f2`。整组配色统一为参考图的粉蓝大理石调。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — 两层右下蓝 → `#8fcfe6` / `#c7e6f2`
+
+### Hero 左上粉色改为参考图的柔玫瑰粉
+
+按用户提供的粉蓝大理石参考图，把左上粉色由霓虹洋红改柔和玫瑰粉：层1 `#ff27d9`→`#f07cb8`，层2 `#ffc6f5`→`#f9cce3`（右下蓝不变）。色值为按图近似。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — 两层左上粉色 → `#f07cb8` / `#f9cce3`
+
+### Hero 彩光沿边延长 + 图片改缺角矩形
+
+保持外溢宽度(inset/blur 不变)，把两层光的角部渐变由 `linear`(小三角)改为从角点出发的 `radial` 椭圆渐变(`78% 120% at top left`/`bottom right` 等)，使彩光沿相邻两条边铺展并 100%→0% 渐隐。图片 `.hero-video-bg` 用 `clip-path: polygon(...)` 切掉左上、右下两角(45° 缺角矩形，`--cut: clamp(16px,2vw,32px)`)，切角处露出背后彩光；圆角/`box-shadow` 移除，投影改到 `.hero-monitor` 的 `filter: drop-shadow` 以贴合切角轮廓。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — 两层光改 radial 沿边延长；`.hero-video-bg` clip-path 缺角矩形；`.hero-monitor` 加 filter drop-shadow
+
+### Hero 光晕缩小 + 右下改蓝 + 去掉蓝图边框
+
+按用户要求：两层光整体缩小 ~80%（`.hero-glow-1` inset -42→-8px、blur 46→9px；`.hero-glow-2` inset -22→-4px、blur 30→6px；三角形渐变收尾 50%→10%）；右下角颜色改蓝（层1 `#4d36ff`→`#2d6cff`，层2 `#beb6ff`→`#b6ccff`；左上洋红/粉彩不变）；删除蓝图边框（移除 `.hero-monitor` 的网格底/蓝线框/留白带/box-shadow 及 `::before` 内框、`::after` 四角标记，`.hero-monitor` 变无框透明容器）；截图改 `border-radius:6px` + 淡投影。清理一处遗留旧注释。仅改 `styles/hero.css`。
+
+**Files modified:**
+- `styles/hero.css` — 两层光缩小+右下改蓝；删除蓝图边框(`.hero-monitor` 及其 `::before/::after`)；`.hero-video-bg` 圆角 6px+淡投影
+
+### Hero 边框背后加两层炫彩羽化光
+
+在蓝图框背后加两层羽化彩光：新增 `.hero-monitor-wrap` 承接原 `.hero-monitor` 的画布百分比定位，`.hero-monitor` 改 `position:relative;width:100%;z-index:1`；两层光层 `.hero-glow-1/2` 作为兄弟置于 monitor 之后（在其背后 z:0）。每层用两段 `linear-gradient` 在左上/右下画直角三角形并 100%→0% 透明渐隐 + `filter:blur` 羽化。层1（饱和）`#ff27d9`(左上)/`#4d36ff`(右下)，inset -42px、blur 46px；层2（粉彩）`#ffc6f5`/`#beb6ff`，inset -22px、blur 30px。`.hero` 的 `overflow:hidden` 兜住光的外溢。`hero.js` 包一层 wrapper + 两个 `<span>` 光层。响应式选择器 `.hero-monitor`→`.hero-monitor-wrap`。
+
+**Files modified:**
+- `components/hero.js` — monitor 外包 `.hero-monitor-wrap` + 两个 `.hero-glow` span
+- `styles/hero.css` — 新增 `.hero-monitor-wrap` 定位、`.hero-glow-1/2` 两层羽化彩光；`.hero-monitor` 改相对定位；响应式选择器改 wrapper
+
+### Hero 显示屏边框改为「蓝图线框风」(替换玻璃屏)
+
+按用户选择把 `.hero-monitor` 从玻璃屏改成技术制图/蓝图风：浅蓝网格"图纸"底（双向 `linear-gradient` 12px 网格 + `#f3f8fd` 纸色）+ 细蓝外框 `1px solid var(--bp-line,#2b6cb0)` 方角(4px)+ 留白带 `padding:clamp(8px,1vw,16px)`；`::before` 内框双线（蓝半透明）贴住截图；`::after` 用 8 段 linear-gradient 画四角 L 形定位标记(crop marks)。截图保持原彩色，圆角改 2px。移除玻璃眩光/渐变 bezel/顶部高光。`--bp-line` 可统一调色。
+
+**Files modified:**
+- `styles/hero.css` — `.hero-monitor` 重做为蓝图网格框；`::before` 内框线、`::after` 四角定位标记；`.hero-video-bg` 圆角 2px
+
+### Hero 显示屏边框升级为「高级玻璃屏」
+
+在变细+右下柔影基础上加玻璃质感细节层：bezel 改竖向微渐变 `linear-gradient(180deg,#232c3c,#141b26)`（上浅下深）；外阴影叠 `inset 0 1px 0 rgba(255,255,255,.14)` 顶部高光描边；新增 `.hero-monitor::after` 覆盖屏幕做对角眩光 `linear-gradient(135deg, rgba(255,255,255,.22)→透明 42%)` + 内阴影 `inset 0 -12px 22px rgba(15,23,42,.12)`（截图嵌进玻璃下），`pointer-events:none`。桌面手机通用。
+
+**Files modified:**
+- `styles/hero.css` — `.hero-monitor` bezel 渐变+顶部高光；新增 `.hero-monitor::after` 眩光+内阴影玻璃层
+
+### Hero 显示器边框微调（变细 / 阴影减少并改右下）
+
+针对 `cf3eeef` 引入的 `.hero-monitor` 显示器外框：边框 bezel 减薄（padding `clamp(1px,0.12vw,2px)…` → `clamp(0.5px,0.06vw,1px)…`，`border` 保持 1px）；阴影由两层「全包/向下居中」改为单层右下方向 `box-shadow: 6px 8px 16px rgba(15,23,42,0.1)`（更淡、不再全包）；WebUI 图与外框纵向上移 15 个百分点：`--hero-img-top` 16% → 1%。
+
+**Files modified:**
+- `styles/hero.css` — `.hero-monitor` padding 减薄、box-shadow 改单层右下；`--hero-img-top` 16%→1%
+
 ## 2026-06-29
 
 ### 首页 Hero 手机端改回流式堆叠（图上居中、文下）
