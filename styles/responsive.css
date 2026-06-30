@@ -1,0 +1,226 @@
+/* ==========================================================
+   Responsive Enhancements Layer
+   ----------------------------------------------------------
+   Loaded LAST in globals.css. Purpose: fill the breakpoint
+   gaps left by the single 900px breakpoint (small phone,
+   tablet, large desktop) and add global safety nets — WITHOUT
+   rewriting the existing desktop-tuned rules. Source order
+   gives these overrides priority at equal specificity.
+   See RESPONSIVE_AUDIT.md for the issue list each block fixes.
+   ========================================================== */
+
+/* ----------------------------------------------------------
+   0. GLOBAL SAFETY NETS (fix P0-2, P0-1 media)
+   ---------------------------------------------------------- */
+
+/* Never allow sideways scrolling on any device. `clip` (not
+   `hidden`) avoids creating a scroll container, so it won't
+   break position:sticky or smooth scrolling. */
+html,
+body {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+/* Stop iOS from auto-inflating text in landscape. */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* No replaced/embedded element may exceed its column. */
+img,
+svg,
+video,
+canvas,
+iframe {
+  max-width: 100%;
+}
+
+/* Long words / URLs wrap instead of forcing horizontal scroll. */
+p,
+li,
+h1,
+h2,
+h3,
+dt,
+dd {
+  overflow-wrap: break-word;
+}
+
+/* ----------------------------------------------------------
+   1. CONCRETE OVERFLOW FIX (fix P0-1)
+   Timeline copy had a hard width:380px that overflows phones
+   narrower than ~412px. Cap to the column instead.
+   ---------------------------------------------------------- */
+.tl-left p,
+.tl-right p,
+.timeline-item p {
+  width: auto;
+  max-width: 380px;
+}
+
+/* Search input hard min-width could top out narrow phones. */
+.capabilities-page input,
+.capabilities-page select {
+  min-width: min(240px, 100%);
+}
+
+/* ----------------------------------------------------------
+   2. FLUID TYPOGRAPHY (fix P1-5, P2-9)
+   Replace fixed heading sizes with clamp() so type scales
+   smoothly small -> large instead of stepping at breakpoints.
+   ---------------------------------------------------------- */
+.page-lead h1 {
+  font-size: clamp(1.55rem, 1.05rem + 2.2vw, 2.25rem);
+}
+
+.section-header h2,
+.product-preview-copy h2,
+.agent-thinking-head h2,
+.human-agent-copy h2,
+.business-heading-line h2,
+.proof-statement h2 {
+  font-size: clamp(1.4rem, 1.05rem + 1.6vw, 1.85rem);
+}
+
+.architecture-world-line {
+  font-size: clamp(1.2rem, 0.95rem + 1.2vw, 1.55rem);
+}
+
+.cta-copy h2 {
+  font-size: clamp(1.3rem, 1.05rem + 1.1vw, 1.6rem);
+}
+
+/* ----------------------------------------------------------
+   3. TABLET / MOBILE RHYTHM (fix P1-7)
+   At <=900px the fixed 124px header offset and 80px section
+   padding leave heavy empty space. Tighten them.
+   ---------------------------------------------------------- */
+@media (max-width: 900px) {
+  :root {
+    --header-height: 96px;
+  }
+
+  main.main-content > .content-section {
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
+
+  /* Home sections that hard-code 80px vertical padding. */
+  .product-preview,
+  .agent-thinking,
+  .human-agent,
+  .architecture-world,
+  .business-map,
+  .proof-statement {
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
+}
+
+/* ----------------------------------------------------------
+   4. TABLET TIER (601-900px) — 2-column intermediates
+   Give wide grids a 2-up stage before collapsing to 1 column,
+   so portrait tablets aren't either cramped or over-stretched.
+   ---------------------------------------------------------- */
+@media (min-width: 601px) and (max-width: 900px) {
+  .preview-module-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ----------------------------------------------------------
+   5. SMALL PHONE TIER (<=560px) — the missing breakpoint
+   ---------------------------------------------------------- */
+@media (max-width: 560px) {
+  /* Tighter gutters + vertical rhythm on the smallest screens. */
+  :root {
+    --header-height: 88px;
+  }
+
+  main.main-content > .content-section {
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  .product-preview,
+  .agent-thinking,
+  .human-agent,
+  .architecture-world,
+  .business-map,
+  .proof-statement {
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 44px;
+    padding-bottom: 44px;
+  }
+
+  /* Label/value + definition rows: stack so content keeps full width. */
+  .split-row,
+  .editorial-row,
+  .capabilities-page .page-lead-fact,
+  .research-page .page-lead-fact,
+  .events-page .page-lead-fact,
+  .white-papers-page .page-lead-fact,
+  .team-about-timeline-list article {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  /* Preview dashboard mock: 2-up modules are too tight at ~360px. */
+  .preview-module-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Flip cards: 2-up at 180px/45vh is tiny — go single column, real height. */
+  .flip-grid {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .flip-card {
+    flex: 0 0 auto;
+    width: 100%;
+    height: auto;
+    min-height: 200px;
+  }
+
+  /* Proof pills wrap instead of overflowing. */
+  .proof-line {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* Hero buttons go full-width for comfortable tap targets. */
+  .hero-actions .primary-action,
+  .hero-actions .secondary-action {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}
+
+/* ----------------------------------------------------------
+   6. TOUCH TARGETS (fix P2-10)
+   Ensure interactive drawer/nav items meet ~44px on touch.
+   ---------------------------------------------------------- */
+@media (max-width: 900px) and (pointer: coarse) {
+  .drawer-item,
+  .drawer-parent,
+  .drawer-lang {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* ----------------------------------------------------------
+   7. LARGE DESKTOP (>=1600px) — gentle scale-up (fix P2-9)
+   Let the capped content breathe a touch on ultra-wide so the
+   page doesn't read as a small island in an empty field.
+   ---------------------------------------------------------- */
+@media (min-width: 1600px) {
+  :root {
+    --max-width: 1320px;
+  }
+}

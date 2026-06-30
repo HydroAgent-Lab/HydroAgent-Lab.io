@@ -26,3 +26,6 @@
 @import "../styles/pages/white-papers.css";
 @import "../styles/pages/events.css";
 @import "../styles/pages/designv2.css";
+
+/* --- Responsive enhancement layer (must load LAST) --- */
+@import "../styles/responsive.css";
