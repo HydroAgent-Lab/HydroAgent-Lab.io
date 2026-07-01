@@ -21,7 +21,7 @@ export function Hero({ lang = "en", content }) {
           <div className="hero-monitor">
             <img
               className="hero-video-bg"
-              src="/assets/Webui.png"
+              src={lang === "en" ? "/assets/Webui_EN.png" : "/assets/Webui.png"}
               alt=""
               aria-hidden="true"
             />
