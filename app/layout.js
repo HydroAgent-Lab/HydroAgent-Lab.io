@@ -1,3 +1,4 @@
+import Script from "next/script";
 import "./globals.css";
 
 export const metadata = {
@@ -52,7 +53,21 @@ export default function RootLayout({ children }) {
       <head>
         <link rel="icon" href="/assets/hydroagent-mark.svg" type="image/svg+xml" />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-6G0RNE8L4Z"
+          strategy="afterInteractive"
+        />
+        <Script id="ga4" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-6G0RNE8L4Z');
+          `}
+        </Script>
+      </body>
     </html>
   );
 }

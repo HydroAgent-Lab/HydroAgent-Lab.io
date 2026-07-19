@@ -17,6 +17,10 @@ npm run build
 
 The exported static site is generated in `out/`.
 
+## Analytics
+
+Google Analytics 4 (Measurement ID `G-6G0RNE8L4Z`) is loaded site-wide via `next/script` in `app/layout.js`, so every route (en + zh) is tracked.
+
 ## Project Structure
 
 ```

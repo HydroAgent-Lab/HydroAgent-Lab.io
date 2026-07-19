@@ -1,5 +1,15 @@
 # Work Log
 
+## 2026-07-19
+
+### 接入 Google Analytics 4
+
+全站接入 GA4（衡量 ID `G-6G0RNE8L4Z`）。因线上站点由 Next.js 静态导出部署（`out/`），根目录遗留 HTML 不生效，故代码加在根布局 `app/layout.js`，用 `next/script`（`strategy="afterInteractive"`）加载，一次覆盖全部 en/zh 路由。旧属性 `G-38YWP282HR` 为重建前遗留，未接入。已 `npm run build` 验证，GA ID 出现在 42 个导出页面中。
+
+**Files modified:**
+- `app/layout.js` — 导入 `next/script`，在 `<body>` 末尾加入 gtag.js 加载与 `gtag('config', 'G-6G0RNE8L4Z')`
+- `README.md` — 新增 Analytics 说明
+
 ## 2026-06-30
 
 ### Hero 流光改浅蓝
