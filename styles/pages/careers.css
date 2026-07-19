@@ -185,7 +185,7 @@
   height: 8px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 4px color-mix(in oklch, var(--accent) 18%, transparent);
 }
 
 /* --- Split sections --- */

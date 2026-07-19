@@ -430,131 +430,98 @@ main.main-content > .what-section-wrap {
   display: block;
 }
 
-/* --- Flip Cards (Why Trust It) --- */
-.flip-grid {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  max-width: 880px;
+/* --- Evidence Cards (Why Trust It) — image-backed, no flip --- */
+/* Portrait image cards with label + full evidence text laid over the image.
+   No hover-flip: everything is on screen (reachable on touch + keyboard). A
+   deep bottom gradient keeps the white text legible over any photo. The grid
+   is capped narrower than the content column so both sides keep breathing room. */
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
-.flip-card {
-  flex: 0 0 180px;
-  perspective: 600px;
-  height: 45vh;
-}
-
-.flip-card-inner {
+.evidence-card {
   position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.5s ease;
-  transform-style: preserve-3d;
-}
-
-.flip-card:hover .flip-card-inner {
-  transform: rotateY(180deg);
-}
-
-.flip-card-front,
-.flip-card-back {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 18px 16px;
-  text-align: center;
-}
-
-/* Front — full image card, title + arrow at bottom */
-.flip-card-front {
+  min-height: 360px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--bg-alt);
   background-size: cover;
   background-position: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-end;
-  position: relative;
-  overflow: hidden;
-  padding: 16px;
+  transition: transform var(--transition), box-shadow var(--transition);
 }
 
-/* Bottom gradient for text readability */
-.flip-card-front::before {
+.evidence-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
+}
+
+/* Bottom scrim for text legibility over the photo — above image, below text */
+.evidence-card::before {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 1;
   background: linear-gradient(
     to top,
-    rgba(0, 0, 0, 0.65) 0%,
-    rgba(0, 0, 0, 0.15) 50%,
-    transparent 100%
+    rgba(6, 17, 42, 0.94) 0%,
+    rgba(6, 17, 42, 0.82) 40%,
+    rgba(6, 17, 42, 0.32) 60%,
+    rgba(6, 17, 42, 0) 82%
   );
-  z-index: 0;
 }
 
-.flip-card-front h3 {
-  font-size: 14px;
+/* Text block starts at a FIXED baseline on every card (absolute top, not
+   flex-end), so all titles line up horizontally no matter how tall the photo
+   or how long the evidence text. */
+.evidence-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 190px;
+  bottom: 0;
+  z-index: 2;
+  padding: 0 16px 18px;
+}
+
+.evidence-label {
+  font-size: 15px;
   font-weight: 600;
   color: #ffffff;
+  line-height: 1.3;
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.evidence-text {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.92);
   margin: 0;
-  line-height: 1.35;
-  position: relative;
-  z-index: 1;
+  text-align: center;
 }
 
-/* Themed backgrounds per card — portrait crop */
-.flip-bg-0 { background-image: url("https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400&h=700&fit=crop&crop=center"); }
-.flip-bg-1 { background-image: url("https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=800&fit=crop&crop=center"); }
-.flip-bg-2 { background-image: url("https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400&h=700&fit=crop&crop=center"); }
-.flip-bg-3 { background-image: url("https://images.unsplash.com/photo-1456324504439-367cee3b3c32?w=400&h=800&fit=crop&crop=center"); }
-.flip-bg-4 { background-image: url("https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400&h=800&fit=crop&crop=center"); }
-
-/* Arrow — inline with title */
-.flip-arrow {
-  font-size: 16px;
-  font-weight: 600;
-  color: #ffffff;
-  z-index: 1;
-  opacity: 0.7;
-  width: 22px;
-  height: 22px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.35);
-  border-radius: 50%;
-  transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+/* Photo backgrounds — Unsplash License (free for commercial use, no attribution).
+   Each image matches its card's text; the shared deep-blue bottom scrim keeps
+   them cohesive:
+   0 basin (river valley) · 1 data/analytics screen (validated results) ·
+   2 AI circuit + brain (multi-LLM) · 3 conference speaker (published / EGU talk) ·
+   4 signing documents (human review & release authority). */
+.evidence-bg-0 { background-image: url("https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400&h=800&fit=crop&crop=center"); }
+.evidence-bg-1 { background-image: url("/assets/hydrograph-validation.svg"); }
+.evidence-bg-2 { background-image: url("https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=400&h=800&fit=crop&crop=center"); }
+.evidence-bg-3 {
+  background-image: url("/assets/egu2026.jpg");   /* real EGU 2026 oral-talk photo */
+  background-position: 20% center;                /* focus shifted 20% to the right */
+  background-size: auto 80%;                       /* scaled down to 80% of card height */
+  background-repeat: no-repeat;
+  background-color: #0e2148;                       /* deep-blue fill behind the shrunk photo */
 }
-
-.flip-card:hover .flip-arrow {
-  opacity: 1;
-  transform: translateX(2px);
-}
-
-/* Back */
-.flip-card-back {
-  background: #ffffff;
-  border-right: 3px solid #93C5FD;
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  transform: rotateY(180deg);
-}
-
-.flip-card-back p {
-  font-size: 13px;
-  line-height: 1.65;
-  color: var(--text-muted);
-  margin: 0;
-}
+.evidence-bg-4 { background-image: url("/assets/human-authority.svg"); }
 
 /* --- Who It Serves — 3-col grid --- */
 .scroll-strip {
@@ -575,17 +542,13 @@ main.main-content > .what-section-wrap {
   padding: 32px 28px;
   background: var(--surface-elevated);
   border: 1px solid var(--border);
-  border-top: 3px solid var(--accent);
   border-radius: 6px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  transition: border-color var(--transition), box-shadow var(--transition);
 }
 
 .scroll-card:hover {
-  border-color: var(--accent-light);
-  border-top-color: var(--accent);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  transform: translateY(-4px);
+  border-color: var(--border-strong);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .scroll-card h3 {
@@ -642,7 +605,7 @@ main.main-content > .what-section-wrap {
   transition: border-color var(--transition);
 }
 
-.agent-thinking-step:hover { border-color: var(--accent-light); }
+.agent-thinking-step:hover { border-color: var(--border-strong); }
 
 .agent-thinking-step span {
   font-size: 13px;
@@ -844,7 +807,7 @@ main.main-content > .what-section-wrap {
   transition: border-color var(--transition);
 }
 
-.business-line:hover { border-color: var(--accent-light); }
+.business-line:hover { border-color: var(--border-strong); }
 
 .business-line span {
   font-size: 13px;
@@ -916,8 +879,7 @@ main.main-content > .what-section-wrap {
   .preview-module-grid { grid-template-columns: 1fr 1fr; }
   .preview-bottom { grid-template-columns: 1fr; }
   .flagship-grid { grid-template-columns: 1fr; gap: 28px; }
-  .flip-grid { flex-wrap: wrap; }
-  .flip-card { flex: 0 0 calc((100% - 12px) / 2); }
+  .evidence-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
 
   .scroll-strip {
     display: flex;
@@ -935,6 +897,12 @@ main.main-content > .what-section-wrap {
   }
   .scroll-card p { text-wrap: balance; }
   .proof-line { flex-direction: column; align-items: center; gap: 12px; }
+}
+
+@media (max-width: 600px) {
+  .evidence-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .evidence-card { min-height: 320px; }
+  .evidence-overlay { top: 150px; }
 }
 
 @media (min-width: 901px) and (max-width: 1100px) {

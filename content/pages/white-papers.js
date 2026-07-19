@@ -12,7 +12,7 @@ export const whitePapersContent = {
       ]
     },
     cadenceSection: {
-      eyebrow: "Publishing Rhythm",
+      eyebrow: "",
       title: "Planned publication cadence.",
       items: [
         { label: "Monthly", text: "A short note on the month's main developments." },
@@ -38,7 +38,7 @@ export const whitePapersContent = {
       ]
     },
     cadenceSection: {
-      eyebrow: "更新节奏",
+      eyebrow: "",
       title: "计划更新频率 ",
       items: [
         { label: "每月", text: "一篇月度简报，整理当月主要动态 " },

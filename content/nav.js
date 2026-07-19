@@ -78,7 +78,7 @@ export const navContent = {
     ],
     headerCta: "Request a briefing",
     cta: {
-      eyebrow: "Next Step",
+      eyebrow: "",
       title: "Start a focused discussion about product fit, workflow design, or research collaboration.",
       text:
         "HydroAgent-Lab works with institutions, forecasting teams, and research partners that need operationally credible hydrologic systems.",
@@ -166,7 +166,7 @@ export const navContent = {
     ],
     headerCta: "预约沟通",
     cta: {
-      eyebrow: "下一步",
+      eyebrow: "",
       title: "从产品匹配、工作流设计或研究合作开始一次聚焦沟通。",
       text:
         "HydroAgent-Lab 服务于需要业务可信度、可部署能力与领域协作支持的机构、团队与研究伙伴。",

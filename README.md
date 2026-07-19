@@ -66,8 +66,11 @@ styles/
 ```
 
 ## Design Language
-- Light background (#f0f0ee), pill navbar (#EDEDED), blue accent (#3B82F6)
+- Gray scale: white #FFFFFF (`--surface-elevated`) → light gray #E5E5E5 (`--bg`, `--surface`) → mid gray #CBCCCC (`--bg-alt`, borders); dark accents #3E3F40 / #1F2021 / #060606 (`--dark-1/2/3`, for dark buttons etc.); brand blue in OKLCH sourced from the logo — `--accent` oklch(51% 0.15 258) ≈ #2570c0, `--accent-hover` deeper, `--accent-light` oklch(74% 0.09 235). NOTE: some section backgrounds are still hard-coded #fff / #F9FAFB and don't follow these tokens
 - Split-layout hero: left text/CTA column + right autoplay demo video
 - Multi-level nav: 5 top-level items, hover dropdown on desktop, hamburger drawer on mobile (≤900px)
-- System font stack, clean minimal cards, 200ms hover transitions
+- Type pairing: Inter Tight (display / headings `--font-display`) + Inter (body `--font`), loaded via next/font in app/layout.js, with CN fallback (PingFang SC / Microsoft YaHei)
+- Named easings `--ease-out/in/in-out`; global `:focus-visible` ring; clean minimal cards, 200ms hover transitions
+- Body text uses `--text-muted: #5f6773` (≈5.7:1 on white — meets WCAG AA)
+- Home "Why Trust It" section: photo evidence cards (`.evidence-*`) — 5 river/basin photos (Unsplash License, free commercial use), label + full evidence text over a bottom scrim, no hover-flip. Titles align on a fixed baseline (`.evidence-overlay` absolute `top`, not flex-end) so all cards start at the same line. Grid capped at 1000px for side whitespace
 - Dark theme placeholder in `styles/tokens.css` (via `[data-theme="dark"]`)

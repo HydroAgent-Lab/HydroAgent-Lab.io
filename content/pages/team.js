@@ -7,13 +7,13 @@ export const teamContent = {
         "HydroAgent-Lab is a distributed hydrologic AI product and research team building agentic workflow systems for water operations. Our members work across hydrology, forecasting practice, AI agents, software engineering, product strategy and communication, and evaluation."
     },
     questionSection: {
-      eyebrow: "Why We Exist",
+      eyebrow: "",
       title: "We came together around one practical question.",
       text:
         "Can large language model agents support frontline hydrologic work without weakening scientific accountability? HydroAgent is our answer: a platform where models provide the evidence, the agent organizes the work, and people keep review and release authority."
     },
     credibilitySection: {
-      eyebrow: "What To Know About Us",
+      eyebrow: "",
       title: "Signals worth emphasizing.",
       items: [
         {
@@ -48,13 +48,13 @@ export const teamContent = {
         "HydroAgent-Lab 是一个分布式水文 AI 产品与研究团队，正在建设面向水文水利业务的智能体工作流系统。成员覆盖水文科学、预报业务、AI 智能体、软件工程、产品策略与沟通和评估等方向。"
     },
     questionSection: {
-      eyebrow: "我们为什么做这件事",
+      eyebrow: "",
       title: "我们因一个很实际的问题聚到一起 ",
       text:
         "大语言模型智能体能否进入一线水文工作，同时不削弱科学责任与业务审核？HydroAgent 是我们的回答：让模型提供证据，让智能体组织工作，让人保留复核与最终发布权。"
     },
     credibilitySection: {
-      eyebrow: "关于我们值得了解的",
+      eyebrow: "",
       title: "几个值得强调的信号 ",
       items: [
         {

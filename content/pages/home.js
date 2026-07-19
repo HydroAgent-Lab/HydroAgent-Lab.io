@@ -17,7 +17,7 @@ export const homeContent = {
       title: "Architecture"
     },
     flagshipSection: {
-      eyebrow: "Flagship Product",
+      eyebrow: "",
       title: "HydroAgent-FF",
       text:
         "HydroAgent-FF is HydroAgent's most concrete product line today, built for flood forecasting operations. It supports the flood forecasting process from end to end, while keeping forecasters in control of the key decisions.",
@@ -25,7 +25,7 @@ export const homeContent = {
       ctaPath: "/platform"
     },
     trustSection: {
-      eyebrow: "Why Trust It",
+      eyebrow: "",
       title: "Specific signals, not slogans.",
       items: [
         "Demonstrated end to end on a real river basin (South Yamhill River, Oregon, USA) using historical flood events.",
@@ -36,7 +36,7 @@ export const homeContent = {
       ]
     },
     whoSection: {
-      eyebrow: "Who It Serves",
+      eyebrow: "",
       title: "Built for teams responsible for real forecasts.",
       items: [
         {
@@ -71,7 +71,7 @@ export const homeContent = {
       title: "架构"
     },
     flagshipSection: {
-      eyebrow: "旗舰产品",
+      eyebrow: "",
       title: "HydroAgent-FF",
       text:
         "HydroAgent-FF 是 HydroAgent 当前最具体的产品线，面向洪水预报业务。它端到端支撑洪水预报过程，并让预报员始终掌握关键决策。 ",
@@ -79,7 +79,7 @@ export const homeContent = {
       ctaPath: "/platform"
     },
     trustSection: {
-      eyebrow: "为什么值得信任",
+      eyebrow: "",
       title: "用具体信号，而不是口号 ",
       items: [
         "在真实流域（美国俄勒冈 South Yamhill River）基于历史洪水事件完成端到端演示 ",
@@ -90,7 +90,7 @@ export const homeContent = {
       ]
     },
     whoSection: {
-      eyebrow: "适用对象",
+      eyebrow: "",
       title: "为真正负责预报的团队而建 ",
       items: [
         {

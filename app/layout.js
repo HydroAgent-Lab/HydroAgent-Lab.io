@@ -1,5 +1,17 @@
 import Script from "next/script";
+import { Inter, Inter_Tight } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-body-face",
+  display: "swap"
+});
+const interTight = Inter_Tight({
+  subsets: ["latin"],
+  variable: "--font-display-face",
+  display: "swap"
+});
 
 export const metadata = {
   metadataBase: new URL("https://hydroagentlab.com"),
@@ -49,7 +61,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${interTight.variable}`}>
       <head>
         <link rel="icon" href="/assets/hydroagent-mark.svg" type="image/svg+xml" />
       </head>

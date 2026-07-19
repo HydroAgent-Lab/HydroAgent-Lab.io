@@ -13,7 +13,7 @@ export const platformContent = {
       ]
     },
     valueSection: {
-      eyebrow: "What It Gives You",
+      eyebrow: "",
       title: "Organized, reviewable, reproducible, with experts in control.",
       paragraphs: [
         "HydroAgent-FF is not about letting an LLM replace the hydrological model, nor about automating the forecaster away. It organizes real flood forecasting work into a structured, reviewable, and reproducible process, while keeping forecasters in control.",
@@ -21,7 +21,7 @@ export const platformContent = {
       ]
     },
     workflowSection: {
-      eyebrow: "What HydroAgent Does",
+      eyebrow: "",
       title: "A workflow layer that keeps people in charge.",
       items: [
         "Brings scattered forecasting information into one organized, reviewable view.",
@@ -32,7 +32,7 @@ export const platformContent = {
       ]
     },
     signalsSection: {
-      eyebrow: "Current Validation Signals",
+      eyebrow: "",
       title: "Specific enough to discuss, early enough to test with partners.",
       items: [
         { title: "Real basin tested", text: "Demonstrated end to end on a real river basin (South Yamhill River, Oregon, USA) using historical flood events, including a March 2022 event." },
@@ -43,7 +43,7 @@ export const platformContent = {
       ]
     },
     pilotSection: {
-      eyebrow: "Pilot Scenarios",
+      eyebrow: "",
       title: "Worth discussing if any of these sound familiar.",
       items: [
         {
@@ -84,7 +84,7 @@ export const platformContent = {
       ]
     },
     valueSection: {
-      eyebrow: "它带来什么",
+      eyebrow: "",
       title: "让洪水预报流程更清晰、更可复核，并保留专家把关 ",
       paragraphs: [
         "HydroAgent-FF 要解决的不是“让 LLM 替代水文模型”，也不是“自动替代预报员”。它把真实洪水预报工作组织成一个结构化、可复核、可复现的过程，并让预报员始终掌握关键决策。",
@@ -92,7 +92,7 @@ export const platformContent = {
       ]
     },
     workflowSection: {
-      eyebrow: "HydroAgent 做什么",
+      eyebrow: "",
       title: "一层让人始终掌控的工作流 ",
       items: [
         "把分散的预报信息组织成一个有条理、可复核的整体视图 ",
@@ -103,7 +103,7 @@ export const platformContent = {
       ]
     },
     signalsSection: {
-      eyebrow: "可以信任的",
+      eyebrow: "",
       title: "已在典型流域完成验证",
       items: [
         { title: "真实流域验证", text: "已在真实流域（美国俄勒冈 South Yamhill River）基于历史洪水事件完成端到端演示，包括一次 2022 年 3 月的洪水事件。" },
@@ -114,7 +114,7 @@ export const platformContent = {
       ]
     },
     pilotSection: {
-      eyebrow: "试点场景",
+      eyebrow: "",
       title: "如果你遇到以下情况，欢迎一起讨论 ",
       items: [
         {

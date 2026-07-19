@@ -14,7 +14,7 @@ export const contactContent = {
       ]
     },
     inquirySection: {
-      eyebrow: "Inquiry Types",
+      eyebrow: "",
       title: "Common reasons people reach out.",
       items: [
         {
@@ -36,7 +36,7 @@ export const contactContent = {
       ]
     },
     stepsSection: {
-      eyebrow: "How It Works",
+      eyebrow: "",
       title: "Once we connect, the next steps are usually straightforward.",
       items: [
         {
@@ -78,7 +78,7 @@ export const contactContent = {
       ]
     },
     inquirySection: {
-      eyebrow: "联系原因",
+      eyebrow: "",
       title: "大家通常为这些事找我们",
       items: [
         {
@@ -100,7 +100,7 @@ export const contactContent = {
       ]
     },
     stepsSection: {
-      eyebrow: "如何开始",
+      eyebrow: "",
       title: "建立联系后，通常会按以下方式推进。",
       items: [
         {

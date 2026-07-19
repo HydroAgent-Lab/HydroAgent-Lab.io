@@ -55,19 +55,16 @@ export function HomePageContent({ lang = "en" }) {
             eyebrow={page.trustSection.eyebrow}
             title={page.trustSection.title}
           />
-          <div className="flip-grid">
+          <div className="evidence-grid">
             {page.trustSection.items.map((item, i) => {
               const labels = lang === "zh"
                 ? ["真实流域验证", "独立事件校验", "多模型适配", "学术发表", "人类主权"]
                 : ["Basin tested", "Validated results", "Multi-LLM ready", "Published research", "Human authority"];
               return (
-                <article className="flip-card" key={item.slice(0, 24)}>
-                  <div className="flip-card-inner">
-                    <div className={`flip-card-front flip-bg-${i}`}>
-                      <h3>{labels[i]}</h3>
-                      <span className="flip-arrow" aria-hidden="true">→</span>
-                    </div>
-                    <div className="flip-card-back"><p>{item}</p></div>
+                <article className={`evidence-card evidence-bg-${i}`} key={item.slice(0, 24)}>
+                  <div className="evidence-overlay">
+                    <h3 className="evidence-label">{labels[i]}</h3>
+                    <p className="evidence-text">{item}</p>
                   </div>
                 </article>
               );

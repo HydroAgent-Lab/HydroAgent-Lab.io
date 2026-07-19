@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300" preserveAspectRatio="xMidYMid slice" role="img" aria-label="People keeping review and release authority">
+  <defs>
+    <linearGradient id="ha-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#12305f"/>
+      <stop offset="1" stop-color="#0b1c40"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="200" height="300" fill="url(#ha-bg)"/>
+
+  <!-- back-left figure (head hugging the shoulders) -->
+  <g fill="#cfe0f5">
+    <circle cx="56" cy="100" r="16"/>
+    <path d="M32,180 C32,106 80,106 80,180 Z"/>
+  </g>
+
+  <!-- back-right figure -->
+  <g fill="#cfe0f5">
+    <circle cx="144" cy="100" r="16"/>
+    <path d="M120,180 C120,106 168,106 168,180 Z"/>
+  </g>
+
+  <!-- front-center figure -->
+  <g fill="#ffffff">
+    <circle cx="100" cy="114" r="23"/>
+    <path d="M62,205 C62,120 138,120 138,205 Z"/>
+  </g>
+</svg>

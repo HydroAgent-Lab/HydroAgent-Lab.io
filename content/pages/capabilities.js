@@ -12,7 +12,7 @@ export const capabilitiesContent = {
       ]
     },
     collaborationSection: {
-      eyebrow: "Ways to Work Together",
+      eyebrow: "",
       title: "Ways to get started.",
       items: [
         {
@@ -31,7 +31,7 @@ export const capabilitiesContent = {
       ]
     },
     tasksSection: {
-      eyebrow: "What HydroAgent Does",
+      eyebrow: "",
       title: "What HydroAgent-Lab can do for you.",
       text: { before: "For the flagship flood product, see ", link: "HydroAgent-FF", path: "/platform", after: "." },
       items: [
@@ -87,7 +87,7 @@ export const capabilitiesContent = {
       ]
     },
     collaborationSection: {
-      eyebrow: "合作方式",
+      eyebrow: "",
       title: "可以这样开始合作 ",
       items: [
         {
@@ -106,7 +106,7 @@ export const capabilitiesContent = {
       ]
     },
     tasksSection: {
-      eyebrow: "能力清单",
+      eyebrow: "",
       title: "HydroAgent-Lab 能为你做什么 ",
       text: { before: "想了解旗舰洪水产品，见 ", link: "HydroAgent-FF", path: "/platform", after: "" },
       items: [

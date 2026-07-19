@@ -30,7 +30,7 @@ export const careersContent = {
       ]
     },
     tracksSection: {
-      eyebrow: "Open Collaboration Tracks",
+      eyebrow: "",
       title: "What you can contribute",
       items: [
         {
@@ -52,7 +52,7 @@ export const careersContent = {
       ]
     },
     processSection: {
-      eyebrow: "How to Join",
+      eyebrow: "",
       title: "Start with a focused note, not a formal application.",
       steps: [
         {
@@ -111,7 +111,7 @@ export const careersContent = {
       ]
     },
     tracksSection: {
-      eyebrow: "开放协作方向",
+      eyebrow: "",
       title: "你可以参与的贡献",
       items: [
         {
@@ -133,7 +133,7 @@ export const careersContent = {
       ]
     },
     processSection: {
-      eyebrow: "如何加入",
+      eyebrow: "",
       title: "先发一封聚焦的邮件，而不是提交正式申请 ",
       steps: [
         {

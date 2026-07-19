@@ -173,19 +173,6 @@ dd {
     grid-template-columns: 1fr;
   }
 
-  /* Flip cards: 2-up at 180px/45vh is tiny — go single column, real height. */
-  .flip-grid {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .flip-card {
-    flex: 0 0 auto;
-    width: 100%;
-    height: auto;
-    min-height: 200px;
-  }
-
   /* Proof pills wrap instead of overflowing. */
   .proof-line {
     flex-wrap: wrap;

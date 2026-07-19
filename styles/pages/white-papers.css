@@ -53,8 +53,8 @@
 }
 
 .wp-cadence-item:hover {
-  border-color: var(--accent-light);
-  box-shadow: 0 2px 12px rgba(59, 130, 246, 0.08);
+  border-color: var(--border-strong);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .wp-cadence-item h3 {

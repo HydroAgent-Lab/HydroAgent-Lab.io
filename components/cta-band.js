@@ -6,7 +6,7 @@ export function CtaBand({ lang = "en", content }) {
   return (
     <section className="cta-band">
       <div className="cta-copy">
-        <p className="eyebrow">{cta.eyebrow}</p>
+        {cta.eyebrow ? <p className="eyebrow">{cta.eyebrow}</p> : null}
         <h2>{cta.title}</h2>
         <p>{cta.text}</p>
       </div>

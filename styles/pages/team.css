@@ -194,7 +194,7 @@
 }
 
 .team-about-join-card:hover {
-  border-color: var(--accent);
+  border-color: var(--border-strong);
   background: var(--surface-elevated);
 }
 

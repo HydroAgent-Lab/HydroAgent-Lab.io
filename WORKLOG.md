@@ -2,6 +2,237 @@
 
 ## 2026-07-19
 
+### 首页 Hallmark 审计 + 修复（对比度 + 翻转卡）
+
+对英文首页做了一次反 AI-slop 审计（3 critical · 5 major · 4 minor），并落地修复其中两项：
+
+1. **文字对比度（audit #1）**：`--text-muted` 从 `#9ca3af`（≈2.6:1，不达 WCAG AA）调深为 `#5f6773`（≈5.7:1）。单点 token 改动，全站正文一次达标。
+2. **"Why Trust It" 翻转卡（audit #2 + #4）**：原本 5 张 hover-翻转卡把关键证据锁在背面，触屏/键盘不可达，且正面盖着无关 Unsplash 风景图。改为**常显证据卡**（`.evidence-*`）：标签 + 证据全文常显、响应式 `auto-fit/minmax(280px)` 网格、卡高随文自适应（文字一字未删），左侧 3px accent 竖条，移除全部外链风景图。清理了 `home.css` 与 `responsive.css` 中的死代码 flip 规则。
+
+已 `npm run build` 验证，24 页静态导出全部通过。
+
+**Files modified:**
+- `styles/tokens.css` — `--text-muted` #9ca3af → #5f6773（WCAG AA 正文对比）
+- `components/pages/home.js` — trust 区块由 `.flip-*` 结构改为 `.evidence-card`（标签 h3 + 证据 p）
+- `styles/pages/home.css` — 移除 `.flip-*` / `.flip-bg-*`（含 5 张 Unsplash 图）与响应式 flip 规则，新增 `.evidence-grid` / `.evidence-card` / `.evidence-label` / `.evidence-text`
+- `styles/responsive.css` — 删除作用于已移除元素的 `.flip-grid` / `.flip-card` 死代码
+- `README.md` — Design Language 增补对比度 token 与 evidence 卡说明
+
+**Next steps（审计剩余项，未处理）:**
+- major #3 全站缺 `:focus-visible` 聚焦环
+- major #5 直接用 Tailwind 默认蓝调色板（非 OKLCH）
+- major #6 纯 system 字体无显示/正文配对
+- major #7 每段重复大写 eyebrow；#8 `transition: all` + 默认 `ease`
+
+### 移动端 drawer hover/active 统一淡蓝圆角
+
+把桌面下拉的"淡品牌蓝圆角高亮"统一到移动端抽屉菜单：`.drawer-item`、`.drawer-parent` 加左右 padding + 圆角 + `background var(--transition)`，hover/active 背景 `color-mix(in oklch, var(--accent) 12%, #fff)`（回退 --surface）。原本 drawer 是"分隔线+变色"、无灰方块问题；此改为统一交互反馈并高亮当前页。其余全局改动（品牌蓝/字体/灰阶/卡片/focus）手机端本就自动生效。已 `npm run build` 验证。
+
+另清掉最后一处旧 Tailwind 蓝硬编码：careers 页 principles 圆点外圈光晕 `rgba(59,130,246,0.15)` → `color-mix(in oklch, var(--accent) 18%, transparent)`。全站已无 rgba(59,130,246)。
+
+**Files modified:**
+- `styles/nav.css` — drawer-item / drawer-parent / drawer-children item 统一淡蓝圆角高亮
+- `styles/pages/careers.css` — principles 圆点光晕改新品牌蓝
+
+### 导航下拉项 hover 高亮改柔和圆角
+
+下拉菜单项 hover 原为 `background: var(--border)`（中灰 #CBCCCC）满宽直角大方块，生硬难看。改为：下拉容器加左右内边距、菜单项加圆角 `--radius-sm`、hover 背景改 `color-mix(in oklch, var(--accent) 12%, #fff)` 淡品牌蓝（老浏览器回退 `--surface` 浅灰）。成为四周留空的圆角小高亮条。仅改 nav.css。已 `npm run build` 验证。
+
+**Files modified:**
+- `styles/nav.css` — .nav-dropdown padding、.nav-dropdown-item 圆角、:hover 淡蓝底
+
+### page-lead h1 放松（又大又挤）
+
+二级页 hero 标题（`.page-lead h1`，全站共用）因 Inter Tight 紧凑 + line-height 1.1 + 负字间距显得又大又挤。字号 2rem → `clamp(1.6rem,2.4vw,1.85rem)`、行距 1.1→1.22、字间距 -0.005em。仅改 sections.css。已 `npm run build` 验证。
+
+**Files modified:**
+- `styles/sections.css` — .page-lead h1 字号/行距/字间距放松
+
+### 全站卡片去 AI 化（中性极简）
+
+用户反馈卡片"蓝描边 + 蓝光晕 hover"太 AI，全站通病。统一改为中性极简：hover 从 `border-color: accent-light` + 蓝阴影 `rgba(59,130,246,0.08)` 改为 `border-color: --border-strong` + 中性轻阴影 `rgba(0,0,0,0.05)`；scroll-card 去掉顶部 3px accent 蓝条与上浮 translateY，缓动改具名。共 10 处卡片，6 个文件：
+- sections.css：info-card、surface-card
+- home.css：scroll-card（含默认态去蓝条/去阴影）、agent-thinking-step、business-line
+- capabilities.css：collab-card
+- platform.css：signals-card
+- white-papers.css：wp-cadence-item
+- team.css：team-about-join-card
+
+已 `npm run build` 验证（24 页）。
+
+**Files modified:**
+- `styles/sections.css`、`styles/pages/home.css`、`styles/pages/capabilities.css`、`styles/pages/platform.css`、`styles/pages/white-papers.css`、`styles/pages/team.css`
+
+### 首页审计修复 步骤4（#7 精简 eyebrow）
+
+首页只保留 hero 的 "HydroAgent-Lab" eyebrow，删掉 Flagship Product / Why Trust It / Who It Serves（en+zh）。CTA 的 "Next Step / 下一步" eyebrow 在共享 nav.js，一并删（全站 CTA band 生效），并给 `cta-band.js` 加空值判断避免空标签。已 `npm run build` 验证。
+
+**Files modified:**
+- `content/pages/home.js` — 三个 section eyebrow 清空（en+zh 共 6 处）
+- `content/nav.js` — CTA eyebrow 清空（en+zh）
+- `components/cta-band.js` — eyebrow 空则不渲染
+
+### 首页审计修复 步骤3（#6 字体配对 Inter Tight + Inter）
+
+用 next/font 引入 Inter Tight（标题）+ Inter（正文），替换纯 system-ui：
+- `app/layout.js` 用 `next/font/google` 加载，注入 `--font-body-face` / `--font-display-face` 到 `<html>` className
+- `tokens.css` `--font` 前置 Inter、新增 `--font-display` 前置 Inter Tight，均带中文回退（PingFang SC / Microsoft YaHei）
+- `typography.css` h1/h2/h3 用 `var(--font-display)`
+
+字体在 build 时下载打包（需联网），已验证 24 页构建通过。
+
+**Files modified:**
+- `app/layout.js` — next/font 加载 Inter Tight + Inter
+- `styles/tokens.css` — --font / --font-display 变量
+- `styles/typography.css` — 标题用 display 字
+- `README.md` — 字体说明
+
+### 首页审计修复 步骤2（#5 品牌蓝迁 OKLCH）
+
+读取品牌 logo `hydroagent-mark.svg` 取色（多层蓝螺旋 #def2fb…#2570c0）。用 logo 蓝替换 Tailwind 默认 accent 并迁 OKLCH：
+- `--accent` oklch(51% 0.15 258) ≈ logo 深蓝 #2570c0
+- `--accent-hover` oklch(44% 0.135 258)（更深，hover/焦点环）
+- `--accent-light` oklch(74% 0.09 235) ≈ logo 浅蓝 #65baea
+
+整站蓝调更深、更贴品牌、脱离 AI 默认蓝。已 `npm run build` 验证。
+
+**Files modified:**
+- `styles/tokens.css` — accent 三档改 OKLCH logo 蓝
+- `README.md` — 更新品牌蓝说明
+
+### 首页审计修复 步骤1（交互/动效打磨）
+
+一批无需决策的修复：
+- **#3 焦点环**：base.css 加全局 `:focus-visible { outline: 2px solid var(--accent-hover); offset 2px }`，键盘焦点即时可见、非动画、对比达标。
+- **#8 缓动**：tokens 加 `--ease-out/--ease-in/--ease-in-out`，`--transition` 改用 `--ease-out`；hero.css 按钮 `transition: all` 改为具体属性（color/background/border），不再动 layout。
+- **#9 卡片上浮**：scroll-card hover 从 translateY(-4px)+重阴影 弱化为 -2px+轻阴影。
+- **#10 未定义 token**：hero.css `.primary-action:hover` 的 `var(--accent-dark,#1a5276)` 改为 `var(--accent-hover)`。
+- **#12 eyebrow 对比**：typography.css `.eyebrow` 颜色 `--accent` → `--accent-hover`（深蓝，小字过 AA）。
+
+已 `npm run build` 验证。剩余 #5(OKLCH/品牌蓝)、#6(字体)、#7(eyebrow精简)、#11(结构) 需用户决策，待后续步骤。
+
+**Files modified:**
+- `styles/tokens.css` — 具名缓动 token
+- `styles/base.css` — 全局 :focus-visible
+- `styles/hero.css` — transition 具体属性 + accent-hover
+- `styles/pages/home.css` — scroll-card hover 弱化
+- `styles/typography.css` — eyebrow 深蓝
+
+### 新增深色点缀 token #3E3F40 / #1F2021 / #060606
+
+在 `styles/tokens.css` 新增 `--dark-1`(#3E3F40) / `--dark-2`(#1F2021) / `--dark-3`(#060606)，作为深色按钮等点缀色，接续白→灰三档形成完整灰阶。仅新增变量、未引用到任何元素（避免误改现有按钮）。已 `npm run build` 验证。
+
+**Files modified:**
+- `styles/tokens.css` — 新增 --dark-1/2/3
+- `README.md` — 灰阶说明补深色档
+
+### 全站灰阶重定为三档 #FFFFFF / #E5E5E5 / #CBCCCC
+
+按用户给的白→灰三色号调整 `styles/tokens.css`：
+- 白 #FFFFFF → `--surface-elevated`
+- 浅灰 #E5E5E5 → `--bg`、`--surface`
+- 中灰 #CBCCCC → `--bg-alt`、`--border`、`--border-strong`
+
+注意：15 个 CSS 文件里仍有 37 处硬编码的 `#fff` / `#F9FAFB`（多为内容 section 白底），不走这些变量、暂未改。待用户确认是否一并纳入三档。已 `npm run build` 验证。
+
+**Files modified:**
+- `styles/tokens.css` — bg/bg-alt/surface/border/border-strong 改为三档灰
+- `README.md` — 更新灰阶说明
+
+### Why Trust It 卡5 换成"几人看屏"图
+
+卡5（Human authority）最终改用自制人物群组 SVG `public/assets/human-authority.svg`：深蓝底 + 前排一个亮蓝人物 + 后排两个暗蓝人物（user-icon 造型剪影），呼应"人一起把关审核/发布权"，与卡2 hydrograph SVG 成套。仅改 `.evidence-bg-4`。已 `npm run build` 验证。（中间试过两人照片/裁头、几人照片，最终按用户给的 user 图标做成群组矢量图。）
+
+**Files created / modified:**
+- `public/assets/human-authority.svg` — 新建自制人物群组图
+- `styles/pages/home.css` — `.evidence-bg-4` 指向该 SVG
+
+**Files modified:**
+- `styles/pages/home.css` — `.evidence-bg-4` 换为几人看屏图
+
+### Why Trust It 卡2 换成自制 observed vs projected hydrograph SVG
+
+卡2（Validated results）改用自制矢量图 `public/assets/hydrograph-validation.svg`：深蓝底 + 淡网格 + 一条实测洪峰（填充面积 + accent-light 描边）+ 一条预测虚线紧贴叠合 + Observed/Projected 图例。蓝色系配合卡片深蓝底，零版权、离线稳定，精准呼应"还原实测洪峰洪量"。仅改 `.evidence-bg-1` 指向该 SVG。已 `npm run build` 验证。
+
+**Files created / modified:**
+- `public/assets/hydrograph-validation.svg` — 新建自制 hydrograph 对比图
+- `styles/pages/home.css` — `.evidence-bg-1` 由 Unsplash 图改为本地 SVG
+
+### Why Trust It 卡4 换成本地 EGU 2026 真实照片
+
+卡4（Published research）改用本地图 `public/assets/egu2026.jpg`（HydroAgent Lab 在 EGU 2026 的真实口头报告照片，大屏幻灯 + 讲者）。`background-size: auto 100%`（填满卡高、不额外放大）、`background-position: left center` 聚焦左侧幻灯；底部深蓝渐变遮罩未动，仅替换图片。已 `npm run build` 验证。
+
+**Files modified:**
+- `styles/pages/home.css` — `.evidence-bg-3` 改为本地 egu2026.jpg + 放大/左对齐/no-repeat
+
+### Why Trust It 图 2–5 改为语义对应图（放弃统一色系）
+
+用户改要求：优先语义对应，不必都是自然图。图 1 保留流域图，2–5 按文字换：
+- 卡2 Validated results → 数据/分析屏（photo-1526628953301）
+- 卡3 Multi-LLM ready → AI 电路+脑（photo-1677442135703）
+- 卡4 Published research → 会议演讲台（photo-1587825140708，对应 EGU 口头报告）
+- 卡5 Human authority → 签署文件（photo-1562564055，对应人保留审核/发布权）
+
+偏深调选图以配白字；卡片底部深蓝渐变遮罩提供统一底调。WebFetch 按主题抓候选 + `curl` 验证 4 个直链均 200。已 `npm run build` 验证。
+
+**Files modified:**
+- `styles/pages/home.css` — `.evidence-bg-1..4` 换 4 张语义对应图
+
+### Why Trust It 图 2–5 换语义对应 + 冷蓝统一色系图
+
+图 1 保留（山云流域，冷蓝青调）。图 2–5 换成与各自文字对应、且统一冷蓝色系的河流/水景图（Unsplash，免费商用）：
+- 卡2 Validated results → 激流白沫（photo-1747585003133）
+- 卡3 Multi-LLM ready → 辫状河多支流（photo-1759322639533，多支流≈多模型）
+- 卡4 Published research → 雾中山水（photo-1558515093，研究沉静感）
+- 卡5 Human authority → 人临水望桥（photo-1693845610623）
+
+改前用 WebFetch 按主题抓 Unsplash 候选、并 `curl` 验证 5 个直链均 200，全部冷蓝调以贴合图 1。已 `npm run build` 验证。
+
+**Files modified:**
+- `styles/pages/home.css` — `.evidence-bg-1..4` 换 4 张冷蓝语义对应图
+
+### Why Trust It 卡片文字改居中
+
+标题与证据正文均 `text-align: center` 居中（先前试过两端对齐，因窄屏字间距过大改为普通居中）。仅改 `styles/pages/home.css`。已 `npm run build` 验证。
+
+**Files modified:**
+- `styles/pages/home.css` — `.evidence-label` 与 `.evidence-text` 均 `text-align:center`
+
+### Why Trust It 换河流主题免费图 + 标题基线对齐
+
+按需求回到照片方案（弃用上一版自制 SVG）：第 1 张保留原 flip-card 背景图（山云流域 photo-1470071459604），第 2–5 张换成 4 张河流/水景图，与第一张成套。图片来源 Unsplash（Unsplash License，免费商用、无需署名），改前用 `curl` 逐一验证 5 个直链均返回 200，避免坏链。
+
+**标题对齐修复**：原来文字块 `justify-content: flex-end` 底端对齐，导致 5 张卡标题因文字长短不同而上下错位。改为 `.evidence-overlay` 绝对定位 + 固定 `top`（桌面 190px / ≤600px 150px），所有卡标题从同一水平基线开始、向下延伸——标题对齐。移除内联 SVG（`evidence-art`/`wave`/`line`）与 `hydroLines`。
+
+已 `npm run build` 验证通过。
+
+**Files modified:**
+- `components/pages/home.js` — 移除 `hydroLines` 与内联 `<svg>`，evidence-card 回到纯 `.evidence-overlay` 结构
+- `styles/pages/home.css` — `.evidence-bg-*` 由深蓝渐变改为 5 张 Unsplash 河流照片；删除 SVG art 样式；`.evidence-overlay` 改绝对定位固定 top（标题基线对齐）；加深底部遮罩；≤600 响应式同步
+- `README.md` — 更新 evidence 卡说明为照片 + 基线对齐版
+
+### Why Trust It 卡片改用自制水文 SVG 背景（弃用外链图）
+
+把 5 张卡的 Unsplash 外链风景图全部替换为**自制抽象水文图形**：每张卡 = 深蓝渐变底 + 内联 SVG（两层半透明水波 + 一条白色"水文过程线"）。5 条过程线形状各异，呼应各自证据——基流平缓 / 单洪峰 / 多峰 / 阶梯放水 / 缓升。零外链、离线稳定、零版权、与 accent 蓝成套。层级 z-index：SVG(0) < 底部深蓝渐变(1) < 文字(2)，保证白字可读。
+
+已 `npm run build` 验证通过。
+
+**Files modified:**
+- `components/pages/home.js` — 新增 `hydroLines`（5 条过程线 path）；每张 evidence-card 内联 `<svg class="evidence-art">`（两层 `.evidence-wave` + `.evidence-line`）
+- `styles/pages/home.css` — `.evidence-bg-*` 由 Unsplash url 改为深蓝渐变；新增 `.evidence-art`/`.evidence-wave`/`.evidence-line` 及 z-index 分层
+- `README.md` — 更新 evidence 卡说明为自制 SVG 版
+
+### Why Trust It 卡片重排为图片背景卡（不翻转）
+
+按需求把 trust 区块从上一版"纯文字常显卡"改为**图片背景卡**：5 张竖版图片卡横排一行，标签 + 证据全文压在图片底部（深黑渐变保证白字可读），**不翻转**——文字常显、触屏/键盘可达。用 flex 底对齐 + `min-height`（非固定 `aspect-ratio`），同行 grid 自动等高、长证据文字不被裁。网格 `max-width:1000px` 居中，两侧留白。响应式：≤900 → 3 列，≤600 → 2 列。恢复使用最初的 5 张 Unsplash 图（`.evidence-bg-0..4`）。
+
+已 `npm run build` 验证，24 页静态导出通过。
+
+**Files modified:**
+- `components/pages/home.js` — evidence-card 加 `evidence-bg-${i}` 背景类 + `.evidence-overlay` 包裹标签与证据
+- `styles/pages/home.css` — `.evidence-*` 重写为图片背景卡（flex 底对齐、min-height、底部渐变 `::before`、5 张 `evidence-bg-*` 图）；新增 ≤900/≤600 响应式列数
+- `README.md` — 更新 evidence 卡说明
+
 ### 接入 Google Analytics 4
 
 全站接入 GA4（衡量 ID `G-6G0RNE8L4Z`）。因线上站点由 Next.js 静态导出部署（`out/`），根目录遗留 HTML 不生效，故代码加在根布局 `app/layout.js`，用 `next/script`（`strategy="afterInteractive"`）加载，一次覆盖全部 en/zh 路由。旧属性 `G-38YWP282HR` 为重建前遗留，未接入。已 `npm run build` 验证，GA ID 出现在 42 个导出页面中。

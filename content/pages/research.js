@@ -12,7 +12,7 @@ export const researchContent = {
       ]
     },
     motivationSection: {
-      eyebrow: "Why We Do This",
+      eyebrow: "",
       title: "Why an agent for flood forecasting?",
       paragraphs: [
         "Climate change is driving more extreme floods, and forecasting is one of the first defenses. Operational forecasting starts with a hydrological model, but the final bulletin rarely comes straight from the model. Experienced forecasters stay in the loop, combining rainfall and water-regime information with local experience to revise the output. That judgment is often a major part of forecast quality.",
@@ -45,7 +45,7 @@ export const researchContent = {
       ]
     },
     motivationSection: {
-      eyebrow: "我们为什么做这件事",
+      eyebrow: "",
       title: "为什么要做面向洪水预报的智能体工作流？",
       paragraphs: [
         "气候变化带来越来越极端的洪水，而预报是我们抵御洪水的第一道防线。今天的业务化预报从水文模型起步，但最终的预报单从来不是模型直接输出来的。有经验的预报员始终在环路里，把雨水情信息和本地经验结合起来，对模型结果做修正。这份专家判断，往往是预报质量中很关键的一层。",

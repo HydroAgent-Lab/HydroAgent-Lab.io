@@ -15,8 +15,9 @@
 .page-lead-main .eyebrow { margin-bottom: 16px; }
 
 .page-lead h1 {
-  font-size: 2rem;
-  line-height: 1.1;
+  font-size: clamp(1.6rem, 2.4vw, 1.85rem);
+  line-height: 1.22;
+  letter-spacing: -0.005em;
   margin: 0;
 }
 
@@ -109,8 +110,8 @@ main.main-content > .content-section + .content-section {
 }
 
 .info-card:hover {
-  border-color: var(--accent-light);
-  box-shadow: 0 2px 12px rgba(59, 130, 246, 0.08);
+  border-color: var(--border-strong);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .info-card h3 {
@@ -245,7 +246,7 @@ main.main-content > .content-section + .content-section {
   transition: border-color var(--transition);
 }
 
-.surface-card:hover { border-color: var(--accent-light); }
+.surface-card:hover { border-color: var(--border-strong); }
 
 .surface-card h3 {
   font-size: 15px;

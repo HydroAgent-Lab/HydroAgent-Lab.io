@@ -13,7 +13,7 @@ export const membersContent = {
     },
     mapAlt: "World map highlighting HydroAgent-Lab member locations",
     roster: {
-      eyebrow: "Lab members",
+      eyebrow: "",
       title: "HydroAgent-Lab",
       text: "Member order is not hierarchical.",
       emailLabel: "Email",
@@ -37,7 +37,7 @@ export const membersContent = {
     },
     mapAlt: "标注 HydroAgent-Lab 成员所在地的世界地图",
     roster: {
-      eyebrow: "团队成员",
+      eyebrow: "",
       title: "HydroAgent-Lab",
       text: "排名不分先后 ",
       emailLabel: "邮箱",

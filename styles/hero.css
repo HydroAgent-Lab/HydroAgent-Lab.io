@@ -289,12 +289,12 @@
   border: 1px solid var(--accent);
   border-radius: var(--radius-pill);
   padding: 10px 22px;
-  transition: all var(--transition);
+  transition: color var(--transition), background-color var(--transition), border-color var(--transition);
 }
 
 .primary-action:hover {
-  background: var(--accent-dark, #1a5276);
-  border-color: var(--accent-dark, #1a5276);
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
 .secondary-action {
@@ -307,7 +307,7 @@
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-pill);
   padding: 10px 22px;
-  transition: all var(--transition);
+  transition: color var(--transition), background-color var(--transition), border-color var(--transition);
   backdrop-filter: blur(4px);
   background: rgba(255, 255, 255, 0.5);
 }
