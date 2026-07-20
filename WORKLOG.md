@@ -24,6 +24,24 @@
 - major #6 纯 system 字体无显示/正文配对
 - major #7 每段重复大写 eyebrow；#8 `transition: all` + 默认 `ease`
 
+### Hero 流光线改银白
+
+首页 hero 截图边缘的流光光束由浅蓝 `rgba(147,197,253,0.9)` 改银白 `rgba(245,248,252,0.95)`（`.hero-monitor::before` 两条光束）。仅改 hero.css。已 `npm run build` 验证。
+
+**Files modified:**
+- `styles/hero.css` — .hero-monitor::before 流光色 → 银白
+
+### 其他页面 eyebrow 精简（每页只留 hero）
+
+延续首页策略，删除全部二级页的 section eyebrow（共 15 个 × en/zh = 30 处清空），每页只保留顶部 1 个 hero eyebrow 作品牌蓝点睛：
+- platform（删4）、capabilities（删2）、careers（删2）、contact（删2）、team（删2）、research（删1）、white-papers（删1）、members（删1）；events 本就 1 个
+- 保留 hero：Product/产品、Capabilities/服务、Research/研究、About HydroAgent-Lab、White Papers/白皮书 等
+
+已 `npm run build` 验证。
+
+**Files modified:**
+- `content/pages/{platform,capabilities,careers,contact,team,research,white-papers,members}.js` — section eyebrow 清空
+
 ### 移动端 drawer hover/active 统一淡蓝圆角
 
 把桌面下拉的"淡品牌蓝圆角高亮"统一到移动端抽屉菜单：`.drawer-item`、`.drawer-parent` 加左右 padding + 圆角 + `background var(--transition)`，hover/active 背景 `color-mix(in oklch, var(--accent) 12%, #fff)`（回退 --surface）。原本 drawer 是"分隔线+变色"、无灰方块问题；此改为统一交互反馈并高亮当前页。其余全局改动（品牌蓝/字体/灰阶/卡片/focus）手机端本就自动生效。已 `npm run build` 验证。

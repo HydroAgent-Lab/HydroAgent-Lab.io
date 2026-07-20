@@ -155,8 +155,8 @@
     0 var(--cut)
   );
   background:
-    linear-gradient(90deg, transparent, rgba(147, 197, 253, 0.9), transparent) no-repeat,
-    linear-gradient(90deg, transparent, rgba(147, 197, 253, 0.9), transparent) no-repeat;
+    linear-gradient(90deg, transparent, rgba(245, 248, 252, 0.95), transparent) no-repeat,
+    linear-gradient(90deg, transparent, rgba(245, 248, 252, 0.95), transparent) no-repeat;
   background-size: 45% 2.5px, 45% 2.5px;
   background-position: -45% 0, 145% 100%;
   animation: hero-edge-beam 3.6s linear infinite;
