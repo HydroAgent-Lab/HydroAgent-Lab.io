@@ -24,6 +24,15 @@
 - major #6 纯 system 字体无显示/正文配对
 - major #7 每段重复大写 eyebrow；#8 `transition: all` + 默认 `ease`
 
+### 手机端两侧留白增大（≤560px）
+
+用户反馈手机端横向几乎占满。根因：responsive.css 的 `@media (max-width:560px)` 里内容区水平 padding 偏小（content-section 28px、几个 home section 20px）。统一提到 32px（`.content-section`/`.cta-band` 及 product-preview/agent-thinking/human-agent/architecture-world/business-map/proof-statement）。仅改这几个 padding 数值，未动断点结构/布局逻辑（该断点为之前响应式审计补的 SMALL PHONE TIER）。已 `npm run build` 验证。
+
+补充：为覆盖所有页面（不止首页），≤560px 加 `:root { --gutter: 32px }`，一次性覆盖所有二级页 hero（.page-lead）、nav、footer、及所有 `var(--gutter)` section。用户确认后，两个特例 hero（`.careers-frame` = Careers hero 横幅、`.platform-hero-copy` + `.platform-facts-bar` = Platform hero 标题块/数据条）也在 ≤560px 覆盖水平 padding 到 32px（仅水平间距，不动不对称对齐结构）。全站手机端两侧留白统一 32px。
+
+**Files modified:**
+- `styles/responsive.css` — ≤560px 内容区水平 padding → 32px；--gutter → 32px
+
 ### Hero 流光线改银白 + 金属质感
 
 首页 hero 截图边缘的流光光束由浅蓝 `rgba(147,197,253,0.9)` 改银白，再加金属层次：渐变改为 冷银灰 `rgba(190,200,214,0.55)` → 纯白高光 `rgba(255,255,255,0.98)` → 冷银灰，模拟金属反光（`.hero-monitor::before` 两条光束）。仅改 hero.css。已 `npm run build` 验证（首次间歇性报错，重试通过）。

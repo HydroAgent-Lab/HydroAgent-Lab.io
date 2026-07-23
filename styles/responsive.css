@@ -137,12 +137,22 @@ dd {
   /* Tighter gutters + vertical rhythm on the smallest screens. */
   :root {
     --header-height: 88px;
+    --gutter: 32px;   /* wider side padding on phones (page-lead, nav, footer, sections) */
   }
 
   main.main-content > .content-section,
   .cta-band {
     padding-top: 40px;
     padding-bottom: 40px;
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+
+  /* Hero areas that use max() side padding — match the 32px phone gutter
+     (horizontal only; their asymmetric alignment structure is untouched) */
+  .careers-frame,
+  .platform-hero-copy,
+  .platform-facts-bar {
     padding-left: 32px;
     padding-right: 32px;
   }
