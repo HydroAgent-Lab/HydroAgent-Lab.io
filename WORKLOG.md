@@ -24,9 +24,9 @@
 - major #6 纯 system 字体无显示/正文配对
 - major #7 每段重复大写 eyebrow；#8 `transition: all` + 默认 `ease`
 
-### Hero 流光线改银白
+### Hero 流光线改银白 + 金属质感
 
-首页 hero 截图边缘的流光光束由浅蓝 `rgba(147,197,253,0.9)` 改银白 `rgba(245,248,252,0.95)`（`.hero-monitor::before` 两条光束）。仅改 hero.css。已 `npm run build` 验证。
+首页 hero 截图边缘的流光光束由浅蓝 `rgba(147,197,253,0.9)` 改银白，再加金属层次：渐变改为 冷银灰 `rgba(190,200,214,0.55)` → 纯白高光 `rgba(255,255,255,0.98)` → 冷银灰，模拟金属反光（`.hero-monitor::before` 两条光束）。仅改 hero.css。已 `npm run build` 验证（首次间歇性报错，重试通过）。
 
 **Files modified:**
 - `styles/hero.css` — .hero-monitor::before 流光色 → 银白

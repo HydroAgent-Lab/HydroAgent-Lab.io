@@ -139,9 +139,12 @@ dd {
     --header-height: 88px;
   }
 
-  main.main-content > .content-section {
+  main.main-content > .content-section,
+  .cta-band {
     padding-top: 40px;
     padding-bottom: 40px;
+    padding-left: 32px;
+    padding-right: 32px;
   }
 
   .product-preview,
@@ -150,8 +153,8 @@ dd {
   .architecture-world,
   .business-map,
   .proof-statement {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 32px;
+    padding-right: 32px;
     padding-top: 44px;
     padding-bottom: 44px;
   }

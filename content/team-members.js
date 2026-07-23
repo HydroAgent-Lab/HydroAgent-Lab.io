@@ -283,5 +283,16 @@ export const hydroAgentTeamMembers = [
     focus:
       "AI-Enhanced Hydroinformatics, Deep Learning-Based Hydrologic Modeling, Karst Hydroclimatic Extremes",
     focusZh: "AI 增强水文信息学、基于深度学习的水文模型、喀斯特水文气候极端"
+  },
+  {
+    name: "Yao Li",
+    nameZh: "李瑶",
+    initials: "YL",
+    affiliation: "École nationale des ponts et chaussées, Institut Polytechnique de Paris, France",
+    affiliationZh: "巴黎高科路桥学院，巴黎综合理工学院，法国",
+    email: "yao.li@enpc.fr",
+    orcid: "https://orcid.org/0000-0002-5406-4494",
+    focus: "Flood modelling, climate extremes, urban resilience, and nature-based solutions",
+    focusZh: "洪水模拟、气候极值、城市韧性、基于自然的解决方案"
   }
 ];
