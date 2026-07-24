@@ -9,6 +9,7 @@ import { navContent } from "./nav";
 import { homeContent } from "./pages/home";
 import { platformContent } from "./pages/platform";
 import { capabilitiesContent } from "./pages/capabilities";
+import { demoContent } from "./pages/demo";
 import { researchContent } from "./pages/research";
 import { whitePapersContent } from "./pages/white-papers";
 import { teamContent } from "./pages/team";
@@ -21,6 +22,7 @@ export const siteContent = {
     home: homeContent.en,
     platform: platformContent.en,
     capabilities: capabilitiesContent.en,
+    demo: demoContent.en,
     research: researchContent.en,
     whitePapers: whitePapersContent.en,
     team: teamContent.en,
@@ -32,6 +34,7 @@ export const siteContent = {
     home: homeContent.zh,
     platform: platformContent.zh,
     capabilities: capabilitiesContent.zh,
+    demo: demoContent.zh,
     research: researchContent.zh,
     whitePapers: whitePapersContent.zh,
     team: teamContent.zh,

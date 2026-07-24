@@ -10,6 +10,8 @@ export const homeContent = {
       primaryPath: "/platform",
       secondary: "Discuss a pilot",
       secondaryPath: "/contact",
+      tertiary: "Try the demo",
+      tertiaryPath: "/demo",
       videoTag: "HydroAgent-FF workflow demo"
     },
     whatSection: {
@@ -64,6 +66,8 @@ export const homeContent = {
       primaryPath: "/platform",
       secondary: "讨论试点合作",
       secondaryPath: "/zh/contact",
+      tertiary: "体验产品",
+      tertiaryPath: "/zh/demo",
       videoTag: "洪水预报工作流演示"
     },
     whatSection: {

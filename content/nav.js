@@ -13,7 +13,8 @@ export const navContent = {
         label: "Product",
         children: [
           { id: "B1", path: "/platform", label: "hydroagent-FF" },
-          { id: "B2", path: "/capabilities", label: "Capabilities" }
+          { id: "B2", path: "/capabilities", label: "Capabilities" },
+          { id: "B3", path: "/demo", label: "Demo" }
         ]
       },
       {
@@ -48,7 +49,8 @@ export const navContent = {
         title: "Product",
         items: [
           { path: "/platform", label: "hydroagent-FF" },
-          { path: "/capabilities", label: "Capabilities" }
+          { path: "/capabilities", label: "Capabilities" },
+          { path: "/demo", label: "Demo" }
         ]
       },
       {
@@ -101,7 +103,8 @@ export const navContent = {
         label: "产品",
         children: [
           { id: "B1", path: "/platform", label: "洪水预报智能体" },
-          { id: "B2", path: "/capabilities", label: "服务" }
+          { id: "B2", path: "/capabilities", label: "服务" },
+          { id: "B3", path: "/demo", label: "产品体验" }
         ]
       },
       {
@@ -136,7 +139,8 @@ export const navContent = {
         title: "产品",
         items: [
           { path: "/platform", label: "洪水预报智能体" },
-          { path: "/capabilities", label: "服务" }
+          { path: "/capabilities", label: "服务" },
+          { path: "/demo", label: "产品体验" }
         ]
       },
       {

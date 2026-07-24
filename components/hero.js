@@ -43,6 +43,11 @@ export function Hero({ lang = "en", content }) {
             <Link className="secondary-action" href={hero.secondaryPath}>
               {hero.secondary} <span className="action-arrow">→</span>
             </Link>
+            {hero.tertiary ? (
+              <Link className="secondary-action" href={hero.tertiaryPath}>
+                {hero.tertiary} <span className="action-arrow">→</span>
+              </Link>
+            ) : null}
           </div>
         </div>
       </div>

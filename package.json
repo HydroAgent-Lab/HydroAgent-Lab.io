@@ -3,14 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --hostname 127.0.0.1 --port 3000",
-    "build": "next build",
-    "start": "next start --hostname 127.0.0.1 --port 3000",
-    "export": "next build"
+    "dev": "cross-env NODE_OPTIONS=--no-experimental-webstorage next dev --hostname 127.0.0.1 --port 3000",
+    "build": "cross-env NODE_OPTIONS=--no-experimental-webstorage next build",
+    "start": "cross-env NODE_OPTIONS=--no-experimental-webstorage next start --hostname 127.0.0.1 --port 3000",
+    "export": "cross-env NODE_OPTIONS=--no-experimental-webstorage next build"
   },
   "dependencies": {
     "next": "15.3.4",
     "react": "19.1.0",
     "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0"
   }
 }
