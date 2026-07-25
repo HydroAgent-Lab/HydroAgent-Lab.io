@@ -8,10 +8,10 @@ export const homeContent = {
         "Organize data, models, expert judgment, and release into one reviewable operational workflow.",
       primary: "Explore HydroAgent-FF",
       primaryPath: "/platform",
-      secondary: "Discuss a pilot",
-      secondaryPath: "/contact",
-      tertiary: "Try the demo",
-      tertiaryPath: "/demo",
+      secondary: "Try the demo",
+      secondaryPath: "/demo",
+      tertiary: "Discuss a pilot",
+      tertiaryPath: "/contact",
       videoTag: "HydroAgent-FF workflow demo"
     },
     whatSection: {
@@ -64,10 +64,10 @@ export const homeContent = {
       text: "把数据、模型、专家判断和发布流程组织成一条可复核的业务工作流 ",
       primary: "了解 HydroAgent-FF",
       primaryPath: "/platform",
-      secondary: "讨论试点合作",
-      secondaryPath: "/zh/contact",
-      tertiary: "体验产品",
-      tertiaryPath: "/zh/demo",
+      secondary: "体验产品",
+      secondaryPath: "/demo",
+      tertiary: "讨论试点合作",
+      tertiaryPath: "/contact",
       videoTag: "洪水预报工作流演示"
     },
     whatSection: {

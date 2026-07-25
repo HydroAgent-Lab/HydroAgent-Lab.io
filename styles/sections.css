@@ -9,7 +9,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 48px;
   padding: 80px var(--gutter) 64px;
-  background: #F9FAFB;
+  background: var(--surface-subtle);
 }
 
 .page-lead-main .eyebrow { margin-bottom: 16px; }

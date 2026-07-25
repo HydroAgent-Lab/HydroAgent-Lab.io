@@ -270,13 +270,67 @@
   margin: 0 0 20px;
 }
 
-/* Hero action buttons */
+/* Hero action buttons — 2 + 1 grid, equal width, shrunk to the longest label.
+   The cluster read as messy because the three pills were RAGGED, not because they
+   were styled differently. Equal tracks fix that; the third button auto-places into
+   row 2 col 1, so all three share one width. Arrows are pushed right, stacking into
+   an aligned column. Only the primary is filled, so ranking survives.
+
+   `width: max-content` is what keeps the buttons from stretching into slabs. Under
+   intrinsic sizing the spec resolves ALL fr tracks to the largest track's
+   max-content contribution — so both columns land on the widest button's width
+   ("Explore HydroAgent-FF") instead of each column sizing to its own contents.
+   That gives equal columns AND no hard-coded px: zh re-measures to its own,
+   shorter labels automatically.
+
+   Everything here is scoped under .hero-actions on purpose: .primary-action and
+   .secondary-action are shared with components/cta-band.js and must not shift. */
 .hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+  display: grid;
+  /* min 0 so the tracks can still compress (with an ellipsis) if max-width bites */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  justify-content: start;
+  gap: 10px;
   margin-top: 4px;
+  width: max-content;
+  max-width: 100%;
 }
+
+.hero-actions .primary-action,
+.hero-actions .secondary-action {
+  /* label hard-left, arrow hard-right — the shared track turns the arrows into an
+     aligned column, which is where the sense of order comes from.
+     The gap is the ONLY breathing room on the longest button (its track is sized to
+     exactly fit it), so it also sets the whole cluster's width. 24px reads
+     comfortable without padding the block out again. */
+  justify-content: space-between;
+  gap: 24px;
+  padding: 10px 18px;
+  white-space: nowrap;
+}
+
+/* Safety net only — at the sizes above no label truncates. If someone later adds a
+   longer label it degrades to an ellipsis instead of bursting the button. */
+.hero-actions .action-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Narrow desktop: the copy column is 34% of the stage, so two tracks (~450px total)
+   stop fitting below roughly a 1324px viewport. Drop to one column rather than let
+   max-width squeeze the tracks and truncate labels. Still equal width, still
+   shrink-to-content. */
+@media (min-width: 901px) and (max-width: 1400px) {
+  .hero-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.hero-actions .action-arrow {
+  flex-shrink: 0;
+}
+
 
 .primary-action {
   display: inline-flex;
@@ -327,6 +381,17 @@
 .primary-action:hover .action-arrow,
 .secondary-action:hover .action-arrow {
   transform: translateX(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .action-arrow {
+    transition: none;
+  }
+
+  .primary-action:hover .action-arrow,
+  .secondary-action:hover .action-arrow {
+    transform: none;
+  }
 }
 
 /* Video tag caption — pinned to bottom-right of hero */

@@ -2,16 +2,80 @@
    Demo Page — scripted replay chat of real HydroAgent sessions
    ========================================================== */
 
-/* Narrower title column so the h1 wraps sooner — matches the capabilities page lead */
+/* --- Page lead — three zones: title left · description right · facts as a base bar
+   The shared PageLead lands badly on this page. The left column holds an eyebrow
+   and one short line; the right holds a 250-character paragraph AND three facts —
+   roughly a 1:4 split in visual weight, which is why widening the right column
+   (the previous 0.78 / 1.22 fix) only treated the symptom.
+
+   The copy is fixed, so the layout absorbs it instead: the title grows to hold the
+   left column on its own, and the facts move out of the right column into a
+   full-width base bar, where they read as evidence rather than as leftovers.
+
+   `display: contents` is what makes this possible without touching the shared
+   component: .page-lead-side stops generating a box, so its two children become
+   grid items directly. DOM order — and therefore screen-reader order — is
+   unchanged. Everything is scoped to .demo-page; the other seven pages that use
+   PageLead are untouched. */
 .demo-page .page-lead {
-  grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: 56px;
+  row-gap: 36px;
+  align-items: start;
+}
+
+.demo-page .page-lead-side {
+  display: contents;
+}
+
+.demo-page .page-lead-main {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.demo-page .page-lead-side p {
+  grid-column: 2;
+  grid-row: 1;
+  /* the 24px bottom margin existed to separate the facts that now sit elsewhere */
+  margin: 0;
+  padding-top: 8px; /* settles the paragraph against the taller headline */
+}
+
+/* Was capped at 1.85rem (~29.6px) — small for a page's primary heading, and well
+   under the home hero's 41.6px. It now carries the left column by itself. */
+.demo-page .page-lead h1 {
+  font-size: clamp(1.9rem, 3.2vw, 2.6rem);
+  letter-spacing: -0.02em;
+}
+
+/* Base bar: full width, divided into equal cells by hairlines. */
+.demo-page .page-lead-facts {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  gap: 0;
+  border-top: 1px solid var(--border);
+  padding-top: 24px;
+}
+
+.demo-page .page-lead-fact {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.demo-page .page-lead-fact + .page-lead-fact {
+  border-left: 1px solid var(--border);
+  padding-left: 32px;
+}
+
+.demo-page .page-lead-fact strong {
+  font-variant-numeric: tabular-nums;
 }
 
 .demo-chat {
   display: grid;
-  grid-template-columns: minmax(240px, 320px) 1fr;
+  grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
   gap: 16px 20px;
-  align-items: stretch;
+  align-items: start;
 }
 
 /* --- Replay badge (spans both columns, on top) --- */
@@ -34,30 +98,31 @@
   padding: 6px 14px;
 }
 
+/* Static neutral dot. It used to pulse in brand blue — but a live-looking pulse
+   directly contradicts the badge it sits in, which reads "not live inference".
+   The animation was decoration arguing with the copy. */
 .demo-replay-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--accent);
-  animation: demo-pulse 2s ease-in-out infinite;
+  background: var(--text-muted);
 }
 
-@keyframes demo-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.35; }
-}
-
-/* --- Scenario tabs --- */
+/* --- Scenario tabs ---
+   Cards size to their own content and the column ends where it ends. They used to
+   be flex:1 1 0, splitting the chat window's height between five cards — forcing
+   each card into a fixed slot the copy had to be clamped to fit. Matching the
+   neighbouring column's height is not worth squeezing the content. */
 .demo-scenarios {
   display: flex;
   flex-direction: column;
+  align-content: start;
   gap: 10px;
 }
 
 .demo-scenario-tab {
   display: flex;
-  flex: 1 1 0; /* all cards share the column height equally, matching the chat */
-  min-height: 0;
+  flex: 0 0 auto;
   flex-direction: row;
   align-items: center;
   gap: 14px;
@@ -114,9 +179,12 @@
   border-color: var(--accent-light);
 }
 
+/* L2 accent — "current". Ground tint instead of a second ring: the old
+   box-shadow drew a blue ring that collided with the global :focus-visible
+   outline, so keyboard users saw two blue rings and couldn't tell them apart. */
 .demo-scenario-tab.is-active {
   border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent);
+  background: var(--accent-wash);
 }
 
 .demo-scenario-tab.is-active strong {
@@ -126,7 +194,7 @@
 .demo-scenario-tab.is-active .demo-scenario-num {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--text-on-dark);
 }
 
 .demo-scenario-tab:hover .demo-scenario-num {
@@ -174,7 +242,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: 0 12px 40px rgba(17, 24, 39, 0.06);
+  box-shadow: var(--shadow-card);
 }
 
 .demo-chat-scroll {
@@ -233,8 +301,8 @@
 }
 
 .demo-avatar-user {
-  background: var(--accent);
-  color: #fff;
+  background: var(--dark-1);
+  color: var(--text-on-dark);
 }
 
 .demo-avatar-user svg {
@@ -243,8 +311,9 @@
 }
 
 /* --- Messages --- */
+/* max-width lives on the two variants below — the 78% here was always overridden
+   by .demo-msg-assistant, so it only ever applied to the user bubble anyway. */
 .demo-msg {
-  max-width: 78%;
   min-width: 0;
   border-radius: var(--radius-md);
   font-size: 14px;
@@ -252,17 +321,24 @@
   color: var(--text);
 }
 
+/* L3 — neutral, NOT brand blue. The user bubble is the largest coloured area on
+   the page; filling it with the accent made blue mean "brand" and "act here" at
+   the same time. Dark neutral keeps the left/right read and frees the accent for
+   the send button. (#3E3F40 on white: ~10:1, better than the blue it replaced.) */
 .demo-msg-user {
-  background: var(--accent);
-  color: #fff;
+  background: var(--dark-1);
+  color: var(--text-on-dark);
   padding: 12px 16px;
   border-bottom-right-radius: 4px;
   white-space: pre-wrap;
+  max-width: 78%;
 }
 
+/* No border: the chat window already draws one, and the data cards inside draw
+   their own. Three nested outlines was the card-in-card tell — the bubble now
+   separates from the white window by ground colour alone. */
 .demo-msg-assistant {
   background: var(--bg);
-  border: 1px solid var(--border);
   padding: 14px 18px;
   border-bottom-left-radius: 4px;
   max-width: calc(100% - 44px);
@@ -280,7 +356,7 @@
   height: 7px;
   border-radius: 50%;
   background: var(--text-muted);
-  animation: demo-typing-bounce 1.2s infinite ease-in-out;
+  animation: demo-typing-bounce 1.2s infinite var(--ease-in-out);
 }
 
 .demo-typing i:nth-child(2) { animation-delay: 0.15s; }
@@ -323,14 +399,17 @@
   padding-left: 2px;
 }
 
+/* L3 — neutral. A checklist marker is structure, not emphasis; in brand blue it
+   was competing with the send button for attention.
+   (Glyph left as-is: CSS `content` is copy, and copy is out of scope here.) */
 .demo-block-check li::before {
   content: "☐ ";
-  color: var(--accent);
+  color: var(--text-muted);
   font-weight: 700;
 }
 
 .demo-msg-assistant code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
   background: var(--bg-alt);
   border: 1px solid var(--border);
@@ -346,11 +425,15 @@
   border-radius: var(--radius-sm);
 }
 
+/* tabular-nums: these tables carry discharge / stage figures — proportional
+   digits leave the decimal points ragged, which is a real legibility cost on
+   hydrological data, not just a typographic nicety. */
 .demo-block-table {
   border-collapse: collapse;
   width: 100%;
   font-size: 12.5px;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .demo-block-table th,
@@ -381,7 +464,7 @@
   height: auto;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: #fff;
+  background: var(--surface-elevated);
 }
 
 .demo-block-img figcaption {
@@ -391,10 +474,12 @@
   line-height: 1.5;
 }
 
-/* --- Result highlight card --- */
+/* --- Result highlight card ---
+   L2 accent: the "conclusion" surface. Was rgba(59,130,246,.06) — Tailwind
+   blue-500, a different hue from the brand blue, which broke colour cohesion. */
 .demo-block-result {
   border: 1px solid var(--accent-light);
-  background: rgba(59, 130, 246, 0.06);
+  background: var(--accent-wash);
   border-radius: var(--radius-md);
   padding: 14px 16px;
   margin: 6px 0 10px;
@@ -432,6 +517,7 @@
   font-weight: 700;
   font-size: 13px;
   color: var(--text);
+  font-variant-numeric: tabular-nums;
 }
 
 /* --- Empty state --- */
@@ -515,7 +601,7 @@
 .demo-end-cta {
   background: var(--accent);
   border: 1px solid var(--accent);
-  color: #fff;
+  color: var(--text-on-dark);
 }
 
 .demo-end-cta:hover {
@@ -572,11 +658,13 @@
   overflow: hidden;
 }
 
+/* L1 accent — the only solid brand-blue fill in the default state.
+   This is the page's single "act here". */
 .demo-send-btn {
   font: inherit;
   font-size: 14px;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-on-dark);
   background: var(--accent);
   border: none;
   border-radius: var(--radius-pill);
@@ -630,7 +718,7 @@
 .demo-msg-assistant.is-streaming .demo-block-table-wrap,
 .demo-msg-assistant.is-streaming .demo-block-result,
 .demo-msg-assistant.is-streaming .demo-block-img {
-  animation: demo-reveal 0.6s ease-out both;
+  animation: demo-reveal 0.6s var(--ease-out) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -639,21 +727,41 @@
   .demo-msg-assistant.is-streaming .demo-block-img {
     animation: none;
   }
+
+  /* The typing indicator was missing a guard — it is the one animation that runs
+     on every turn, so it mattered most. Dots stay visible, just stop bouncing. */
+  .demo-typing i {
+    animation: none;
+  }
 }
 
 /* --- Responsive --- */
 @media (max-width: 900px) {
+  /* Single column: the explicit placements above must be released, or the
+     paragraph keeps asking for a column 2 that no longer exists. Source order
+     then takes over — title, description, facts — which is already correct. */
   .demo-page .page-lead {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 24px;
+  }
+
+  .demo-page .page-lead-main,
+  .demo-page .page-lead-side p,
+  .demo-page .page-lead-facts {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .demo-page .page-lead-side p {
+    padding-top: 0;
+  }
+
+  .demo-page .page-lead-facts {
+    padding-top: 20px;
   }
 
   .demo-chat {
     grid-template-columns: 1fr;
-  }
-
-  .demo-scenario-tab {
-    flex: 0 0 auto; /* natural height when stacked on mobile */
   }
 
   .demo-chat-scroll {
@@ -677,5 +785,21 @@
   .demo-avatar-agent img {
     width: 18px;
     height: 18px;
+  }
+}
+
+/* Phone: three facts side by side get too narrow for "South Yamhill River, OR",
+   so the base bar stacks and its dividers turn horizontal. */
+@media (max-width: 560px) {
+  .demo-page .page-lead-facts {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .demo-page .page-lead-fact + .page-lead-fact {
+    border-left: none;
+    border-top: 1px solid var(--border);
+    padding-left: 0;
+    padding-top: 14px;
   }
 }

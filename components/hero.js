@@ -1,8 +1,26 @@
-import Link from "next/link";
 import { localizeHref } from "@/content/site";
+import { TrackLink } from "@/components/track-link";
+
+/* Stable, language-independent id for analytics: "/platform" -> "platform".
+   Derived from the UNLOCALIZED path so en and zh clicks aggregate into one row
+   in GA4 instead of splitting by locale. */
+function ctaId(path) {
+  return (path || "").replace(/^\//, "").split("/")[0] || "home";
+}
 
 export function Hero({ lang = "en", content }) {
   const hero = content.home.hero;
+
+  /* rank = the visual slot, not the label. If the labels get swapped again, the
+     analytics still answer "which slot gets clicked" and "which destination gets
+     clicked" independently. */
+  const actions = [
+    { label: hero.primary, path: hero.primaryPath, rank: "primary", className: "primary-action" },
+    { label: hero.secondary, path: hero.secondaryPath, rank: "secondary", className: "secondary-action" },
+    ...(hero.tertiary
+      ? [{ label: hero.tertiary, path: hero.tertiaryPath, rank: "tertiary", className: "secondary-action" }]
+      : [])
+  ];
 
   return (
     <section className="hero brand-hero">
@@ -36,18 +54,32 @@ export function Hero({ lang = "en", content }) {
           </h1>
           <p className="hero-subtitle">{hero.subtitle}</p>
           <p className="hero-text">{hero.text}</p>
+          {/* Equal-width 2+1 grid. Identical shape/size on all three; only the
+              primary is filled. Labels left, arrows right — because the tracks are
+              equal width the arrows line up into a vertical column, which is what
+              makes the cluster read as ordered rather than ragged. */}
           <div className="hero-actions">
-            <Link className="primary-action" href={localizeHref(lang, hero.primaryPath)}>
-              {hero.primary} <span className="action-arrow">→</span>
-            </Link>
-            <Link className="secondary-action" href={hero.secondaryPath}>
-              {hero.secondary} <span className="action-arrow">→</span>
-            </Link>
-            {hero.tertiary ? (
-              <Link className="secondary-action" href={hero.tertiaryPath}>
-                {hero.tertiary} <span className="action-arrow">→</span>
-              </Link>
-            ) : null}
+            {actions.map((action) => (
+              <TrackLink
+                key={action.rank}
+                className={action.className}
+                href={localizeHref(lang, action.path)}
+                params={{
+                  cta_location: "hero",
+                  cta_id: ctaId(action.path),
+                  cta_rank: action.rank,
+                  cta_label: action.label,
+                  /* NOT `language` — that's a GA4 built-in parameter (the visitor's
+                     browser language). This is the locale of the page they're on,
+                     which is a different thing: a visitor with an English browser
+                     can be reading the zh route. */
+                  site_language: lang
+                }}
+              >
+                <span className="action-label">{action.label}</span>
+                <span className="action-arrow">→</span>
+              </TrackLink>
+            ))}
           </div>
         </div>
       </div>

@@ -10,6 +10,7 @@
   --bg-alt:          #CBCCCC;   /* mid gray */
   --surface:         #E5E5E5;   /* light gray */
   --surface-elevated:#FFFFFF;   /* white */
+  --surface-subtle:  #F9FAFB;   /* near-white — page-lead / quiet section grounds */
   --text:            #111827;   /* gray-900 */
   --text-secondary:  #374151;   /* gray-700 */
   --text-muted:      #5f6773;   /* slate-500 · ~5.7:1 on white — WCAG AA body */
@@ -17,8 +18,19 @@
   --accent:          oklch(51% 0.15 258);   /* logo deep blue ~#2570c0 */
   --accent-hover:    oklch(44% 0.135 258);  /* deeper — hover / focus ring */
   --accent-light:    oklch(74% 0.09 235);   /* logo light blue ~#65baea */
-  --border:          #CBCCCC;   /* mid gray */
-  --border-strong:   #CBCCCC;   /* mid gray */
+  --border:          #CBCCCC;   /* mid gray — default rule / card outline */
+  /* One step darker than --border. Used for hover rules on cards and for outlines
+     that must read as interactive (secondary buttons, scrollbar thumb). These two
+     were the SAME value until 2026-07-25, which silently disabled the hover
+     feedback on nine card types site-wide — the rule said "darken on hover" and
+     nothing happened. Keep them distinct. */
+  --border-strong:   #AEB0B2;   /* ~2.3:1 on white — visible, still quiet */
+
+  /* Very light brand-blue ground for "current / conclusion" surfaces.
+     Replaces one-off rgba() blues that drifted away from the brand hue. */
+  --accent-wash:     color-mix(in oklch, var(--accent) 8%, #FFFFFF);
+  /* Text sitting on --accent or --dark-* fills */
+  --text-on-dark:    #FFFFFF;
 
   /* --- Dark accents (dark buttons, deep surfaces, etc.) --- */
   --dark-1:          #3E3F40;   /* dark gray */
@@ -46,6 +58,10 @@
   /* --- Typography (Inter Tight display + Inter body via next/font; CN fallback) --- */
   --font:            var(--font-body-face), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
   --font-display:    var(--font-display-face), system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-mono:       ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+
+  /* --- Elevation --- */
+  --shadow-card:     0 12px 40px rgba(17, 24, 39, 0.06);
 }
 
 /* Dark theme placeholder — uncomment or toggle via JS

@@ -1,5 +1,121 @@
 # Work Log
 
+## 2026-07-25
+
+### 首页 Hero 三按钮重排（Hallmark · component-scope）
+
+新增 "Try the demo" 后，hero 出现三个按钮，其中两个是完全相同的描边胶囊，视觉上没有层级、三个箭头互相稀释、且在 34% 宽的文案栏里会换行成参差的 2+1 块（中英文断点还不一致）。
+
+**过程记录**：第一版尝试了"三种权重"（实心 / 描边 / 无边框文字链，只留一个箭头）。用户否决 —— 外观差异反而显得乱，且文字链丢失了可操作感。**结论：乱的根源是宽度参差，不是样式差异。** 第二版按用户选择重做。
+
+第二版做成了等宽 2+1 网格（`repeat(2, minmax(0, 1fr))` + `max-width: 460px`），但用户实测截图后指出**按钮被拉伸得太长** —— `1fr` 让轨道填满容器，宽度远超文字实际需要。第三版改为按内容收缩。
+
+第三版改为单列 `max-content` 收缩，解决了「太长」但丢掉了 2+1 排版。用户要求改回 2+1，**同时保留收缩效果** —— 这两个诉求此前是冲突的（`1fr` 会拉伸；`repeat(2, max-content)` 会让两列各按自身内容算，第一列装短标签、第二列装长标签，两列不等宽）。
+
+**最终方案 — 2+1 等宽网格 + 收缩到最长标签**：
+
+1. **同时满足等宽与不拉伸** — `grid-template-columns: repeat(2, minmax(0, 1fr))` 配合容器 `width: max-content`。关键在 CSS Grid 规范的 intrinsic sizing 行为：容器宽度为 intrinsic 时，**所有 fr 轨道会统一解析到最大轨道的 max-content 贡献**，因此两列都等于最长按钮（"Explore HydroAgent-FF"）的宽度，而非各列按自身内容算。第三个按钮 auto-place 到第二行第一列，三个共用同一宽度。
+2. **无硬编码 px** — 宽度由浏览器实测内容得出，中文页标签更短会自动量出更窄的按钮组。
+3. **箭头全部保留并对齐** — 三个都带 `→`，`justify-content: space-between` 把标签推左、箭头推右，叠成竖直对齐线。
+4. **按钮内 `gap: 24px`** — 最长按钮的轨道正好等于其内在宽度，剩余空间为 0，所以这个 gap 是它唯一的呼吸空间，同时决定整组宽度（调宽窄的单一控制点）。
+5. **形状尺寸完全统一，只有主按钮填色** — 保留最低限度的主次。
+6. **CTA 排序调整** — 零门槛的 "Try the demo" 升为 primary（用户确认）。
+7. **响应式** — 901–1400px 降单列：文案栏是 stage 的 34%，两列合计约 450px，viewport 低于约 1324px 就放不下，降级为单列优于让 `max-width` 压缩轨道触发省略号。
+8. **≤560px 单列但不全宽**（用户实测反馈：窄屏下三条通栏按钮几乎铺满屏幕，要求缩短 1/3）— 改为 `width: max-content` + `min-width: 66%` + `max-width: 100%`：常态取 66%（约缩短 34%），`max-content` 作为下限兜底，避免 320px 屏上 66%（≈185px）装不下 "Explore HydroAgent-FF"（≈230px）而触发省略号。原先的 `width: 100%` 全宽方案作废。
+6. **路径本地化统一** — 原先 `primaryPath` 走 `localizeHref` 而 secondary/tertiary 用硬编码 `/zh/...`；现三者统一存无前缀路径并统一由 `localizeHref` 处理。
+
+所有样式**限定在 `.hero-actions` 作用域内**，因为 `.primary-action` / `.secondary-action` 与 `components/cta-band.js` 共用 —— 已在构建产物中验证 CTA band 未受影响。顺带补了 `.action-arrow` 的 `prefers-reduced-motion` 守卫（此前全站缺失）。
+
+已 `next build` 验证，26 页静态导出通过；已核对 en/zh 六个 href 均正确，无 `/zh/zh/` 双前缀。
+
+**Files modified:**
+- `content/pages/home.js` — en + zh hero CTA 重排（primary=demo, secondary=platform, tertiary=contact），zh 路径去掉 `/zh` 硬前缀
+- `components/hero.js` — 三个按钮结构统一为 `.action-label` + `.action-arrow`，三个 slot 统一走 `localizeHref`
+- `styles/hero.css` — `.hero-actions` 改为 `repeat(2, minmax(0, 1fr))` + `width: max-content` + `justify-content: start` + `gap: 10px`；按钮 `space-between` / `gap: 24px` / `nowrap` / `padding: 10px 18px`；`.action-label` 省略号兜底、`.action-arrow` 不压缩；移除 `--hero-action-min` 硬编码；901–1400px 单列断点；新增 `prefers-reduced-motion` 守卫
+- `styles/responsive.css` — ≤560px 块改为 `.hero-actions` 单列 + `width: max-content` / `min-width: 66%` / `max-width: 100%`（原 flex 规则已失效，一并替换）
+- `README.md` — Design Language 改写 hero CTA 段落为「2+1 等宽 + 收缩到最长标签」说明
+
+### Demo 页视觉审计 + 修复（Hallmark audit）
+
+**约束**：用户限定「只改设计，不改互动、文字、文字顺序」。因此全部改动限于 CSS，未触碰 `components/demo-chat.js` 的交互逻辑与 `content/pages/demo.js` 的文案。
+
+审计结果 **2 critical · 6 major · 5 minor**，已修 12 条，2 条因超出授权范围未动。
+
+**Critical**
+1. **非品牌蓝**（`demo.css` 结果卡）— 原 `rgba(59,130,246,.06)` 是 Tailwind blue-500 (#3B82F6)，与品牌蓝 `--accent` oklch(51% 0.15 258) ≈ #2570c0 **不同色相**，同屏出现直接破坏色彩一致性。改用新 token `--accent-wash`。
+2. **卡中卡三层嵌套** — `.demo-chat-window` > `.demo-msg-assistant` > `.demo-block-result` 每层都有 border+radius+背景。移除中间层（助手气泡）的 border，仅靠底色与白色窗体区分。
+
+**Major**
+3. **Accent 泛滥 → 三级配给制** — 品牌蓝原本出现在 11 处（脉冲点/激活边框/激活数字/用户头像/用户气泡/checkbox/结果卡边框+标题/结束CTA/发送按钮/各hover），强调色因此失效。重排为：**L1 实心**仅发送按钮与结束 CTA（二者不同屏）；**L2 描边/淡底**激活场景卡与结果卡；**L3 中性灰**用户气泡、头像、checkbox、脉冲点。同屏最多 2 处实心蓝。
+   - **用户气泡由 `--accent` 改为 `--dark-1` (#3E3F40)**：它是页面最大色块，填品牌蓝会让蓝色同时承担「品牌」与「可操作」两种语义。白字对比度反而由 ~5.3:1 提升至 ~10:1。
+4. **脉冲点动画与文案矛盾** — `demo-pulse` 无限脉冲暗示「实时」，但它所在徽章文案明确写着 "not live inference"。删除动画，改静态中性点。
+5. **`--border` 与 `--border-strong` 同值** (#CBCCCC) — 代码里刻意区分使用但屏幕上毫无差别。**未改全局值**（影响全站），仅在 tokens.css 加注释说明，留待后续决定。
+6. **表格缺 tabular-nums** — 预报表格与结果卡展示流量/水位数值，比例数字导致小数点不对齐。已加 `font-variant-numeric: tabular-nums`。
+7. **场景卡强制等分列高** — `flex: 1 1 0` 让 5 张卡瓜分聊天窗高度，说明文字被 `line-clamp` 挤压。改 `flex: 0 0 auto` 按内容自然高度，`.demo-chat` 改 `align-items: start`。
+8. **动画未用 easing token** — 三处动画用浏览器默认 `ease-out`/`ease-in-out`，改为 `var(--ease-out)`/`var(--ease-in-out)`。
+9. **打字动画缺 `prefers-reduced-motion` 守卫** — 原文件只有 `demo-reveal` 有守卫，而打字动画每轮都跑，影响更大。已补。
+
+**Minor**
+10. 激活态 `box-shadow: 0 0 0 1px var(--accent)` 与全局 focus ring 撞成两层蓝环 → 改用 `--accent-wash` 底色，环形留给 focus。
+11. `.demo-msg` 的 `max-width: 78%` 被 `.demo-msg-assistant` 覆盖，实际只对用户气泡生效 → 移到各自选择器。
+12. 硬编码 `#fff` ×5、`rgba` 阴影、mono 字体栈 → 全部 token 化。
+
+**新增 token（纯新增，不改任何现有值，其他页面零影响）**：`--accent-wash`、`--text-on-dark`、`--font-mono`、`--shadow-card`。
+
+**未修（超出「只改设计」授权）**：
+- PageLead 的 eyebrow `"Product Experience"` — 删除属于改文案（首页已于 commit `8fe073b` 移除，demo 页遗留）
+- `.demo-input-suggestion` 的 `title` 属性（触屏不可达）— 属 JSX 交互层
+- `content: "☐ "` 跨设备渲染不一致 — CSS `content` 属文案，仅改了颜色未换字符
+
+已 `next build` 验证，26 页静态导出通过。**视觉需肉眼确认**：`color-mix()` 需 Chrome 111+/Safari 16.2+，以及深灰用户气泡的整体观感。
+
+**Files modified:** `styles/tokens.css`（新增 4 个 token + 1 条注释）· `styles/pages/demo.css`（16 处）
+
+### `--border-strong` 修复（全站）
+
+审计发现 `--border` 与 `--border-strong` 同为 `#CBCCCC`。排查其 15 处用法后确认这不是代码洁癖问题而是**真实交互 bug**：其中 **9 处是卡片 hover 态**（`.info-card` / `.surface-card` / `.scroll-card` / `.agent-thinking-step` / `.business-line` / `.collab-card` / `.signals-card` / `.team-about-join-card` / `.wp-cadence-item`），默认边框用 `--border`、hover 用 `--border-strong`，两者同值 ⇒ **鼠标悬停时边框颜色毫无变化**，而这些卡片没有其他 hover 样式（无阴影/位移/背景变化），边框是唯一反馈手段。另 6 处静态用法（次级按钮边框、虚线建议框、`.hero-chip`、首页滚动条 thumb、图表第三条线）也因过淡而失去区分度 —— 滚动条 `#CBCCCC` 在 `#E5E5E5` 背景上几乎不可见。
+
+`--border-strong` 改为 `#AEB0B2`（白底约 2.3:1，比 `--border` 明显深一档，又远浅于 `--text-muted`）。**影响全站 8 个页面 15 处，视觉待用户确认。**
+
+### Demo 页头（PageLead）布局重构
+
+同样受「只改设计」约束，文案一字未动。
+
+**问题**：共用的 `PageLead` 在此页失衡 —— 左栏仅 eyebrow + 一行短标题，右栏塞 250+ 字描述 **加** 三个 facts，视觉重量约 1:4。此前的 `0.78fr / 1.22fr` 栏宽调整是在给右栏加宽，治标未治本。
+
+**方案 —— 三区网格**：标题左 / 描述右 / facts 横跨底部成为基座条。
+
+- **`display: contents` 解构 `.page-lead-side`** —— 该容器不再生成盒子，其两个子元素直接成为网格项，从而可独立定位。**DOM 顺序与屏幕阅读器顺序完全不变**，无需改动共用组件的一行 JSX。已在构建产物中核验 DOM 结构未变。
+- facts 由「右栏附属品」升级为全宽基座条，`flex: 1 1 0` 等分 + 竖向发丝线分隔，读作证据而非剩余物。
+- h1 由 `clamp(1.6rem, 2.4vw, 1.85rem)`（上限 ~29.6px，低于首页 hero 的 41.6px）提至 `clamp(1.9rem, 3.2vw, 2.6rem)`，使其独立支撑左栏。
+- 全部规则 scope 在 `.demo-page` 下，另外 7 个使用 `PageLead` 的页面（capabilities / events / members / research / team / white-papers / workflow）零影响 —— 已 grep 核验。
+- 响应式：≤900px 释放显式 `grid-column` / `grid-row` 定位（否则段落会请求不存在的第 2 列），回落至源顺序；≤560px 基座条转竖排、分隔线转横向。
+- `.page-lead` 背景 `#F9FAFB` 硬编码 → 新增 token `--surface-subtle`（同值替换，全站视觉零变化）。
+
+**Files modified:** `styles/tokens.css`（`--border-strong` 改值 + 新增 `--surface-subtle`）· `styles/sections.css`（背景 token 化）· `styles/pages/demo.css`（页头三区布局 + 两个响应式断点）
+
+**待确认（视觉）**：`--border-strong` 全站观感 · demo 页头新布局 · `color-mix()` 与深灰用户气泡
+
+### Hero CTA 埋点 + 标签互换
+
+**标签互换**：用户要求把第一行的 "Try the demo" 与 "Explore HydroAgent-FF" 对调，且**颜色槽位不动**（左上仍是填色 primary）。因此实际效果是主 CTA 从 `/demo` 换回 `/platform`。讨论中确认：先前推荐 demo 当主 CTA 是套用通用 SaaS 惯例（低门槛 + 高意图信号），但本站受众是机构 / 预报团队 / 科研合作方，高风险业务场景下"先读懂能力边界再试用"可能更贴合，故此次调整未必是回退。
+
+**埋点**：为用数据而非直觉决定 CTA 排序，给 hero 三个按钮加了 GA4 事件。
+
+- 新建 `components/track-link.js` — `TrackLink` 是唯一的 `"use client"` 边界，`hero.js` 保持 Server Component，首页 bundle 仅 +约 180 B（First Load JS 135 kB 不变）。
+- 事件 `cta_click`，参数 `cta_location` / `cta_id` / `cta_rank` / `cta_label` / `site_language`。
+- **参数名用 `site_language` 而非 `language`**：后者是 GA4 内置参数（访客浏览器语言），同名会冲突；语义也不同 —— 浏览器为英文的访客同样可能在看 zh 路由。
+- **`cta_id` 由未本地化路径推导**（`/platform` → `platform`），使 en/zh 点击聚合到同一行，而非按语言拆成两份。
+- **`cta_rank` 记录视觉槽位而非标签**，因此标签再次互换时，"哪个槽位被点"与"哪个目标页被点"仍可独立分析。
+- `hero.js` 三个 Link 改为数组 `actions` + `map`，消除三处重复的埋点参数。
+- `TrackLink` 对 `window.gtag` 做存在性检查：gtag 为 `afterInteractive` 加载，极快点击可能赶在其之前，此时静默丢弃事件而不抛错 —— 导航不依赖埋点。
+
+**⚠️ 待办（需在 GA4 后台手动操作一次）**：「管理 → 媒体资源设置 → 媒体资源 → **自定义分析数据** → 创建自定义维度」，将 `cta_id`、`cta_rank`、`site_language` 注册为**事件范围**（Event scope）自定义维度。未注册则参数只在 DebugView / 实时报告可见，标准报表中不可用；且注册后仅从注册时刻起累积，不追溯历史数据。
+
+**环境问题（同日）**：`cross-env` 列在 `devDependencies` 但 `node_modules` 未实际安装，导致 `npm run dev` / `npm run build` 均报 `'cross-env' is not recognized`。`npm install` 补齐 8 个包即可，`package-lock.json` 无变化（lock 本就记录了该依赖，是本地 node_modules 未同步）。`npm audit` 报 3 个漏洞（2 high / 1 critical），未处理 —— `--force` 可能升级 Next 主版本。
+
+**Next steps:** 中文页需肉眼确认 —— zh 标签更短，`max-content` 会量出更窄的按钮组，需确认在文案栏里不会显得过小。
+
 ## 2026-07-19
 
 ### 首页 Hallmark 审计 + 修复（对比度 + 翻转卡）
