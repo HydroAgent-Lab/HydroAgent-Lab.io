@@ -94,4 +94,5 @@ styles/
 - Home "Why Trust It" section: photo evidence cards (`.evidence-*`) — 5 river/basin photos (Unsplash License, free commercial use), label + full evidence text over a bottom scrim, no hover-flip. Titles align on a fixed baseline (`.evidence-overlay` absolute `top`, not flex-end) so all cards start at the same line. Grid capped at 1000px for side whitespace
 - Dark theme placeholder in `styles/tokens.css` (via `[data-theme="dark"]`)
 - Demo 页色彩**三级配给制**（`styles/pages/demo.css`）：品牌蓝是稀缺资源，不是装饰。**L1 实心 `--accent`** 仅给发送按钮与结束 CTA（二者不同屏，故同屏最多 2 处实心蓝）；**L2 `--accent` 描边 / `--accent-wash` 淡底**给激活场景卡与结果卡（「当前」与「结论」）；**L3 中性灰**给用户气泡（`--dark-1`）、头像、checkbox、回放点 —— 它们不需要引导注意力。改此页配色时请维持这个配给，不要因为「这里加点蓝更好看」而回到 11 处蓝的状态
-- 已知遗留：`--border` 与 `--border-strong` 值相同 (#CBCCCC)，层级意图只存在于代码不存在于屏幕；改动影响全站，尚未处理
+- Research 页首篇论文用 **Featured 头条块**（`.research-featured`），不是书目列表。原因：`research-paper-list` 为 N 篇设计，N=1 时那个 `01` 序号是负资产 —— 它在明说「我们只有一篇」。渲染分支在 `components/pages/research.js`：`papers.find(p => p.featured)` 走头条版式，其余走列表，第 2 篇起自动接管。版式为 55/45 非对称两栏（左结论、右研究事实表），**论文图整幅横跨、不进右栏** —— Figure 1 约 1.8:1 且标签密集，放进 45% 栏后等效字号只有 5–7px，不可读。**预印本徽章刻意用中性描边而非实心蓝**，并把「未经同行评审」写成字：预印本与已发表若视觉等权，是实验室主页最常见的可信度失分点。空状态虚线框仅在 `papers.length === 0` 时渲染，否则降级为一行尾注（虚线空框与已发布论文并存是自相矛盾的）
+- 已知遗留：无（`--border` / `--border-strong` 的重复值已于 2026-07-25 修正为 #CBCCCC / #AEB0B2）

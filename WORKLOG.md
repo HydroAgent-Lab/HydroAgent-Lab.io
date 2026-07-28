@@ -1,5 +1,53 @@
 # Work Log
 
+## 2026-07-28
+
+### Research 页上线首篇预印本（Hallmark · Featured 头条块）
+
+arXiv:2607.23983v1 —— *HydroAgent: Formalizing Forecaster Expertise into Skill-Orchestrated Flood Forecasting Workflows*，23 位作者全部为实验室成员，通讯作者 Baoying Shan。
+
+**核心判断：N=1 时不能直接填 `papers` 数组。** 现有 `research-paper-list` 是为 N 篇论文设计的书目行（序号 + 元信息 + 标题 + question/method + tags + links），塞进一条会出现孤零零的 `01` 编号 —— 该编号在只有一篇时是负资产，视觉上比原来的空状态更弱。因此新增 **Featured 头条块**，列表代码原样保留，第 2 篇起自动接管（`papers.find(p => p.featured)` / `filter`）。
+
+**版式（`.research-featured`）**：1000px 上限白卡。状态条 → 55/45 非对称两栏（左：标题/作者/一句话结论；右：研究事实表）→ **图整幅横跨** → Question/Approach/Result 三栏 → 链接行。
+
+**图不放右栏是实测决定，不是偏好。** Figure 1 约 1.8:1、内含 Step 0–Step 4 五段流程条与大量小标签（SVG 内 font-size 13–21px / 1280px 画布）；放进 45% 右栏（约 450px）后标签等效字号降到 5–7px，不可读。改为全宽后右栏空出来给事实表，非对称结构反而保住了。
+
+**内容分层与诚信处理**：
+- 状态徽章改为**中性描边 pill + 「Not peer reviewed / 未经同行评审」文字**。原 `.is-preprint` 是浅蓝实心（`#DBEAFE/#1E40AF`，硬编码未走 token），与 `.is-published` 的实心蓝在语义上「看起来一样正式」—— 预印本与已发表在页面上视觉等权是实验室主页最常见的可信度失分点。
+- 一句话 key finding 要求**可证伪**，不写「we propose a framework」。定稿写法带上 `0.890` 基线，否则「提升 0.023–0.154」会被读成从零起步，反而低估工作量。
+- 研究事实表（流域 / 时段 / 事件数 / 被测大模型 / 对照基线）复用 `.page-lead-fact` 的 label+值横线样式，全站一致。
+- **未提供的一律不放**：Code / Data 链接暂缺就整条不渲染，不写 "coming soon"。
+
+**「本实验室成员加粗」方案作废** —— 与 `content/team-members.js` 逐一比对后确认 23 位作者**全部**是实验室成员，全加粗等于没加粗。改为仅通讯作者标 †。
+
+**空状态矛盾修复**：`.research-empty` 虚线框改为仅 `papers.length === 0` 时渲染；有论文后降级为一行 `.research-more-note` 尾注。同时改掉 `lead.facts` 里自相矛盾的 "Preprints coming soon" / 「首批预印本将于近期发布」和 "paper under submission"。
+
+**手机端**：≤900px 头部与三栏均降单列；≤560px 状态条 `margin-left: auto` 撤销（换行后会把来源行甩飞）、事实表标签列 92→80px。图在 375px 下实测仅约 180px 宽，标签必然不可读，故**整张图包成链接**并在 figcaption 加「查看大图 ↗」，手机读者仍可打开原图。图带 `width/height` 属性预留纵横比，避免 CLS。
+
+**修改文件**：`content/pages/research.js`、`components/pages/research.js`、`styles/pages/research.css`（严格 3 个）。`next build` 通过，24 页静态导出，en/zh 两版均已在产物中核对。
+
+**图的问题已解决（同日）**：首版 SVG 有两个缺陷 —— (a) `font-family: Calibri` + tspan 绝对定位，非 Windows 设备 fallback 后字宽变化会导致文字重叠；(b) Illustrator 中文 Windows 导出的双重编码乱码，破折号、对勾、乘号、fl 连字（Workflow / Verified）全变乱码。**解法是导出时把「字体 (F)」从 `SVG` 改为 `转换为轮廓`** —— 字形直接取自 .ai，不经过 SVG 文本编码这一关，两个问题一次解决。重新导出后已校验：`<text>` 元素 0 个、字体引用 0 处、乱码 0 处、viewBox `0 0 1280 720` 与代码中的 `width/height` 一致。
+
+文件从 `public/assets/HydroAgent_Figure1.svg` 移到 **`public/assets/papers/hydroagent-fig1.svg`**（`assets/` 根目录已经很挤，且后续还会有 figure 2 / 其他论文）。转曲线后体积 814 KB（其中 140 KB 是 15 张内嵌 base64 位图，其余是矢量路径），因在首屏之下，已加 `loading="lazy" decoding="async"`；`width/height` 属性预留纵横比，懒加载不产生 CLS。若日后嫌重，可跑一次 SVGO，预计能压掉三到五成。
+
+**内容确认（同日）**：
+- 流域值去掉了推断出的「Oregon, USA」，改回论文原文的 `South Yamhill River basin`（en/zh 一致）。
+- 「论文在审 / manuscript under review」经确认属实，保留。
+- `figureAlt` 从约 90 词压到约 40 词。**alt 与 figcaption 分工**：figcaption 放论文原图释（引用），alt 描述图的实际内容 —— 两者写同一句话会让读屏用户听到重复的一句、且完全不知道图里画了什么。90 词的 alt 读屏软件无法跳读，而图的科学内容已由 Question/Approach/Result 三栏用可见文字承担，alt 只需交代结构。
+
+**中文译文校订 + 术语统一（同日）**：用户逐句核对英文摘要后，「结果」栏中文重写，修掉五处：
+1. **语序** —— 原文「在 14 场洪水中分别有 10 场和 11 场，把实测洪峰流量与洪量…」，「分别」的两个对象出现在数字之后，读者要回头对应。改为先给对象再分配。
+2. **`tolerance` 误译为「误差」** —— 容差是事先设定的判据阈值，误差是实际偏离量，两个概念。改为「5% 容差」。
+3. **`captures` 译作「框定」主客颠倒** —— 结合图 3（研判给出 box 区间、实测为 star），是研判区间**覆盖住**实测值，不是把实测值框起来。改为「命中」。
+4. **漏了 `Pearson`** —— 补回「Pearson 相关系数」。
+5. **「结果」栏漏了半句**（`Building on a high-baseline scheme library (average KGE 0.890) … improves KGE by 0.023–0.154`）—— 原先只放在上方 finding 行。版式上 finding 与「结果」栏之间**隔着整幅大图**，读者滚到「结果」时未必记得上面的数字，故把基线与增幅补进「结果」栏使其自足。英文版同步补齐（原先也缺这半句）。
+
+**术语**：`prior judgment` 统一译作**「预报员研判」**（团队用语），**不用「先验判断」** —— 后者在中文里会被读成贝叶斯先验，语义偏了。`content/pages/research.js:130` 处留了注释说明，避免日后被「改回来」。第二次出现简称「研判区间」；LLM 的 `judgment accuracy` 相应作「研判准确率」。
+
+**署名不一致 —— 已确认为有意保留，不要「修正」**：论文署名 **Bing Li** 与 team 页 **Joseph Lee**（`content/team-members.js:167`，照片 `libing.jpg`）是同一个人。用户确认两处都保持现状：论文部分按 arXiv 原文用 `Bing Li`（引用必须忠于原文），team 页保留 `Joseph Lee`。日后若有人再发现这个「不一致」，无需改动。
+
+本条目所有待办已清空，页面可部署。
+
 ## 2026-07-25
 
 ### 首页 Hero 三按钮重排（Hallmark · component-scope）
