@@ -12,7 +12,9 @@ const hydroAgentPaper = {
   date: "27 Jul 2026",
   links: [
     { id: "abs", href: "https://arxiv.org/abs/2607.23983" },
-    { id: "pdf", href: "https://arxiv.org/pdf/2607.23983v1" }
+    { id: "pdf", href: "https://arxiv.org/pdf/2607.23983v1" },
+    // The SI is not on arXiv yet — served from our own /public until it is.
+    { id: "si", href: "/assets/papers/HydroAgent_SI.pdf" }
   ],
   figureSrc: "/assets/papers/hydroagent-fig1.svg",
   figureWidth: 1280,
@@ -85,7 +87,7 @@ export const researchContent = {
         // same sentence twice and convey nothing about the figure's content.
         figureAlt:
           "Schematic of the HydroAgent framework in two parts: above, a layered stack of LLM reasoning core, five-skill registry and tool executor; below, the five-step flood forecasting workflow from scheme preparation to warning bulletin, with the skill invoked at each step.",
-        linkLabels: { abs: "arXiv abstract", pdf: "PDF" }
+        linkLabels: { abs: "arXiv abstract", pdf: "PDF", si: "Supplementary material (PDF)" }
       }
     ],
     moreNote: "More papers will be listed here as they appear.",
@@ -159,7 +161,7 @@ export const researchContent = {
         figureLinkLabel: "查看大图 ↗",
         figureAlt:
           "HydroAgent 框架示意图，分两部分：上半为分层结构，包含大模型推理核心、五个 skill 的注册表与工具执行器；下半为五步洪水预报工作流，从方案准备到预警简报，每步标注所调用的 skill。",
-        linkLabels: { abs: "arXiv 摘要页", pdf: "PDF 全文" }
+        linkLabels: { abs: "arXiv 摘要页", pdf: "PDF 全文", si: "补充材料（PDF）" }
       }
     ],
     moreNote: "更多论文将在此陆续列出。",
