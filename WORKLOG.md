@@ -1,5 +1,23 @@
 # Work Log
 
+## 2026-08-25
+
+### 修复 Events 页 EGU 条目「Presentation deck」按钮 404
+
+**根因不在路由，在数据。** `content/pages/events.js` 里 EGU 2026 条目的链接写成 `href: "coming soon"`，被 `components/pages/events.js:48` 原样渲染为 `<a href="coming soon">`。这是个**相对路径**，浏览器解析成 `/events/coming%20soon` → 404。中英两版同错。
+
+**注释里的备用路径也是错的。** 原注释 `// /assets/EGU26_pre_v1.pdf` 少了一层目录 —— 文件实际在 `public/assets/EGU26/` 下，照抄同样 404。正确路径为 `/assets/EGU26/EGU26_pre_v1.pdf`。
+
+**讲稿文件此前并不存在。** 修复时仓库内唯一相关文件是 `public/assets/EGU26/~$HydroAgent_EGU_pre_202605.pptx`，165 字节 —— `~$` 前缀是 PowerPoint 打开文档时生成的临时锁文件，不是讲稿本体。用户当场补充了 `EGU26_pre_v1.pdf`（6.4 MB，已校验文件头为 `%PDF-1.4`）。
+
+**导出链路已核对**（`output: "export"` 静态导出，无 basePath）：`out/assets/EGU26/EGU26_pre_v1.pdf` 存在且大小一致；`out/events/index.html` 与 `out/zh/events/index.html` 中 href 均为 `/assets/EGU26/EGU26_pre_v1.pdf`；全站产物已无 `href="coming` 残留。注意 EN 版实际路由是 **`/events/`** 而非 `/research/events/`（后者只是导航里的分组归属）。
+
+**遗留项（未处理，需决策）**：
+- `public/assets/EGU26/~$HydroAgent_EGU_pre_202605.pptx` 是已提交进 git 的 Office 锁文件，建议删除并在 `.gitignore` 加 `~$*`。
+- 6.4 MB PDF 直接进 git 仓库，后续若讲稿多次迭代会撑大历史体积，可考虑 Git LFS 或外链。
+
+**修改文件**：`content/pages/events.js`（2 行）。新增：`public/assets/EGU26/EGU26_pre_v1.pdf`（用户提供，尚未 `git add`）。`next build` 通过，24 页静态导出。
+
 ## 2026-07-28
 
 ### Research 页上线首篇预印本（Hallmark · Featured 头条块）

@@ -20,7 +20,7 @@ export const eventsContent = {
         photo: "Photos: talk / poster / team",
         photos: [{ src: "/assets/EGU26/EGU26_people.jpg", alt: "HydroAgent-Lab team at EGU26" }],
         links: [
-          { label: "Presentation deck", href: "coming soon" },// /assets/EGU26_pre_v1.pdf
+          { label: "Presentation deck", href: "/assets/EGU26/EGU26_pre_v1.pdf" },
           { label: "EGU abstract", href: "https://meetingorganizer.copernicus.org/EGU26/EGU26-16720.html" }
         ]
       },
@@ -65,7 +65,7 @@ export const eventsContent = {
         photo: "现场照片：报告 / 海报 / 团队",
         photos: [{ src: "/assets/EGU26/EGU26_people.jpg", alt: "HydroAgent-Lab 团队在 EGU26 现场" }],
         links: [
-          { label: "演示文件", href: "coming soon" },// /assets/EGU26_pre_v1.pdf
+          { label: "演示文件", href: "/assets/EGU26/EGU26_pre_v1.pdf" },
           { label: "阅读摘要", href: "https://meetingorganizer.copernicus.org/EGU26/EGU26-16720.html" }
         ]
       },
