@@ -2,6 +2,70 @@
 
 ## 2026-09-17
 
+### 按新设计重写 `tests/test_hero_monitor.py`（原断言描述的是已废弃的显示器边框）
+
+上一条里发现该测试是红的。逐条检验 9 条断言后，**问题比"一条失败"更严重**：
+
+| 断言 | 状态 | 说明 |
+|---|---|---|
+| `"box-shadow:" in styles` | ❌ 失败 | 设计已改用 `filter: drop-shadow()` |
+| `padding: clamp(1px, 0.12vw, 2px) …` | ❌ 失败 | 设计已改为无边框，padding 整个删除 |
+| `"border:" in styles` | ⚠️ **假通过** | 全文件字符串搜索，命中的是别处规则 |
+| `"border-radius:" in styles` | ⚠️ **假通过** | 同上 |
+
+后两条比失败的更危险：`.hero-monitor` 现在**根本没有 border / border-radius**，这两条断言描述的东西与当前设计正好相反，只因为字符串在 550 行文件的别处出现才侥幸通过。测试名 `..._standless_monitor_frame` 里的 "frame" 也已与 "frameless" 矛盾。
+
+**当前真实设计**（`styles/hero.css`）：`.hero-monitor` 是无边框容器；截图本身被 `clip-path: polygon()` 切成左上 / 右下 45° 切角的缺角矩形，切角尺寸由 `--cut: clamp(16px, 2vw, 32px)` 驱动；阴影用 `filter: drop-shadow()`（注释已写明 `box-shadow` 描的是元素盒子、不会跟随切角轮廓）；`::after` 蓝色光晕叠层与 `::before` 边缘光带各自复用同一条 clip-path；光带动画有 `prefers-reduced-motion` 保护。
+
+**重写后的 5 条测试**，断言一律**限定在规则体内**而非全文件搜索：标记接线正确且无 `monitor-stand`/`monitor-base` 残留；`.hero-monitor` 无 border/border-radius/padding；阴影是 `filter: drop-shadow` 且不得出现 `box-shadow`；三层叠层的 clip-path 必须**逐字符一致**（防止叠层与截图边缘脱钩）；光带动画在 reduced-motion 下必须关闭。
+
+**用变异测试验证断言不是摆设** —— 绿色本身证明不了什么。逐一故意破坏设计并确认对应测试变红：加 border → RED；把 `filter: drop-shadow` 换回 `box-shadow` → RED；把其中一层的 clip-path 改得不一致 → RED；删掉 reduced-motion 块 → RED。四项全部捕获，`hero.css` 每次跑完自动还原。
+
+**顺带修掉解析器的一个假通过陷阱**：`declaration()` 用 `(?:^|;)\s*prop\s*:` 扫描，**跨不过声明之间的 CSS 注释** —— 而 `clip-path` 前面正好有一行注释，导致首次运行误报"未找到 clip-path"。加 `read_css()` 先剥离注释后修复。同一缺陷也潜伏在昨天新写的 `tests/test_platform_hero_width.py` 里：那里 `_padding_left_right()` 找不到 padding 简写时会**回退到 0**，算出的宽度反而变大、被内层 564px 一夹就"通过"——是个典型的静默假通过。一并加 `_strip_comments()`。
+
+**用组合变异确认加固有效**：单独插一行注释测试仍绿，但这不能区分"解析正确"与"解析失败后走兜底"。于是**同时**插注释并把 bug 改回去 —— 结果仍为 RED，证明注释剥离确实生效而非掩盖问题。
+
+**验证**：31 个测试全部通过（原 1 红 26 绿 → 现 31 绿）；两个被测源文件在变异后均逐字节还原，`git diff` 确认只剩预期的修复改动。
+
+**修改文件**：`tests/test_hero_monitor.py`（重写）、`tests/test_platform_hero_width.py`（加注释剥离）、`README.md`、`WORKLOG.md`。
+
+### 修复 Platform 页 hero：视口越宽，文字栏反而被挤扁（宽屏下归零）
+
+**现象**：把浏览器拉到最宽时，`/platform/` 的 hero 左侧文案被压成一条窄柱，`<h1>` 断成 `Hyd / roA / gent / -FF`。窗口收窄反而正常 —— 与直觉相反。
+
+**根因在 [styles/pages/platform.css](styles/pages/platform.css) 的 `.platform-hero-copy`**：同一条规则里既写了随视口增长的 gutter padding，又写了固定的 `max-width`：
+
+```css
+padding: 0 28px 0 max(28px, calc(50vw - 540px));   /* 随视口增长 */
+max-width: 620px;                                   /* 固定上限 */
+```
+
+因为 `styles/base.css:5` 有全局 `* { box-sizing: border-box; }`，**`max-width` 限制的是含 padding 的边框盒**，于是：
+
+```
+文字栏宽度 = 620 − max(28, 50vw − 540) − 28
+```
+
+视口超过 1136px 后，每宽 2px 文字栏就窄 1px，**2264px 时归零**。实测：1440px→412px，1920px→172px，2133px→66px（用户截图那档），2560px→0px。
+
+叠加 `styles/responsive.css:46` 的全局 `overflow-wrap: break-word`，本该溢出的长单词被强行折进窄栏，才出现单词中间断行。**这个 `overflow-wrap` 不是 bug，它只是把静默的溢出变成了可见的症状** —— 没有它问题会以横向滚动条的形式出现，更难发现。
+
+**为什么下方那排 facts 正常**：`.platform-facts-bar` 用**完全相同**的 padding、在同一个父容器里，唯一区别是**没有 max-width** —— 这是页面里自带的对照组，直接印证了诊断。
+
+**全站扫描**：用这个 gutter padding 模式的共 5 处，只有 `.platform-hero-copy` 一处把两者放在同一元素上。`.cta-band`/`.cta-copy` 和 `.careers-frame`/`.careers-hero-inner` 都是正确写法 ——**外层只管 padding，内层只管 max-width**。（`:root` 里 `--max-width` 与 `--gutter` 同处一个块属误报，是变量声明而非作用于同一个盒子。）
+
+**修法**：对齐仓库既有模式，而不是发明新写法。`.platform-hero-copy` 去掉 `max-width`，新增 `.platform-hero-copy-inner { max-width: 564px }`，`components/pages/platform.js` 加一层 wrapper div。564px = 当前 CSS 在唯一自洽区间（视口 ≤1136px）下的实际宽度 `620−28−28`，即把设计正确时的样子固定下来。900px 媒体查询里的 `max-width: 100%` 随之成为死代码，一并删除。
+
+**为什么不冻结位置**：用户最初要求「再拉宽就完全不要变」。但 `.platform-hero-copy` 与下方所有 `.content-section` 共用同一个 padding 表达式，二者左缘是竖直对齐的；把 hero 位置钉死会在宽屏上与下方章节错开。与用户确认后采用方案 A：**宽度恒定、左缘继续跟随居中内容列** —— 文字的换行与字号一个像素都不变，只是整块随内容列平移。
+
+**测试**（`tests/test_platform_hero_width.py`，沿用 `test_hero_monitor.py` 的纯文件解析风格，无需浏览器）：内置一个极小的 CSS 长度求值器（只支持 `px`/`vw`/`calc`/`max`/`min`，遇到别的直接抛错，避免静默通过），从 CSS 解析出 padding 与 max-width，按 border-box 规则计算 1136–3440px 各视口的文字栏宽度。四条断言：不随视口变宽而收缩、超过 1136px 后完全冻结、任何视口下不低于 500px，以及一条**全站结构性守卫**——任何 CSS 规则都不得同时持有 gutter padding 与 max-width。先跑确认四条全红（实测数值与手算完全吻合），修复后全绿。
+
+**验证**：26 个测试通过；`npm run build` 通过；产物中英双版 HTML 均正确渲染 wrapper；产物 CSS 确认 `.platform-hero-copy` 已无 max-width、`.platform-hero-copy-inner{max-width:564px}` 存在；层叠顺序核对无误（`responsive.css` 在 globals.css 中最后导入，560px 手机覆盖正常生效）。
+
+**发现一个既有失败测试（未修，不属本次范围）**：`tests/test_hero_monitor.py` 断言 `styles/hero.css` 含 `box-shadow:`，但该文件里 `box-shadow` 只出现在注释中（第 89 行「chamfered outline (box-shadow would not)」）——设计已刻意从阴影改为切角描边，测试是陈旧的。已确认 `hero.css` 与本次改动前逐字节相同，该测试在此之前就是红的。
+
+**修改文件**：`styles/pages/platform.css`（删 `max-width: 620px`、新增 `.platform-hero-copy-inner`、删 900px 断点内的死代码）、`components/pages/platform.js`（加 wrapper div）、`tests/test_platform_hero_width.py`（新增）、`README.md`、`WORKLOG.md`。
+
 ### 收尾 `public/assets` 整理：拆掉 `/assets/assets/` 嵌套目录 + 清空所有无引用文件
 
 承接 8-25 的资源重组。上次把根目录 18 个散落文件分好类后，结尾标记了两个遗留项一直没做；这次全量比对「磁盘文件 vs 源码引用」，发现子目录里还藏着 16 个没人用的文件。本次一次清完。

@@ -24,9 +24,11 @@ export function PlatformPageContent({ lang = "en" }) {
           <div className="platform-hero-scrim" aria-hidden="true" />
 
           <div className="platform-hero-copy">
-            <p className="eyebrow">{page.lead.eyebrow}</p>
-            <h1>{page.lead.title}</h1>
-            <p className="platform-hero-tagline">{page.lead.tagline}</p>
+            <div className="platform-hero-copy-inner">
+              <p className="eyebrow">{page.lead.eyebrow}</p>
+              <h1>{page.lead.title}</h1>
+              <p className="platform-hero-tagline">{page.lead.tagline}</p>
+            </div>
           </div>
 
           <div className="platform-facts-bar">

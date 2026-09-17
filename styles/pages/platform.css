@@ -40,7 +40,12 @@
   z-index: 1;
 }
 
-/* --- Hero copy: centered vertically, left-aligned --- */
+/* --- Hero copy: centered vertically, left-aligned ---
+   The padded element must NOT also carry the max-width. With the global
+   `* { box-sizing: border-box }` a cap here would include the left gutter,
+   which grows with the viewport, so the text column would shrink as the
+   screen widens (0px by 2264px). Same split as .cta-band/.cta-copy and
+   .careers-frame/.careers-hero-inner: wrapper pads, inner caps. */
 .platform-hero-copy {
   position: relative;
   z-index: 2;
@@ -49,7 +54,12 @@
   flex-direction: column;
   justify-content: center;
   padding: 0 28px 0 max(28px, calc(50vw - 540px));
-  max-width: 620px;
+}
+
+/* 564px = the width the layout already used at its widest correct state
+   (620 - 28 - 28), now held constant at every viewport above 1136px. */
+.platform-hero-copy-inner {
+  max-width: 564px;
 }
 
 .platform-hero-copy .eyebrow {
@@ -467,7 +477,6 @@
 
   .platform-hero-copy {
     padding: 0 20px;
-    max-width: 100%;
   }
 
   .platform-hero-copy h1 {

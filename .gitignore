@@ -10,3 +10,8 @@ preview-build
 
 # Office 临时锁文件（PowerPoint/Word 打开文档时生成，非文档本体）
 ~$*
+
+# Python 测试产物
+__pycache__/
+*.pyc
+.pytest_cache/
