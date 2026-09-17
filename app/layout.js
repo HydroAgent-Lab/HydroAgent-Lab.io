@@ -34,9 +34,9 @@ export const metadata = {
     canonical: "/"
   },
   icons: {
-    icon: "/assets/hydroagent-mark.svg",
-    shortcut: "/assets/hydroagent-mark.svg",
-    apple: "/assets/hydroagent-mark.svg"
+    icon: "/assets/brand/hydroagent-mark.svg",
+    shortcut: "/assets/brand/hydroagent-mark.svg",
+    apple: "/assets/brand/hydroagent-mark.svg"
   },
   openGraph: {
     type: "website",
@@ -63,7 +63,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${inter.variable} ${interTight.variable}`}>
       <head>
-        <link rel="icon" href="/assets/hydroagent-mark.svg" type="image/svg+xml" />
+        <link rel="icon" href="/assets/brand/hydroagent-mark.svg" type="image/svg+xml" />
       </head>
       <body>
         {children}

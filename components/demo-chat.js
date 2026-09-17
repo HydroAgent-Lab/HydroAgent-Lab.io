@@ -15,7 +15,7 @@ const CHARS_PER_TICK = 1; // reveal 1 char/tick ≈ 42 chars/sec, ChatGPT-like p
 const BLOCK_PAUSE_TICKS = 14;
 const THINKING_TICKS = 26;
 
-const AGENT_AVATAR_SRC = "/assets/hydroagent-mark.svg";
+const AGENT_AVATAR_SRC = "/assets/brand/hydroagent-mark.svg";
 
 /* Chat avatars shown beside each message bubble. */
 function AgentAvatar() {

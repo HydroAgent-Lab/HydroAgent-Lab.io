@@ -7,3 +7,6 @@ preview-build
 .vercel
 .netlify
 *.log
+
+# Office 临时锁文件（PowerPoint/Word 打开文档时生成，非文档本体）
+~$*

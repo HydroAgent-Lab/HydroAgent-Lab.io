@@ -39,7 +39,7 @@ export function Hero({ lang = "en", content }) {
           <div className="hero-monitor">
             <img
               className="hero-video-bg"
-              src={lang === "en" ? "/assets/Webui_EN.png" : "/assets/Webui.png"}
+              src={lang === "en" ? "/assets/hydroagent_webui/webui-en.png" : "/assets/hydroagent_webui/webui-zh.png"}
               alt=""
               aria-hidden="true"
             />

@@ -22,8 +22,8 @@ export function HomePageContent({ lang = "en" }) {
             <div className="what-diagram">
               <img
                 src={lang === "zh"
-                  ? "/assets/assets/hydroagent_architecture_version1_zh.png"
-                  : "/assets/assets/hydroagent_architecture_final_version1.svg"}
+                  ? "/assets/home/architecture-zh.png"
+                  : "/assets/home/architecture-en.svg"}
                 alt={lang === "zh" ? "HydroAgent 架构图" : "HydroAgent architecture diagram"}
               />
             </div>
@@ -44,7 +44,7 @@ export function HomePageContent({ lang = "en" }) {
                 </a>
               </div>
               <div className="flagship-image">
-                <img src="/assets/assets/hero-hydroagent-lab.png" alt="HydroAgent Lab" />
+                <img src="/assets/home/hero-hydroagent-lab.png" alt="HydroAgent Lab" />
               </div>
             </div>
           </div>

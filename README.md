@@ -70,6 +70,14 @@ content/
     research.js, runs.js, team.js, careers.js, contact.js,
     white-papers.js, events.js, members.js
 
+public/assets/            # Static assets for the Next app — see ASSETS_GUIDE.md
+  brand/ home/ platform/ careers/ contact/ team/ lab-members/
+  hydroagent_webui/ demo/ events/ EGU26/ papers/
+                          # Grouped by consuming page, not by file type. No loose files at
+                          # root, and no .md files — everything here is published to the web.
+
+archive/figures/          # Unreferenced source figures — kept in git, NOT deployed (37 MB)
+
 styles/
   tokens.css              # CSS custom properties (colors, spacing, fonts)
   base.css                # Reset, body defaults, page-shell

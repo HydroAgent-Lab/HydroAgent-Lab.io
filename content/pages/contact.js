@@ -18,17 +18,17 @@ export const contactContent = {
       title: "Common reasons people reach out.",
       items: [
         {
-          icon: "img:/assets/Research collaboration.png",
+          icon: "img:/assets/contact/research-collaboration.png",
           title: "Research collaboration",
           text: "Workflow intelligence, expert judgment formalization, evaluation design, datasets, or joint papers."
         },
         {
-          icon: "img:/assets/pilot.png",
+          icon: "img:/assets/contact/pilot.png",
           title: "Operational pilot",
           text: "Explore whether HydroAgent can make your forecasting work more organized, reviewable, and reproducible."
         },
         {
-          icon: "img:/assets/Institutional briefing.png",
+          icon: "img:/assets/contact/institutional-briefing.png",
           iconSize: 148,
           title: "Institutional briefing",
           text: "Introduce HydroAgent's approach, evidence, and product direction to your team or stakeholders."
@@ -82,17 +82,17 @@ export const contactContent = {
       title: "大家通常为这些事找我们",
       items: [
         {
-          icon: "img:/assets/Research collaboration.png",
+          icon: "img:/assets/contact/research-collaboration.png",
           title: "研究合作",
           text: "工作流智能、专家判断显性化、评估方法设计、数据集建设，或联合论文。"
         },
         {
-          icon: "img:/assets/pilot.png",
+          icon: "img:/assets/contact/pilot.png",
           title: "业务试点",
           text: "一起评估 HydroAgent 能否让你们的预报工作更有条理、更易复核、更易复现。"
         },
         {
-          icon: "img:/assets/Institutional briefing.png",
+          icon: "img:/assets/contact/institutional-briefing.png",
           iconSize: 148,
           title: "机构介绍",
           text: "向你的团队或相关方介绍 HydroAgent 的思路、已有证据和产品方向。"

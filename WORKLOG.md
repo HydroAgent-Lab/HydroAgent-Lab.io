@@ -1,6 +1,98 @@
 # Work Log
 
+## 2026-09-17
+
+### 收尾 `public/assets` 整理：拆掉 `/assets/assets/` 嵌套目录 + 清空所有无引用文件
+
+承接 8-25 的资源重组。上次把根目录 18 个散落文件分好类后，结尾标记了两个遗留项一直没做；这次全量比对「磁盘文件 vs 源码引用」，发现子目录里还藏着 16 个没人用的文件。本次一次清完。
+
+**A. 拆掉 `public/assets/assets/` 嵌套目录（本次主体）**
+
+这层目录让引用路径长成 `/assets/assets/xxx`，是 8-25 那次没敢动的历史包袱。里面 11 个文件，**5 个在用、6 个无引用**。在用的按既定「按用途分目录」约定归位：
+
+| 原路径 | 新路径 | 消费方 |
+|---|---|---|
+| `assets/sky.mp4` | `careers/sky.mp4` | `components/pages/careers.js:73` 背景视频 |
+| `assets/洪水场景.mp4` | `platform/flood-scene.mp4` | `components/pages/platform.js:16` 背景视频 |
+| `assets/hero-hydroagent-lab.png` | `home/hero-hydroagent-lab.png` | `components/pages/home.js:47` |
+| `assets/hydroagent_architecture_final_version1.svg` | `home/architecture-en.svg` | `components/pages/home.js:26` |
+| `assets/hydroagent_architecture_version1_zh.png` | `home/architecture-zh.png` | `components/pages/home.js:25` |
+
+**视频按使用页面归目录，没有单设 `video/`** —— 与 8-25 立的规则 3 一致（按用途分，不按文件类型分）。人找素材时是从页面反推的。
+
+**`洪水场景.mp4` → `flood-scene.mp4`**：中文文件名在 URL 里必须百分号编码，实际请求是 `/assets/assets/%E6%B4%AA%E6%B0%B4%E5%9C%BA%E6%99%AF.mp4`。这和 8-25 处理的空格文件名是同一类隐患 —— 换服务器或加 CDN 时是典型故障点。已把「纯 ASCII」写进 `ASSETS_GUIDE.md` 的命名规则。
+
+无引用的 6 个进 `archive/figures/`：`agent_infrastructure_manul.svg`(**17 MB，单文件占大头**)、`HydroAgent_v2_Diagram.svg`(1.9M)、`HydroAgent_v2_zh.svg`(452K)、`hydroagent_architecture_en_extracted.png`(1.4M)、`hydroagent_zh_extracted.jpg`(128K)、`infractructure.jpg`(192K)，合计 21.6 MB。`public/assets/assets/` 目录已彻底消失。
+
+**B. 删除 Office 锁文件**（8-25 记录里标的遗留项，终于处理）
+
+`public/assets/EGU26/~$HydroAgent_EGU_pre_202605.pptx`，165 字节，`~$` 前缀是 PowerPoint 打开文档时生成的临时锁文件，不是讲稿本体（讲稿是同目录的 `EGU26_pre_v1.pdf`）。`git rm` 删除，并在 `.gitignore` 加 `~$*` 防止再被提交。
+
+**C. 归档 4 个被取代的旧 WebUI 截图**
+
+`hydroagent_webui_EN.JPG`、`hydroagent_webui_ZH.JPG`、`screenshot_EN.png`、`screenshot_ZH.png`（共 332K）—— 已被 8-25 改名的 `webui-en.png` / `webui-zh.png` 取代。该目录现在只剩在用的两张。
+
+**D. 有意保留的 5 个无引用文件（不是遗漏，已写进 `ASSETS_GUIDE.md`）**
+
+- `EGU26/EGU_26_pre_1.jpg`、`EGU26/EGU26_pre_2.jpg`、`EGU26/EGU26hydroagent-team.png`、`events/qiusiqian_huilongguan_2.jpg` —— **真实活动照片，是内容素材不是垃圾**，只是还没写进 Events 页。接入属独立任务。
+- `lab-members/zhouguoping.jpg`(8K) —— `content/team-members.js` 里**查无此人**。名单中缺照片的是 Haiyang Qian、Carlo De Michele、Yao Li，对不上号。可能是待加入或已离组成员，归属待用户确认。
+
+**验证**：源码已无 `/assets/assets/` 残留；正向检查（引用→磁盘）除已知例外外全部命中；反向检查（磁盘→引用）只剩上述 5 个有意保留的文件；`npm run build` 通过，24 页静态导出。
+
+**体积**：`public/assets` 71 MB → **50 MB**（两次整理累计从 public 移出 37 MB 到不部署的 `archive/`）。
+
+**已知例外（非本次引入）**：`styles/hero.backup_darkcolor.css` 引用的 `/assets/webui_black.jpg` 不存在 —— 该 CSS 是未被 `globals.css` 引入的深色版 Hero 存档备份，不影响构建。
+
+**E. 资源说明文档移出 `public/`，改为仓库内可见、线上不发布**
+
+文档最初写在 `public/assets/README.md`，但 **`public/` 下的内容会被 `output: "export"` 原样发布**，线上可直接访问 `/assets/README.md` —— 这是内部目录约定，只该在仓库里可见。Next.js 没有排除 `public/` 内单个文件的机制，所以唯一做法是把文件移出去。
+
+移到项目根 `ASSETS_GUIDE.md`，与既有的 `DESIGN_GUIDE.md` / `FILE-MAP.md` / `DEPLOY_IO_GUIDE.md` 等大写指南文档同级，符合本仓库既有习惯（`docs/` 目录里只有一个 CNAME，并非在用的文档目录，未动）。同时在文档开头写明「放根目录是刻意的」及原因，并立下规则：**`public/assets/` 下只放资源文件，不放任何 `.md`**，避免以后有人好心挪回去。
+
+**遗留项**：
+- 项目根 `assets/`（遗留静态页 `index.html` / `product.html` 等专用）两次整理均未触碰，与 `public/assets/` 是两套独立资源，勿混用。
+
+**修改文件**：`components/pages/careers.js`、`components/pages/home.js`、`components/pages/platform.js`（仅改路径字符串）、`.gitignore`、`ASSETS_GUIDE.md`（新增，原 `public/assets/README.md`）、`README.md`、`WORKLOG.md`。文件变动：12 个移动（其中 3 个重命名）、1 个删除。
+
 ## 2026-08-25
+
+### 整理 `public/assets` 散落图片：按用途分目录 + 清出无引用大图
+
+**起点**：`public/assets/` 根目录直接躺着 18 个图片文件，与 9 个已有子目录混在一起。逐个 grep 全站源码（排除 `node_modules`/`.next`/`out`）后确认，其中 **11 个在用、7 个完全没有引用**。
+
+**关键发现：这里有两套 assets，此前一直没写清楚。**
+- `public/assets/` → Next 应用用（`app/` `components/` `styles/`）
+- 项目根 `assets/` → **遗留静态页**用（`index.html` / `product.html` / `proof.html` / `team.html` / `egu-2026.html` / `manuscript-brief.html`）
+
+两者文件名风格相近但内容不同，是最容易踩的坑。本次**只动 `public/assets/`**，根目录那套原样不动。
+
+**分目录原则是"按用途"而非"按文件类型"** —— 找图时人是从页面反推的（"首页那张验证图在哪"），不是从格式反推的（"所有 svg 在哪"）。落位：
+
+| 新目录 | 文件 | 消费方 |
+|---|---|---|
+| `brand/` | `hydroagent-mark.svg` | `app/layout.js`（icon/shortcut/apple + `<link rel=icon>`）、`shell.js`×2、`demo-chat.js` |
+| `home/` | `hydrograph-validation.svg`、`human-authority.svg` | `styles/pages/home.css` 的 `.evidence-bg-1/-4` |
+| `contact/` | `research-collaboration.png`、`pilot.png`、`institutional-briefing.png` | `content/pages/contact.js`，中英两份各引一次 |
+| `team/` | `team-global-map.webp` | `styles/pages/designv2.css` |
+| `platform/` | `real-basin.png` | `components/pages/platform.js` 的 signals 卡背景 |
+| `hydroagent_webui/`（已有） | `webui-zh.png`、`webui-en.png` | `components/hero.js` 按 lang 二选一 |
+| `EGU26/`（已有） | `egu2026.jpg` | `styles/pages/home.css` 的 `.evidence-bg-3` |
+
+`egu2026.jpg` 归 `EGU26/` 而不是 `home/`：它是 EGU 2026 口头报告的**真实内容照片**，首页只是当前用它做背景；按内容归属分，将来复用到 Events 页时不用再搬。反过来 `hydrograph-validation.svg` / `human-authority.svg` 是纯装饰插图，只服务首页，才归 `home/`。
+
+**顺手规范文件名**：`Research collaboration.png` → `research-collaboration.png`、`Webui_EN.png` → `webui-en.png` 等。文件名带空格在 URL 里需转义，是长期隐患（`/assets/Research%20collaboration.png`）；大小写不统一在大小写敏感的部署环境上会直接 404。
+
+**7 个无引用文件移出 `public/`，落到项目根 `archive/figures/`**：`digital_twin_integration_architecture.svg`(3.3M)、`hydroagent_architecture_gemini_zh.png`(4.9M)、`hydroagent_architecture_final.svg`(1.9M)、`hydroagent_architecture_final.png`(1.4M)、`hero-hydroagent-lab.png`(2.1M)、`hero-hydroagent-lab-fast.webp`、`team-global-map.png`(2.0M)，合计约 **15.7 MB**。移出而非删除的理由：`public/` 下**任何**文件都会被 `output: "export"` 原样拷进 `out/` 并部署，无引用大图等于白白进产物；放 `archive/` 则仍在 git 里可随时取回。注意 `hero-hydroagent-lab.png` 在 `public/assets/assets/` 里有同名副本，`components/pages/home.js:47` 用的是那份嵌套副本，所以根目录这份确实是死文件。
+
+**验证**：全站源码已无旧路径残留；写脚本比对"源码引用的资源路径" vs "磁盘实际文件"，除下述已知例外外全部命中；`npm run build` 通过，24 页静态导出，`out/assets/` 根目录已只剩子目录。
+
+**已知例外（非本次引入）**：`styles/hero.backup_darkcolor.css` 引用的 `/assets/webui_black.jpg` 不存在 —— 该文件是未被 `globals.css` 引入的深色版 Hero 存档备份，不影响构建。
+
+**遗留项（未处理，需决策）**：
+- `public/assets/assets/` 这层嵌套目录路径形如 `/assets/assets/xxx`，含 `sky.mp4` 与 `洪水场景.mp4` 两段视频 —— `out/assets/` 目前 71 MB，大头在这里。整合需改 `components/pages/home.js` 等引用，属独立任务。
+- 上一条记录提到的 `public/assets/EGU26/~$HydroAgent_EGU_pre_202605.pptx`（Office 锁文件）仍在，建议删除并在 `.gitignore` 加 `~$*`。
+
+**修改文件**：`app/layout.js`、`components/shell.js`、`components/demo-chat.js`、`components/hero.js`、`components/pages/platform.js`、`content/pages/contact.js`、`styles/pages/home.css`、`styles/pages/designv2.css`（均仅改路径字符串）。新增：`public/assets/README.md`（目录约定 + 新增文件规则 + 失效引用自检脚本）。`README.md` 补 `public/assets/` 与 `archive/` 结构说明。18 个文件移动 + 8 个重命名（`git mv`，历史可追）。
 
 ### 修复 Events 页 EGU 条目「Presentation deck」按钮 404
 

@@ -15,7 +15,7 @@
 .members-hero-backdrop {
   position: absolute;
   inset: 0;
-  background-image: url("/assets/team-global-map.webp");
+  background-image: url("/assets/team/team-global-map.webp");
   background-size: cover;
   background-position: center 40%;
   background-repeat: no-repeat;

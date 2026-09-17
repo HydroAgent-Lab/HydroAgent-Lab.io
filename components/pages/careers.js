@@ -70,7 +70,7 @@ export function CareersPageContent({ lang = "en" }) {
                 loop
                 playsInline
                 preload="metadata"
-                src="/assets/assets/sky.mp4"
+                src="/assets/careers/sky.mp4"
               />
             </div>
             <div className="careers-split-copy careers-contribution-copy">

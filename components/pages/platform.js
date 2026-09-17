@@ -13,7 +13,7 @@ export function PlatformPageContent({ lang = "en" }) {
         <section className="platform-hero">
           <video
             className="platform-hero-video"
-            src="/assets/assets/洪水场景.mp4"
+            src="/assets/platform/flood-scene.mp4"
             autoPlay
             muted
             loop
@@ -81,7 +81,7 @@ export function PlatformPageContent({ lang = "en" }) {
                 {i === 0 && (
                   <img
                     className="signals-card-bg"
-                    src="/assets/real basin.png"
+                    src="/assets/platform/real-basin.png"
                     alt=""
                     aria-hidden="true"
                   />

@@ -50,7 +50,7 @@ export function SiteShell({ children, lang = "en" }) {
       <header className={`site-header${scrolled ? " scrolled" : ""}`}>
         <nav className="site-nav" aria-label="Primary">
           <Link className="nav-logo-pill" href={localizeHref(lang, "/")}>
-            <img src="/assets/hydroagent-mark.svg" alt="" aria-hidden="true" />
+            <img src="/assets/brand/hydroagent-mark.svg" alt="" aria-hidden="true" />
           </Link>
           <div className="nav-links-pill">
             {topNav.map((item) => {
@@ -236,7 +236,7 @@ export function SiteShell({ children, lang = "en" }) {
           <div className="footer-brand">
             <div className="footer-brand-head">
               <span className="footer-brand-mark">
-                <img src="/assets/hydroagent-mark.svg" alt="" aria-hidden="true" />
+                <img src="/assets/brand/hydroagent-mark.svg" alt="" aria-hidden="true" />
               </span>
               <strong>HydroAgent-Lab</strong>
             </div>

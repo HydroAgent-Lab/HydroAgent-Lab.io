@@ -512,16 +512,16 @@ main.main-content > .what-section-wrap {
    2 AI circuit + brain (multi-LLM) · 3 conference speaker (published / EGU talk) ·
    4 signing documents (human review & release authority). */
 .evidence-bg-0 { background-image: url("https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400&h=800&fit=crop&crop=center"); }
-.evidence-bg-1 { background-image: url("/assets/hydrograph-validation.svg"); }
+.evidence-bg-1 { background-image: url("/assets/home/hydrograph-validation.svg"); }
 .evidence-bg-2 { background-image: url("https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=400&h=800&fit=crop&crop=center"); }
 .evidence-bg-3 {
-  background-image: url("/assets/egu2026.jpg");   /* real EGU 2026 oral-talk photo */
+  background-image: url("/assets/EGU26/egu2026.jpg");   /* real EGU 2026 oral-talk photo */
   background-position: 20% center;                /* focus shifted 20% to the right */
   background-size: auto 80%;                       /* scaled down to 80% of card height */
   background-repeat: no-repeat;
   background-color: #0e2148;                       /* deep-blue fill behind the shrunk photo */
 }
-.evidence-bg-4 { background-image: url("/assets/human-authority.svg"); }
+.evidence-bg-4 { background-image: url("/assets/home/human-authority.svg"); }
 
 /* --- Who It Serves — 3-col grid --- */
 .scroll-strip {
