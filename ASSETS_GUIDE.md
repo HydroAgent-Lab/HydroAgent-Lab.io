@@ -24,7 +24,7 @@ Next.js 把 `public/` 下的内容**原样**导出到 `out/`，所以那里的�
 | `lab-members/` | 成员头像，文件名 = 姓名拼音 | `content/team-members.js` |
 | `hydroagent_webui/` | WebUI 界面截图（中英两版） | `components/hero.js` |
 | `demo/` | Demo 流程步骤图 | Demo 页 |
-| `events/` | 活动现场照片，命名 `<姓名>_<地点或年份>_<序号>` | `content/pages/events.js` |
+| `events/` | 活动现场照片（命名 `<姓名>_<地点或年份>_<序号>`）+ 合作方标识（`hydroturing-logo.png`，取自 flood-lab.github.io/HydroTuring，第三方版权） | `content/pages/events.js` |
 | `EGU26/` | EGU 2026 专题：讲稿 PDF、现场照、合影 | `content/pages/events.js`、`styles/pages/home.css` |
 | `papers/` | 论文正文附件与图（PDF / Figure） | `content/pages/research.js` |
 

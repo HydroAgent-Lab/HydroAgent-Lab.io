@@ -35,7 +35,72 @@
   line-height: 1.5;
 }
 
-/* --- B. Zigzag event rows --- */
+/* --- B. Collaborations — borrows the timeline's row geometry ---
+   The collaboration entry reuses .event-row / .event-row-body so the two
+   sections read as one system. A bordered card here would put two visual
+   languages on the same page. Only the media column differs: a logo has to
+   be contained and padded, where a photo is cropped. */
+.collab-row-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  padding: clamp(28px, 6%, 64px);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.collab-row-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* .event-row-body > p ships with margin: 0 — right for the timeline's single
+   paragraph, not for a multi-paragraph project description. */
+.collab-row .event-row-body > p + p {
+  margin-top: 14px;
+}
+
+.collab-row .event-row-body > p.collab-status strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.collab-updates {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.collab-updates li {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.collab-updates span {
+  display: inline-block;
+  min-width: 110px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* Selector carries `.collab-row` + the element so it outranks
+   `.event-row-body > p` without reaching for !important. */
+.collab-row .event-row-body > p.collab-asks {
+  margin-top: 18px;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+/* --- C. Zigzag event rows --- */
 .event-zigzag {
   display: flex;
   flex-direction: column;
@@ -140,6 +205,17 @@
   .events-page .page-lead-fact {
     grid-template-columns: 100px 1fr;
     gap: 12px;
+  }
+
+  /* Matches the 16/9 the timeline photos switch to at this breakpoint */
+  .collab-row-media {
+    aspect-ratio: 16 / 9;
+    padding: 24px clamp(24px, 12%, 72px);
+  }
+
+  .collab-updates span {
+    display: block;
+    min-width: 0;
   }
 
   .event-row,

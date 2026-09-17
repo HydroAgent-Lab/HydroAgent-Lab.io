@@ -2,6 +2,32 @@
 
 ## 2026-09-17
 
+### Events 页新增 Collaborations 区块：HydroTuring 守恒基准（与 CU Boulder 李直教授团队合作）
+
+**放哪儿的判断**：没有放 Research 页 —— 那页的结构是"本实验室自己的论文"（Question / Approach / Result / Figure 1 / arXiv 链接），放一个别人发起的基准会稀释语义。也没有放进 Events 的 zigzag 时间线：时间线是一次性线下事件，每行必须有现场照片，而 HydroTuring 是持续合作、会不断出 results 和论文。最终在时间线**上方**新开 `collabSection`，纯文字卡片（用户确认不配图）。
+
+**修改文件：**
+- `content/pages/events.js` — 新增 `collabSection`（en/zh），含 `paragraphs` / `statusLabel+status` / `asks` / `links` / `updates`（预留追加位，现为空数组）；站点链接抽成模块级 `hydroTuringHref` 常量，双语共用一处。同时更新 `lead.text`（补上 open community initiatives）与 `lead.facts`（最新 → HydroTuring 守恒基准；范围 → 欧洲、中国与美国）
+- `components/pages/events.js` — 时间线之前渲染 `collabSection`（`c.collabSection &&` 守卫，缺字段不炸），区块注释序号顺延为 B/C/D
+- `styles/pages/events.css` — 新增 `.collab-list` / `.collab-card` / `.collab-status` / `.collab-updates` / `.collab-asks`；链接复用现有 `.event-row-links`。`.collab-asks` 的选择器写成 `.collab-card > p.collab-asks` 而非加 `!important`，为的是干净地盖过同文件的 `.collab-card > p`；≤900px 断点里卡片收紧 padding、`updates` 的日期列从定宽改为独占一行
+
+**英文文案**：初稿由用户按 NCC 口径重写后整段替换（段落拆成 4 段、标题改 Title Case、"contributing new tests"）。用户的修订稿里没有收尾那句 "Can AI obey the science it claims to learn?"，据此删掉了 `quote` 字段和对应样式 —— 需要的话加回是一处数据 + 一条样式。中文版按同一结构同步重译，号召语 Write a probe / Propose a model / Join the paper 保留英文原文（倡议方自己的说法）。
+
+**链接**：只放站点 https://flood-lab.github.io/HydroTuring/ —— 用户确认没有独立的 GitHub 公开仓库。
+
+**后续追加左文右标识版式：**用户要求把 HydroTuring 标识放在文字右边。聊天里的图无法直接落盘，从站点取了同一张（`curl https://flood-lab.github.io/HydroTuring/hydroturing.png`）存为 `public/assets/events/hydroturing-logo.png`（1000×395 透明 PNG，203 KB，**第三方版权**，已在 `ASSETS_GUIDE.md` 标注）。组件把正文包进 `.collab-card-body`，标识独立成 `.collab-card-logo`；`item.logo` 存在时才给卡片加 `.collab-card-logo-right` 切成两栏 —— 不用无条件两栏网格，是因为没有标识的合作方会留下一条空 gap。`<img>` 带 `width`/`height` 属性防止加载时抖版。≤900px 单栏，标识用 `order: -1` 提到正文之前。原先挂在 `.collab-card > p` / `.collab-card h3` 上的样式全部改挂 `.collab-card-body`。
+
+**第三轮返工：改标题 + 重排版式（用户反馈"排版有点丑，和 timeline 看起来很乱"）**
+
+- 区块标题 `Open initiatives we contribute to` → `Collaborative research projects`，中文 `我们参与的开放倡议` → `合作研究项目`
+- **找到"丑"的一个硬原因：class 名撞车。** 第一版把卡片命名为 `.collab-card`，而 `styles/pages/capabilities.css` 里早就有一套同名卡片（padding / background / hover / h3 / p 全定义了）。全站 CSS 由 `app/globals.css` @import 进同一个全局作用域、没有 CSS Modules，所以 Events 页的卡片**静默继承了 Capabilities 页的样式**，构建不报错。新类名 `.collab-row` / `.collab-row-media` / `.collab-status` / `.collab-asks` / `.collab-updates` 已逐个 grep 确认 events.css 独占
+- **版式改为复用时间线几何**：删掉整套卡片外观（边框 + 蓝色左竖条 + 内边距盒子），条目改用 `.event-row` + `.event-row-body`，标识放进 `.collab-row-media` —— 与照片同为 4:3、同样圆角，但用 `object-fit: contain` + 内边距把 logo 完整放进面板（照片是 cover 裁切）。两个区块从此是同一套视觉语言
+- 补了两条时间线原样式没覆盖的情况：`.event-row-body > p` 的 `margin: 0` 是按"单段正文"写的，多段描述需要 `p + p { margin-top: 14px }`；`.collab-asks` 从 600 粗降到 500，避免蓝色粗体在一列文字里过响
+- ≤900px：标识面板跟随时间线照片一起从 4:3 切到 16:9
+- 时间线区块 eyebrow `Timeline` → `Events`（中文保持"活动记录"）。这两个 eyebrow 是硬编码在 `components/pages/events.js` 里的，不在 `content/pages/events.js`
+
+**验证：**`npm run build` 通过，26 个页面全部导出；`out/events/index.html` 与 `out/zh/events/index.html` 均含 `.collab-row` / `.collab-row-media`、新标题、站点外链和 `hydroturing-logo.png`，图片已复制到 `out/assets/events/`，`collab-card` 残留计数为 0。**未做视觉验证** —— 环境里没有 playwright，版式只经代码检查，建议 `npm run dev` 目视确认。`tests/` 下两个 pytest 是 hero 视觉守卫测试，与本次改动无关，未运行。
+
 ### 按新设计重写 `tests/test_hero_monitor.py`（原断言描述的是已废弃的显示器边框）
 
 上一条里发现该测试是红的。逐条检验 9 条断言后，**问题比"一条失败"更严重**：
