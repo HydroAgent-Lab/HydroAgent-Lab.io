@@ -84,8 +84,10 @@ function WhitePaperPublication({ paper, cadence }) {
               <a className="primary-action" href={full.href} target="_blank" rel="noreferrer">
                 {paper.linkLabels.full} <span className="action-arrow" aria-hidden="true">↗</span>
               </a>
-              <a className="secondary-action" href={brief.href} download>
-                {paper.linkLabels.brief}
+              {/* Opens in the browser's PDF viewer rather than downloading:
+                  readers asked to read it in one click (2026-10-10). */}
+              <a className="secondary-action" href={brief.href} target="_blank" rel="noreferrer">
+                {paper.linkLabels.brief} <span className="action-arrow" aria-hidden="true">↗</span>
               </a>
               {/* Not a link: an anchor with no target is a dead end for keyboard
                   and screen-reader users. It becomes one once the file exists. */}

@@ -94,7 +94,7 @@ export const whitePapersContent = {
         evidenceTo: "证据截至 2026 年 7 月 22 日",
         linkLabels: {
           full: "阅读完整版",
-          brief: "下载速读版 PDF",
+          brief: "阅读速读版",
           en: "英文版"
         },
         comingSoonLabel: "即将推出",

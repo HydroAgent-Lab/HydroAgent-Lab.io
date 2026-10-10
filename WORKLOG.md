@@ -27,6 +27,20 @@
 
 **下一步**：① 用户确认是否删除 `HydroAgent_WP/HydroAgent_WP_Brief.pdf`（旧版源文件，未被 git 跟踪，删了无法恢复）和仓库根目录的 `hydroagent_wp_brief__Web_.pdf`（已复制进 public，不删的话 `git add .` 会多提交一份）；② `.hallmark/` 是否提交到 git；③ canonical / 分享卡片修复（已解释，待确认）。
 
+### 速读版改为点击即读（不再下载）
+
+用户要求速读版点一下就能阅读。`components/pages/white-papers.js` 去掉速读版按钮的 `download` 属性，改为 `target="_blank"`，在浏览器的 PDF 阅读器里打开，和"阅读完整版"一致；`content/pages/white-papers.js` 里的按钮文案从"下载速读版 PDF"改为"阅读速读版"，并加 `↗`（站内约定：在新标签页打开的链接用 ↗）。验证：构建通过，导出的 zh 页速读版链接带 `target="_blank"`、无 `download`，旧文案已清除。
+
+（另：上一条的 ①② 已有结果 —— `.hallmark/` 与根目录的 `hydroagent_wp_brief__Web_.pdf` 已由用户在 `c5d1f47` 中提交并推送；根目录那份与 `public/` 里的是同一文件。）
+
+### 速读版只保留最新版：移入资源目录，删除最初版
+
+- `git mv -f hydroagent_wp_brief__Web_.pdf public/assets/white-papers/hydroagent-wp-v1.0.0-brief-zh.pdf` —— 两者 md5 相同（`e2a1db4b…`，10-10 23:28 生成），所以实际效果是删掉根目录的重复副本，网站文件与链接都不变
+- 最初版 `D:/HydroAgent_Spcae/HydroAgent_WP/HydroAgent_WP_Brief.pdf`（md5 `32c1668a…`，10-08，2.03 MB，未被 git 跟踪）按用户要求删除：先核对 md5 再操作，移入 Windows 回收站而非永久删除，需要时可从回收站恢复
+- 同目录的 `whitepaper.zh-CN.pdf`（7 月完整版旧稿）未动
+- 验证：构建通过，`out/assets/white-papers/` 中速读版 md5 为 `e2a1db4b…`，zh 页链接以 `target="_blank"` 打开
+- **补充**：用户说明 `HydroAgent_WP_Brief.pdf` 应为 10-10 版（保留这个文件名，换成新内容，而非整个删掉）。核实回收站中那份为 2,034,757 字节，即 10-08 旧版，10-10 版并未丢失；随后把 10-10 版（md5 `e2a1db4b…`）以原名放回 `D:/HydroAgent_Spcae/HydroAgent_WP/HydroAgent_WP_Brief.pdf`，旧版仍在回收站
+
 ## 2026-10-09
 
 ### White Papers 页上线首期白皮书 v1.0.0（替换"即将发布"占位）
