@@ -1,0 +1,10 @@
+{
+  "date": "2026-10-10",
+  "framework": "Next.js 15.3.4, app router, static export (package.json L12)",
+  "fonts": "Inter Tight (display) + Inter (body) via next/font (app/layout.js L2-13); CJK fallback PingFang SC / Microsoft YaHei (styles/tokens.css L59-60)",
+  "palette": "hex greys + brand blue oklch(51% 0.15 258), --accent-hover, --accent-light (styles/tokens.css L9-31)",
+  "motion": "motion-cut: no animation library (package.json L11-15)",
+  "spacing": "no named site scale; page-scoped --wp-space-* lives in styles/pages/white-papers.css",
+  "design_md": false,
+  "preserved": ["font stack", "palette", "site shell: nav, breadcrumb, footer, CTA band"]
+}
