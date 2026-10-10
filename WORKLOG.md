@@ -1,5 +1,72 @@
 # Work Log
 
+## 2026-10-10
+
+### 白皮书中文页用 Hallmark 重做（方案 A：封面主视觉）
+
+**诊断（改之前的 zh 页）**：在 1440×900 屏幕上下载入口距顶部约 1,500px（第二屏下半），而且只是小号蓝字；Zenodo/DOI 出现 4 次，发布日期、版本、页数各出现 2 次（顶部信息表与卡片重复）；结论三栏等宽、每栏每行约 19 字；一张卡片里有 11 个 11–12px 小标签和 12 条分隔线；同一页有 4 条左边线（120 / 180 / 220 / 444px）。用户在 A（封面主视觉）/ B（长文档）/ C（金句开篇）中选 A。
+
+**Hallmark 选型**：单页改版；genre editorial；macrostructure Split Studio（只有首屏左右分栏，下方单栏 —— Split Studio 本身就提醒不要对连续叙述的内容分屏）；字体、配色、导航/页脚/底部 CTA 条按预检保留站点现有系统；不加装饰图，只用真实封面；不新增动效（只有颜色变化的 hover / focus 状态）。
+
+**修改文件：**
+- `content/pages/white-papers.js` — `whitePaperV1` 拆出 `titleLines`（`["水利行业智能体", "白皮书"]`，窄屏只在这里断行）与 `subtitle`；zh 条目改为出版物布局的字段（`byline`、`released`、`evidenceTo`、按钮文案、`findingsTitle/Note`、`colophon`、`planLabel`、`citeLabel`）；删去旧卡片字段与 `moreNote`；zh 的 `lead / releasesSection / status` 降为无发布时的兜底文案，去掉其中的版本号与日期
+- `components/pages/white-papers.js` — 新增 `WhitePaperPublication`（首屏分栏 + 结论 + "关于这份白皮书"），删去旧的 `FeaturedWhitePaper`；有 featured 条目时走出版物布局，否则走 PageLead + 空状态 + 更新频率（en 页现状不变）。封面链接与主按钮同目标，因此 `tabIndex=-1` + `aria-hidden`，键盘少一个重复停靠点；封面是 LCP，`fetchPriority="high"`、不懒加载；结论编号 `aria-hidden`（`<ol>` 已经报序号）；速读版按钮加 `download`
+- `styles/pages/white-papers.css` — 删去 `.wp-featured*` / `.wp-more-note`，新增 `.wp-pub-*`（mobile-first）；页面级刻度 `--wp-space-*`（4pt）与五个字号 `--wp-text-*`；文件首行是 Hallmark 标记（含 pre-emit 自评、slop-test 结果与豁免项）
+- `public/assets/white-papers/hydroagent-wp-v1.0.0-brief-zh.pdf` — 换成用户提供的新字体版（来源：仓库根目录的 `hydroagent_wp_brief__Web_.pdf`，md5 `e2a1db4b…`，15 页，1.77 MB；文字与旧版一致，只是重新排版），文件名不变所以链接不变；旧版（md5 `32c1668a…`）已被覆盖，从未提交过
+- `.hallmark/log.json`、`.hallmark/preflight.json` — 新建，Hallmark 的运行记录
+- `README.md` — 白皮书页说明改为出版物布局；已知遗留补 ④ 根节点无 `overflow-x: clip`、⑤ demo.css autoprefixer 警告
+
+**解决的问题 / 踩到的坑：**
+- **320px 宽时标题断成 3 行**：站点在手机上把 `--gutter` 覆盖成 32px（`styles/responsive.css:140`），不是 tokens 里的 28px，固定 96px 的封面让标题栏比"水利行业智能体"窄 7px。改为封面 `clamp(80px, 26vw, 112px)`、标题 `clamp(19px, 6vw, 48px)`，各宽度都是 2 行（≥768 为 1 行）
+- **Hallmark gate 54**：第一版结论用了"编号一栏 + 标题一栏"的悬挂排法，属于编号在左、标题在右的禁用模式；改为编号放进 `<h3>` 内，段落单栏。顺带让手机上每行多出约 2.5 个字（15 → 17 字 @375）
+- **分隔线比正文宽 220px**：阅读栏统一封顶 38rem，分隔线、结论、信息区与首屏摘要同宽
+- **gate 44**：首屏下内边距改为上的 1.5 倍（桌面 64/96，手机 40/64）
+- 两个 CJK 细节：标题字距从全站的 -0.01em 改为 0（负字距会让汉字挤在一起）；正文行高 1.8（汉字占满整个 em 框，1.5–1.65 读起来像一堵墙）
+
+**验证**：`npm run build` 通过（26 页）。临时检查页用 iframe 在 320 / 375 / 414 / 768 / 1280 / 1440 下测量：中英文页都无横向溢出，按钮不换行不越界；zh 标题 2/2/2/1/1/1 行；主按钮在 375 / 414 / 768 / 1280×800 / 1440×900 的首屏内（320×568 差约 20px，受 88px 页头限制）；结论每行 36 字（≥768）。headless Chrome 截图目视检查过桌面 / 平板 / 手机。slop-test 52/58 通过，6 项为站点现有系统豁免（1 字体、7 纯白底、22 近零彩度灰、34 根节点 clip、42–43 导航/页脚），写在 CSS 标记里。临时检查页已从 `out/` 删除。构建警告来自 `styles/pages/demo.css:119`（既有问题，与本次无关）。
+
+**下一步**：① 用户确认是否删除 `HydroAgent_WP/HydroAgent_WP_Brief.pdf`（旧版源文件，未被 git 跟踪，删了无法恢复）和仓库根目录的 `hydroagent_wp_brief__Web_.pdf`（已复制进 public，不删的话 `git add .` 会多提交一份）；② `.hallmark/` 是否提交到 git；③ canonical / 分享卡片修复（已解释，待确认）。
+
+## 2026-10-09
+
+### White Papers 页上线首期白皮书 v1.0.0（替换"即将发布"占位）
+
+**背景**：白皮书《水利行业智能体白皮书：现状、洞察与未来方向》v1.0.0 于 2026-10-07 发布在 Zenodo（版本 DOI `10.5281/zenodo.23230110`，概念 DOI `…23230109` 永远指向最新版；CC BY 4.0；仅中文；完整版 39 页）。速读版（"行业决策速读版"，15 页）没上 Zenodo，用户确认放官网。用户要求同时标出"英文版即将推出"。
+
+**放哪儿 / 怎么放的判断**：放已有的 `/white-papers`，不进 Research 页（论文体裁 ≠ 行业报告，导航本就分开）。版式与 Research 页 `FeaturedPaper` 同构 —— N=1 时头条块读作"发布"，单行归档读作"几乎没东西"。**一期一块**，完整版和速读版是同一块里的两条链接，拆成两条会像出了两份白皮书。页面放执行摘要的"三项核心结论"（删节自原文，不增加原文没有的判断），因为多数访客不会下 39 页 PDF，且 HTML 更利于收录。
+
+**修改文件：**
+- `content/pages/white-papers.js` — hero 文案改为常驻版本（不再写"coming soon"），facts 改为 最新 / 语言（中文已发布 · 英文即将推出）/ 形式；新增 `releasesSection`、`papers`（`whitePaperV1` 共享引用数据 + en/zh 各自的徽章、版本、作者、摘要、事实表、三项结论、链接文案、封面 alt）、`moreNote`。`links[]` 的英文版条目用 `comingSoon: true` 占位。更新频率区块文案**未改**（待用户决定）
+- `components/pages/white-papers.js` — 新增 `FeaturedWhitePaper`；区块顺序改为 hero → 最新发布 → 更新频率 → CTA；空状态虚线框仅在没有 featured 条目时出现。"即将推出"渲染为 `<span>` 而非无目标的 `<a>`（键盘/读屏用户不会撞进死链）；中文标题与引用加 `lang="zh-CN"`
+- `styles/pages/white-papers.css` — 新增 `.wp-featured*` 一套（数值沿用 `.research-featured`，类名独立以免两页互相牵连）；头部为 200px 封面栏 + 正文栏；≤900px 封面 150px、三项结论单栏；≤560px 封面 132px 叠在标题上方
+- `public/assets/white-papers/` — 新目录：`hydroagent-wp-v1.0.0-cover.webp`（480×678，13 KB，从 Zenodo 当前 PDF 首页 150 dpi 渲染后 Lanczos 缩放）、`hydroagent-wp-v1.0.0-brief-zh.pdf`（速读版原样复制，md5 与源文件一致）
+- `ASSETS_GUIDE.md` — 目录表登记 `white-papers/`；`README.md` — 目录树、White Papers 设计说明、已知遗留
+
+**解决的问题 / 踩到的坑：**
+- **完整版链 DOI，不链文件直链**：Zenodo 上的文件在发布两天内从 `HydroAgent_WP_2026.06.06.pdf` 改名为 `HydroAgent_WP_v1.0.0.pdf`（内容也重新编译过，md5 变了、DOI 不变），旧的文件直链已经 404。DOI 是唯一不会动的地址
+- 当前版本 PDF 封面已删去"中文审阅版本；英文版将在中文版本确认后重构"一行，所以"英文版即将推出"以用户要求为依据，不引用 PDF
+- Zenodo 摘要里两处复制错误（"产品三项核心结论与研究团队"、"应用条"缺"件"）已由 Baoying Shan 于 2026-10-09 在 Zenodo 上改正（经公开 API 复核）
+- 引用串照抄 Zenodo 导出格式（标题里是半角冒号），页面标题用全角冒号与 PDF 一致
+- `.wp-archive-section` 的 `#F9FAFB` 实际不生效：被 `main.main-content > .content-section { background: #fff }`（优先级更高）覆盖，与 Research 页相同，故 hero 与发布区块不会同色粘连
+
+**验证**：`npm run build` 通过，26 个页面全部导出；中英文导出 HTML 都含头条块、DOI 链接、速读版 PDF、封面、即将推出标签，`wp-empty` 与旧文案计数为 0，无 Zenodo 文件直链；资源已复制进 `out/assets/white-papers/`。**做了视觉验证**：headless Chrome 截取 1440px 桌面版（en/zh）；手机版用 390px 宽 iframe 模拟真实视口（直接设 `--window-size=390` 会因浏览器最小窗口宽度产生右侧截断的假象），无横向溢出、DOI 在卡片内换行。
+
+**下一步（待用户决定）**：① 修全站 canonical / OG 指向首页 + 白皮书页专属分享元数据（`app/layout.js` + 两个白皮书路由，3 个文件）；② 更新频率区块（页面承诺的"月度简报/季度白皮书/年度综述"与 WP_outline 的"月度白皮书 + 季度综述包"不一致）保留、改写还是删除；③ 是否加首页公告条；④ 英文版出来后把 `comingSoon` 换成 `href`，并考虑给 en 页换英文标题。
+
+### 按用户反馈调整：en 页只留 coming soon；更新频率去掉"每月"
+
+**用户决定**：目前没有英文版，英文先不写，只能写 coming soon；"把阅读简报先删除，只保留：季度白皮书 / 年度综述"——"阅读"按 "月度" 的输入法同音字理解（yuèdú / yuèdù），即删掉更新频率里的"每月 · 月度简报"；**速读版 PDF 保留不动**（已在回复中说明此理解，待用户纠正）。
+
+**修改文件：**
+- `content/pages/white-papers.js` — en 块整体换成 coming-soon 状态：`papers: []`（空状态框接管）；删去上一轮写的英文意译标题、英文摘要、三项结论英译与事实表；hero 文案恢复为本页原有英文（不新写英文），h1 改为 "The English edition is coming soon."，facts 改为 Scope / Format（去掉 Notes → "Quarterly white papers and an annual review"）/ Status；空状态改为 "The archive opens with the English release."（保留 Follow us 链接）。en/zh 的 `cadenceSection` 都删去 Monthly / 每月。文件头注释改为说明 en 为何只有 coming soon
+- `components/pages/white-papers.js` — 删除 `titleGloss`（英文意译行）渲染：它唯一的用途就是放非官方译名，留着会被误用；改正标题 `lang="zh-CN"` 的注释（真实原因是根节点恒为 `<html lang="en">`，/zh 页也一样）
+- `styles/pages/white-papers.css` — 删 `.wp-featured-gloss`；`.wp-cadence-list` 从 `repeat(3, 1fr)` 改为 `repeat(auto-fit, minmax(0, 264px))` + `justify-content: center` —— 3 项变 2 项后固定三列会在右侧留一个空列，现在 1–3 项都以原卡宽居中
+- `README.md` — White Papers 说明改为"头条块只在 zh 页、en 页只显示 coming soon"；已知遗留补 ③ `<html lang>` 恒为 en
+
+**验证**：`npm run build` 通过（26 页）。en 导出页：`wp-featured`、白皮书中文标题、`zenodo`、`translation`、`Monthly` 计数均为 0，空状态与 Follow us 链接存在；zh 导出页：头条块、速读版、DOI 均在，`每月`/`月度简报` 为 0。headless Chrome 1440px 截图确认 en 页为 coming-soon 状态、两页更新频率均为两张原宽卡片居中。
+
+**下一步**：① canonical / 分享卡片修复（已向用户解释含义，待确认）；② 是否加首页公告条；③ 英文版出来后在 en `papers` 里加条目（会自动渲染头条块），并把 zh 链接行的 `comingSoon` 换成 `href`。
+
 ## 2026-09-17
 
 ### Events 页新增 Collaborations 区块：HydroTuring 守恒基准（与 CU Boulder 李直教授团队合作）

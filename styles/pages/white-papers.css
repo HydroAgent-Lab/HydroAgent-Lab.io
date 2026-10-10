@@ -1,8 +1,19 @@
+/* Hallmark · genre: editorial · macrostructure: Split Studio (hero diptych + reading column) · theme: project system, preserved · enrichment: none (the real report cover) · nav: site shell, preserved · footer: site shell, preserved
+ * tone: austere-editorial · anchor hue: 258 (brand blue, --accent oklch(51% 0.15 258)) · scope: .wp-pub-* (publication layout, zh)
+ * Hallmark · pre-emit critique: P4 H5 E4 S4 R5 V4
+ * slop: 52 / 58 pass · contrast: pass (40–41) · honest: pass (46) · chrome: pass (47) · tokens: pass (48) · responsive: pass (49) · icons: pass (30)
+ * mobile: pass (49–57; 34 measured — no sideways scroll at 320 / 375 / 414 / 768 / 1280 / 1440) · hero fold: pass at 1280×800 (44)
+ * waived — preserved site system, not changed by this page: 1 Inter Tight display + system CJK face · 7 #fff base · 22 near-zero-chroma hex greys
+ *   · 34 root `overflow-x: clip` absent (styles/base.css) · 42–43 site nav / footer (styles/nav.css, footer.css)
+ */
+
 /* ==========================================================
    White Papers Page
+   Two layouts (components/pages/white-papers.js): a language with a featured
+   release gets the publication layout (D); one without gets A–C.
    ========================================================== */
 
-/* --- A. Hero — Capabilities-style stacked facts --- */
+/* --- A. Hero — Capabilities-style stacked facts (no-release layout) --- */
 .white-papers-page .page-lead {
   grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
 }
@@ -35,10 +46,15 @@
   line-height: 1.5;
 }
 
-/* --- B. Cadence — 3-column grid --- */
+/* --- B. Cadence ---
+ * Tracks cap at a third of the 840px row (3 × 264 + 2 × 24 gap) and the set
+ * is centred, so any count from one to three reads as normal-width cards.
+ * A fixed `repeat(3, 1fr)` left an empty third column once the monthly item
+ * was dropped (2026-10-09). */
 .wp-cadence-list {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(0, 264px));
+  justify-content: center;
   gap: 24px;
   max-width: 840px;
   margin: 0 auto;
@@ -87,7 +103,7 @@
   }
 }
 
-/* --- C. Archive section — matches Research papers section --- */
+/* --- C. Archive section (empty state) — matches Research papers section --- */
 .wp-archive-section {
   background: #F9FAFB;
 }
@@ -118,4 +134,417 @@
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+/* ==========================================================
+   D. Publication layout — the page is the report
+   Mobile-first: base rules are the phone layout; min-width queries add.
+   No card container, no eyebrows, one hairline — the cover is the only
+   object, the type does the rest.
+   ========================================================== */
+
+/* Page-scoped scale. The site has no spacing tokens and this page should not
+   invent global ones, so the 4-pt steps and the five type sizes live here. */
+.white-papers-page {
+  --wp-space-3xs: 2px;
+  --wp-space-2xs: 4px;
+  --wp-space-xs: 8px;
+  --wp-space-sm: 12px;
+  --wp-space-md: 16px;
+  --wp-space-lg: 24px;
+  --wp-space-xl: 40px;
+  --wp-space-2xl: 64px;
+  --wp-space-3xl: 96px;
+
+  /* Five sizes, no more. Display scales with the viewport so 水利行业智能体
+     fits on one line beside the phone-size cover — at 21px it broke inside the
+     segment at 320px (measured: 3 lines), at 6vw it holds two. */
+  --wp-text-display: clamp(1.1875rem, 6vw, 3rem);
+  --wp-text-lg: clamp(1.125rem, 2vw, 1.375rem);
+  --wp-text-body: 1.0625rem;
+  --wp-text-sm: 0.9375rem;
+  --wp-text-xs: 0.8125rem;
+  /* CJK body wants more leading than Latin's 1.5–1.65: ideographs fill the
+     whole em box, so tight lines read as a wall. */
+  --wp-leading-cjk: 1.8;
+
+  /* Fluid on phones: the site's phone gutter is 32px (styles/responsive.css),
+     so at 320px a fixed 96px cover left the title column 7px short of
+     水利行业智能体. 80px there, up to 112px on larger phones. */
+  --wp-cover-w: clamp(80px, 26vw, 112px);
+  --wp-col-gap: var(--wp-space-md);
+  --wp-radius-paper: 3px;
+  --wp-shadow-paper: 0 12px 32px -18px oklch(22% 0.02 258 / 0.35);
+}
+
+@media (min-width: 40rem) {
+  .white-papers-page {
+    --wp-cover-w: 180px;
+    --wp-col-gap: var(--wp-space-lg);
+  }
+}
+
+@media (min-width: 60rem) {
+  .white-papers-page {
+    --wp-cover-w: clamp(220px, 21vw, 300px);
+    --wp-col-gap: var(--wp-space-2xl);
+  }
+}
+
+/* One grid for every block. Column 1 holds the cover in the hero and stays
+   empty below it, so from 60rem all text shares column 2's left edge. */
+.wp-pub-grid {
+  display: grid;
+  grid-template-columns: var(--wp-cover-w) minmax(0, 1fr);
+  column-gap: var(--wp-col-gap);
+}
+
+/* --- D1. Hero diptych ---
+ * Bottom padding is 1.5× the top (Hallmark gate 44): even padding makes the
+ * band float; the heavier bottom seats it into the reading column below. */
+.wp-pub-hero {
+  padding: var(--wp-space-xl) var(--gutter) var(--wp-space-2xl);
+  background: var(--surface-subtle);
+}
+
+/* Phone: cover beside the title block, summary and actions full width below,
+   which puts the buttons inside the first screen. From 40rem the cover holds
+   the whole left column. */
+.wp-pub-hero-grid {
+  grid-template-areas:
+    "cover head"
+    "body  body";
+  row-gap: var(--wp-space-lg);
+  align-items: start;
+}
+
+@media (min-width: 40rem) {
+  /* `1fr` on the second row: when the cover is taller than the text, the
+     surplus collects below the text instead of opening a gap between the
+     title and the summary. */
+  .wp-pub-hero-grid {
+    grid-template-areas:
+      "cover head"
+      "cover body";
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 60rem) {
+  .wp-pub-hero {
+    padding-block: var(--wp-space-2xl) var(--wp-space-3xl);
+  }
+}
+
+/* A hairline and one soft shadow read as a sheet of paper on the grey band.
+   One shadow, never a stack; hover shifts colour, nothing moves. */
+.wp-pub-cover {
+  grid-area: cover;
+  display: block;
+  overflow: hidden;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--wp-radius-paper);
+  box-shadow: var(--wp-shadow-paper);
+  transition: border-color var(--transition);
+}
+
+.wp-pub-cover:hover {
+  border-color: var(--border-strong);
+}
+
+.wp-pub-cover img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.wp-pub-head {
+  grid-area: head;
+  align-self: center;
+  min-width: 0;
+}
+
+@media (min-width: 40rem) {
+  .wp-pub-head {
+    align-self: start;
+  }
+}
+
+/* Weight carries the hierarchy (700 against body 400). Tracking stays at 0:
+   the site-wide -0.01em pulls ideographs into each other. */
+.wp-pub-head h1 {
+  font-size: var(--wp-text-display);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+/* Each segment breaks only if it alone overflows the line. */
+.wp-pub-head h1 span {
+  display: inline-block;
+}
+
+.wp-pub-subtitle {
+  margin: var(--wp-space-xs) 0 0;
+  font-size: var(--wp-text-lg);
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.wp-pub-byline {
+  margin: var(--wp-space-sm) 0 0;
+  font-size: var(--wp-text-xs);
+  color: var(--text-muted);
+}
+
+@media (min-width: 40rem) {
+  .wp-pub-byline {
+    font-size: var(--wp-text-sm);
+  }
+}
+
+.wp-pub-body {
+  grid-area: body;
+  min-width: 0;
+}
+
+.wp-pub-summary {
+  margin: 0;
+  max-width: 36em;
+  font-size: var(--wp-text-body);
+  line-height: var(--wp-leading-cjk);
+  color: var(--text-secondary);
+}
+
+.wp-pub-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wp-space-sm) var(--wp-space-md);
+  margin-top: var(--wp-space-lg);
+}
+
+/* The site's shared pill buttons, sized up on this page only: 13px and ~38px
+   tall is under a comfortable touch target. Labels never wrap — the row does. */
+.wp-pub-actions .primary-action,
+.wp-pub-actions .secondary-action {
+  min-height: 44px;
+  padding: 0 var(--wp-space-lg);
+  font-size: var(--wp-text-sm);
+  white-space: nowrap;
+}
+
+.wp-pub-actions .primary-action:active,
+.wp-pub-actions .secondary-action:active {
+  transform: translateY(1px);
+}
+
+.wp-pub-soon {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wp-space-xs);
+  font-size: var(--wp-text-sm);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Dashed outline + the words carry "not yet"; no arrow and no colour, so it
+   never reads as a button. */
+.wp-pub-soon-tag {
+  padding: var(--wp-space-3xs) var(--wp-space-xs);
+  font-size: var(--wp-text-xs);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.wp-pub-meta {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: var(--wp-space-2xs);
+  margin: var(--wp-space-lg) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--wp-text-sm);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The separator trails its item, so a wrapped line ends on "·" rather than
+   starting with one. */
+.wp-pub-meta li:not(:last-child)::after {
+  content: "·";
+  margin-inline: var(--wp-space-xs);
+}
+
+.wp-pub-meta a {
+  color: var(--accent);
+}
+
+.wp-pub-meta a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.wp-pub-meta a:active,
+.wp-pub-facts dd a:active {
+  color: var(--accent-hover);
+}
+
+/* --- D2. Reading column --- */
+.wp-pub-section {
+  padding: var(--wp-space-xl) var(--gutter) 0;
+}
+
+.wp-pub-colophon {
+  padding-bottom: var(--wp-space-2xl);
+}
+
+/* Uneven on purpose: the conclusions open with air, the colophon sits closer. */
+@media (min-width: 60rem) {
+  .wp-pub-findings {
+    padding-top: var(--wp-space-3xl);
+  }
+
+  .wp-pub-colophon {
+    padding-top: var(--wp-space-2xl);
+    padding-bottom: var(--wp-space-3xl);
+  }
+}
+
+/* Full width until 60rem — beside a 180px column the prose would drop to
+   ~20 characters a line on a tablet. From 60rem, the hero's text axis.
+   Capped at the reading measure — 38rem ≈ 36 characters a line at 17px, the
+   same width as the hero summary — so the colophon hairline ends where the
+   text does, not 220px past it at the column edge. */
+.wp-pub-col {
+  grid-column: 1 / -1;
+  min-width: 0;
+  max-width: 38rem;
+}
+
+@media (min-width: 60rem) {
+  .wp-pub-col {
+    grid-column: 2;
+  }
+}
+
+.wp-pub-section h2 {
+  font-size: var(--wp-text-lg);
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+.wp-pub-note {
+  margin: var(--wp-space-xs) 0 0;
+  font-size: var(--wp-text-sm);
+  color: var(--text-muted);
+}
+
+/* Single column: the numeral sits inside the heading, the paragraph below it at
+   the column's full measure. A hanging numeral column read well but is the
+   number-left / heading-right pattern (Hallmark gate 54), and on a phone it
+   cost ~2.5 characters a line. */
+.wp-pub-findings-list {
+  display: grid;
+  gap: var(--wp-space-xl);
+  margin: var(--wp-space-xl) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wp-pub-findings-list h3 {
+  display: flex;
+  align-items: baseline;
+  gap: var(--wp-space-sm);
+  font-size: var(--wp-text-body);
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+
+.wp-pub-findings-num {
+  font-family: var(--font-display);
+  font-size: var(--wp-text-lg);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.wp-pub-findings-list p {
+  margin: var(--wp-space-xs) 0 0;
+  font-size: var(--wp-text-body);
+  line-height: var(--wp-leading-cjk);
+  color: var(--text-secondary);
+}
+
+/* The page's one hairline: it closes the reading column. */
+.wp-pub-colophon .wp-pub-col {
+  padding-top: var(--wp-space-xl);
+  border-top: 1px solid var(--border);
+}
+
+.wp-pub-facts {
+  display: grid;
+  gap: var(--wp-space-md);
+  margin: var(--wp-space-lg) 0 0;
+}
+
+.wp-pub-facts > div {
+  display: grid;
+  gap: var(--wp-space-2xs);
+}
+
+@media (min-width: 40rem) {
+  .wp-pub-facts > div {
+    grid-template-columns: 6rem minmax(0, 1fr);
+    column-gap: var(--wp-space-md);
+    align-items: baseline;
+  }
+}
+
+.wp-pub-facts dt {
+  font-size: var(--wp-text-sm);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.wp-pub-facts dd {
+  margin: 0;
+  font-size: var(--wp-text-sm);
+  line-height: 1.7;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.wp-pub-facts dd a {
+  color: var(--accent);
+}
+
+.wp-pub-facts dd a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.wp-pub-plan {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wp-pub-plan strong {
+  margin-inline-end: var(--wp-space-xs);
+  font-weight: 700;
+  color: var(--text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wp-pub-actions .primary-action:active,
+  .wp-pub-actions .secondary-action:active {
+    transform: none;
+  }
 }

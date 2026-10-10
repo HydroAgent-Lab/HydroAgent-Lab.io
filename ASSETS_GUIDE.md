@@ -27,6 +27,7 @@ Next.js 把 `public/` 下的内容**原样**导出到 `out/`，所以那里的�
 | `events/` | 活动现场照片（命名 `<姓名>_<地点或年份>_<序号>`）+ 合作方标识（`hydroturing-logo.png`，取自 flood-lab.github.io/HydroTuring，第三方版权） | `content/pages/events.js` |
 | `EGU26/` | EGU 2026 专题：讲稿 PDF、现场照、合影 | `content/pages/events.js`、`styles/pages/home.css` |
 | `papers/` | 论文正文附件与图（PDF / Figure） | `content/pages/research.js` |
+| `white-papers/` | 白皮书封面（`hydroagent-wp-<版本>-cover.webp`，从 PDF 首页渲染）与站内托管的速读版 PDF（`-brief-zh.pdf`）。**完整版不在这里**——放在 Zenodo，页面链 DOI | `content/pages/white-papers.js` |
 
 > 视频按**使用页面**归目录（`careers/sky.mp4`、`platform/flood-scene.mp4`），不单设 `video/` —— 见下方规则 3。
 

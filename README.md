@@ -48,7 +48,7 @@ app/                      # Next.js App Router pages (en + zh, 24 pages total)
   page.js                 # Home (en)
   zh/                     # Chinese locale mirror
   platform/, capabilities/, workflow/, research/, runs/, team/, careers/, contact/
-  white-papers/, events/, members/   # New placeholder pages
+  white-papers/, events/, members/   # White papers (v1.0.0 live), events, lab members
 
 components/
   hero.js                 # Hero section — split layout (left text/CTA, right autoplay video)
@@ -72,7 +72,7 @@ content/
 
 public/assets/            # Static assets for the Next app — see ASSETS_GUIDE.md
   brand/ home/ platform/ careers/ contact/ team/ lab-members/
-  hydroagent_webui/ demo/ events/ EGU26/ papers/
+  hydroagent_webui/ demo/ events/ EGU26/ papers/ white-papers/
                           # Grouped by consuming page, not by file type. No loose files at
                           # root, and no .md files — everything here is published to the web.
 
@@ -107,4 +107,5 @@ styles/
 - 首页 Hero 截图是**无边框的切角矩形**，不是显示器边框。左上 / 右下两角以 45° 切掉，形状由 `--cut` 驱动的 `clip-path: polygon()` 定义，且**截图、蓝色光晕叠层、边缘光带三层必须共用同一条 clip-path**，否则叠层会沿着截图并不存在的边缘走。阴影用 `filter: drop-shadow()` 而非 `box-shadow` —— 后者描的是元素盒子，会把切角抹平。`tests/test_hero_monitor.py` 锁定了这几条（断言限定在 `.hero-monitor` 规则体内，不做全文件字符串搜索）
 - Events 页分两层：**Collaborations 区块在上、活动时间线在下**（`components/pages/events.js`）。时间线记录一次性线下事件（有日期、有现场照片、事后不再变），而开放倡议会持续产出 results 和论文 —— 把 HydroTuring 塞进 zigzag 会同时踩两个坑：它没有现场照片（渲染成灰色占位块），也没有"更新"这一层。`collabSection.items[].updates` 是预留的追加位，后续进展只往数组里加，不动组件和样式。**版式直接复用时间线的 `.event-row` / `.event-row-body`**，只把媒体列换成 `.collab-row-media`（logo 要 contain + 留白，照片是 cover 裁切）—— 一页上放两套视觉语言（带边框的卡片 + 无边框的照片行）是这个区块第一版被推翻的原因。论文正式发表后再考虑在 Research 页单列一条
 - **新 class 名先全局 grep 再用**：`styles/` 下所有 CSS 都由 `app/globals.css` @import 进同一个全局作用域，没有 CSS Modules。上面这个区块第一版取名 `.collab-card`，而 `styles/pages/capabilities.css` 里早有一套同名卡片（padding / hover / h3 / p 全都定义了），于是 Events 页的卡片静默继承了 Capabilities 页的样式 —— 构建不报错，只是变丑。页面专属 class 请带页面前缀或足够特异的词根
-- 已知遗留：无（`--border` / `--border-strong` 的重复值已于 2026-07-25 修正为 #CBCCCC / #AEB0B2）
+- White Papers 页首期 v1.0.0（2026-10-07，Zenodo DOI `10.5281/zenodo.23230110`，仅中文）。**有正式发布的语言（目前只有 zh）走出版物布局 `.wp-pub-*`**（2026-10-10 用 Hallmark 重做，CSS 顶部有标记与 slop-test 结果）：首屏左右分栏 —— 封面 | 标题、两个按钮、一行信息（版本 · 发布日 · 证据截至 · DOI）；下方"三项核心结论"与"关于这份白皮书"在首屏文字栏的左边线上排成单栏，宽 38rem（≈ 每行 36 个汉字）。没有卡片容器、没有眉标、全页一条分隔线；中文标题字距 0、正文行高 1.8；页面级间距/字号刻度挂在 `.white-papers-page` 上（`--wp-space-*` / `--wp-text-*`），不进全局 tokens。**完整版链 DOI，不链 Zenodo 文件直链**（发布两天后文件被改名，直链即 404）；速读版托管在 `public/assets/white-papers/`（2026-10-10 换成用户提供的新字体版，文件名不变）；英文版是"即将推出"占位（`links[].comingSoon`，有文件后换成 `href`）。**en 页只显示 coming soon**（`papers: []` → PageLead + 空状态 + 更新频率）：英文版出来之前不发布任何非官方英文译文（用户决定）。更新频率只保留"每季度白皮书 / 每年年度综述"，出版物布局里的"更新计划"由 `cadenceSection.items` 生成，一处维护。第 2 期需另设计归档列表（目前非 featured 条目不渲染）。`.hallmark/` 是 Hallmark 的运行记录（log + preflight），下次运行会读取
+- 已知遗留：① 所有子页 `<link rel="canonical">` 与 `og:url` 都指向首页、OG 标题也是首页文案 —— 根源是 `app/layout.js` 的 `alternates.canonical: "/"` 与 `openGraph.url`，会妨碍子页被收录、分享卡片显示错误；② 20 个子页 `<title>` 后缀重复（如 "White Papers | HydroAgent-Lab | HydroAgent-Lab"）—— 页面 title 已含后缀，又叠加了 layout 的 `%s | HydroAgent-Lab` 模板；③ 根节点恒为 `<html lang="en">`，/zh 页也一样（`SiteShell` 只加 `lang-zh` 类），中文内容需在元素上自行标 `lang="zh-CN"`；④ `html` / `body` 没有 `overflow-x: clip`（Hallmark 的硬性要求，目前实测 320–1440px 无横向滚动）；⑤ `styles/pages/demo.css:119` 有 autoprefixer 警告（`start` 建议改 `flex-start`）。均待修
