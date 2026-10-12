@@ -1,5 +1,184 @@
 # Work Log
 
+## 2026-10-12
+
+### 英文白皮书页加"Read the Chinese edition"按钮
+
+**背景**：英文版还没有，en 页只有 coming soon。用户要求加一个入口，点了可以抢先读中文版。用户的选择：
+- **链接**：Zenodo 完整版的 DOI，和中文页"阅读完整版"是同一个链接
+- **按钮文字**："Read the Chinese edition"。不用 early access 或 preview：中文版是正式发布的 v1.0.0，这两个词会让英文读者以为它是预发布版
+
+**修改文件：**
+- `content/pages/white-papers.js`
+  - 抽出 `fullReportHref`（DOI 地址），zh `links` 的完整版和 en 的新按钮共用这一个常量
+  - en `lead` 新增 `action: { label, href }`
+  - en 的注释改掉了"只显示 coming soon"的说法
+- `components/page-lead.js` — 新增可选的 `actions` 插槽，渲染在 h1 下方。不传就什么都不渲染，其他 7 个页面组件不受影响
+- `components/pages/white-papers.js` — 兜底首屏（en 页现在用的就是它）把 `lead.action` 渲染成 `.wp-lead-actions` 里的主按钮：新标签页打开，带 `↗`
+- `styles/pages/white-papers.css` — A 区新增 `.wp-lead-actions`
+  - 距标题 24px
+  - 按钮 44px 高、15px 字号、不换行，和出版物布局的按钮同尺寸
+  - 按下时下沉 1px，开启"减少动态效果"时取消
+- `README.md` — 更新 White Papers 一段
+
+**解决的问题 / 踩到的坑：**
+- **不能在仓库里直接构建**：用户的 `next dev` 正跑在 3000 端口，它和 `next build` 共用 `.next` 目录，直接构建会把 dev 服务器弄坏。改为在临时 git worktree 里构建，node_modules 用目录联接共享
+- **worktree 必须和 node_modules 在同一个盘**：放在 C 盘临时目录时，Next 算出的入口相对路径跨了盘，变成 `./D:/…`，构建失败。改放到 `D:\HydroAgent_Spcae\_wt_build_check` 后正常
+- **清理顺序**：验证完先拆联接，再删 worktree，免得删除时顺着联接删掉真正的 node_modules
+- **比对时多出的 5 个字节**：用到 PageLead 的页面，RSC 数据里 h1 后面多了 `,null`，是插槽为空时的序列化占位。可见 HTML 没变，正常
+
+**验证**：
+- 基线（HEAD `24080d0`）和改后各构建一次，都通过
+- 逐页比对 `<main>`：22 个有 `<main>` 的页面里，只有 en `/white-papers/` 变了，变化就是这个按钮；zh 白皮书页和其余 20 页一字不差
+- iframe 实测 320 / 375 / 414 / 768 / 1280 / 1440：
+  - 没有横向溢出
+  - 按钮 251.6×44px，单行，和 h1 左对齐，距 h1 24px，都在首屏内
+  - 320px 时按钮离右侧内容边 4.4px，外面还有 32px 页边距
+- headless Chrome 截了 1280 和 375 两张图目视检查
+- dev 服务器热更新后正常（返回 200，按钮已显示）
+- 临时 worktree、预览服务器、检查页都已清理
+
+**下一步**：
+1. 提交（不加 co-author）
+2. canonical / 分享卡片的修复仍待决定
+3. 英文版上线后，在 en 的 `papers` 里加条目即可。兜底首屏不再渲染，按钮会跟着消失，`lead.action` 可以一并删掉
+
+### 首页新增 NEWS 板块（左右滑动，圆点指示）
+
+**需求**：首页加一个 NEWS 板块，不用太宽，可以左右滑动。目前就两条：一篇文章和一份白皮书。圆点指示：未选中是空心小圆圈，当前是透明圆圈里有一个实心小圆点。用户的选择：
+- **位置**：首屏正下方
+- **切换方式**：手动滑动，不自动轮播
+- **英文白皮书卡片**：用英文说明，不译标题
+
+"一篇文章"理解为 Research 页那篇 arXiv 预印本，站上目前只有这一篇论文。
+
+**修改文件：**
+- `content/pages/home.js` — 新增 `newsThumbs` 和 en/zh 的 `newsSection`
+  - 板块标题 News / 最新动态，"Read more / 阅读详情"，读屏文案 `a11y`
+  - 两条 `items`：白皮书（2026-10-07 → `/white-papers`）、预印本（2026-07-27 → `/research`）
+  - 摘要只用站上已有的文字：预印本用 Research 页的核心发现；zh 白皮书删节自白皮书页简介
+  - en 白皮书卡片：标题 "HydroAgent white paper v1.0.0 (Chinese edition)"，摘要 "Our first white paper is now available in Chinese; the English edition is coming soon."
+- `components/news-carousel.js` — 新增 client 组件
+  - 滑动交给 scroll-snap 轨道：触屏、触控板原生支持，JS 不运行也能滑
+  - JS 只做两件事：滚动时把离滚动位置最近的卡片标为当前；点圆点滚到对应卡片（开启"减少动态效果"时直接跳过去）
+  - 读屏语义按 APG 轮播模式：`role=region` + `aria-roledescription`，卡片 `role=group`（"1 of 2"），圆点是 `<button>` + `aria-current`
+  - 整张卡是一个链接（标题链接的 `::after` 撑满卡片）
+  - 缩略图 `alt=""`，不懒加载：被轨道裁掉的懒加载图要滑到才开始加载，会闪一下
+- `components/pages/home.js` — 首屏下插入 `<section class="content-section news-section">`，zh 页标 `lang="zh-CN"`。链接先在服务端用 `localizeHref` 本地化再传给 client 组件，避免把整个 `content/site` 打进浏览器端的包
+- `styles/pages/home.css` — 新增 News 区块样式
+  - 880px 居中
+  - 卡片 = 112px 缩略图 + 文字栏；≤560px 时缩略图缩到 56px、放在类型和日期旁边，标题和摘要占满整行
+  - 摘要最多 3 行，手机上 4 行
+  - 圆点：点击区 24px，圆圈 12px；未选中是 `--text-muted` 空心圆圈，当前是 `--accent` 圆圈加 5px 实心点
+  - 写了 hover、focus-visible、按下、减少动态效果几种状态
+- `public/assets/papers/hydroagent-preprint-p1.webp` — 新增，arXiv:2607.23983v1 PDF 第 1 页渲染（200 dpi → 480×678 WebP，33 KB），和白皮书封面同比例
+- `README.md`、`ASSETS_GUIDE.md` — 补上 NEWS 说明和资源登记
+
+**解决的问题 / 踩到的坑：**
+- **伪元素的 box-sizing**：`* { box-sizing: border-box }` 里的 `*` 不匹配 `::before`/`::after`，圆点的圆圈要单独声明，否则 12px 的圆圈实际是 15px
+- **卡片外的效果会被裁掉**：轨道的 overflow 会裁掉卡片外的阴影和焦点框。所以 hover 只改边框颜色，焦点框画在卡片内侧（`::after` 加 inset box-shadow）
+- **摘要被截掉两个字**：375px 时 3 行限制截掉了 zh 白皮书摘要的最后两个字，手机上改为 4 行
+- **测试方法的坑（不是组件 bug）**
+  - headless Chrome 的 `--virtual-time-budget` 会让平滑滚动和 `requestAnimationFrame` 停摆，屏外的 iframe 也不出帧，结果看起来像"点圆点不滚动、圆点不跟随"
+  - 改用 CDP 按真实时间驱动、一次只放一个可见 iframe 依次测，全部通过
+  - CDP 截图的 clip 坐标是文档坐标，不是视口坐标
+
+**验证**：
+- 基线（HEAD 加上未提交的英文按钮改动）和改后各构建一次，都通过；唯一的警告是原有的 `demo.css:119`
+- 逐页比对 `<main>`：只有 `/` 和 `/zh/` 变了（多出 NEWS 区块），其余 20 页一字不差
+- 首页 JS 从 369 B 增加到 1.21 kB，首次加载总量从 140 kB 到 141 kB
+- 实测 320 / 375 / 414 / 768 / 1280 / 1440，中英文都测：
+  - 没有横向溢出
+  - 桌面上轮播 880px 宽、居中
+  - 两张卡等高，"阅读详情"在同一水平线上
+  - 缩略图都加载了，圆点点击区 24×24
+  - 1280×800 下 "News" 标题露在首屏底部
+- 交互（CDP 真实时间驱动，12 组全部通过）：
+  - 点第 2 个圆点，滚到第 2 张卡（400–650 ms），圆点切换
+  - 滑回第 1 张，圆点跟着回来
+  - Tab 到第 2 张卡的链接，轨道自动滚过去，圆点更新
+  - 点卡片任意位置都命中标题链接
+  - 模拟"减少动态效果"时，点圆点直接跳过去
+- 截图目视检查：桌面 1280、手机 375（中英文）、圆点放大 4 倍
+
+**下一步**：
+1. 提交，建议分两次：英文页按钮一次，首页 NEWS 一次；不加 co-author
+2. 以后加新闻：在 `content/pages/home.js` 两种语言的 `newsSection.items` 最前面各加一条，缩略图 480×678
+3. canonical / 分享卡片的修复仍待决定
+
+### NEWS 去掉边框（Hallmark，组件范围）
+
+**问题**：用户觉得 NEWS 卡片的边框突兀。我的诊断有四条：
+1. 卡片 880px 居中，比 "News" 标题缩进去 80–100px，边框把这段错位描了出来
+2. 框里套框：卡片一圈边框，缩略图又一圈
+3. 首屏无框、留白多，往下第一个元素却是硬边矩形
+4. `#CBCCCC` 细线配 6px 圆角，是最常见的通用卡片样式
+
+我给了三个方案：无框纸张式 / 浅灰底色 / 顶部一条细线。用户选了**无框纸张式**。Hallmark 走组件流程：预检用缓存（2026-10-10），genre 是 editorial，主题沿用站点现有系统，不写 `.hallmark/log.json`。
+
+**修改文件：**
+- `components/news-carousel.js` — 标题行改由组件渲染：`h2` 和圆点同一行，DOM 顺序就是阅读顺序（标题 → 圆点 → 卡片）。轮播区域改用 `aria-labelledby` 指向标题，id 用 `useId()` 生成。prop `label` 改为 `title`
+- `components/pages/home.js` — NEWS 区块不再单独渲染 `SectionHeader`
+- `content/pages/home.js` — 删掉用不到的 `newsSection.eyebrow`
+- `styles/pages/home.css` — 重写 News 区块
+  - 卡片没有边框和底色，轮播和标题左对齐（不再居中）
+  - 缩略图加纸张投影 `--news-shadow-paper`，在白皮书页封面投影的基础上收紧，保证落在轨道裁切范围内
+  - 卡片 padding = `--news-bleed` 16px，轨道 `margin-inline` 取负值抵消：内容对齐标题，悬停 / 聚焦时的 `--accent-wash` 淡蓝底向外多伸出 16px
+  - 圆点移到标题行右端，并按点击区内的圆圈位置做了光学对齐，最后一个圆圈和内容右边对齐
+  - 区块顶部加了 Hallmark 组件标记（状态清单、对比度、自评分、豁免项）
+
+**解决的问题 / 踩到的坑：**
+- **手机上"阅读详情"脱离正文**：没有框以后，钉在卡片底部的"阅读详情"在短摘要下方空出约 120px，看起来和正文没关系。手机上改为紧跟摘要，多出的高度放进最后一个空行；桌面保持钉底，因为那里刚好和缩略图底边对齐
+- **slop test（组件子集）修掉的几条**
+  - 第 25 条：摘要每行约 95 个字符，加 `max-width: 62ch`，中文约 37 个字一行
+  - 第 13 条：悬停时有三个变化，去掉箭头右移
+  - 第 35 条：下划线偏移从 3px 改为 2px
+  - 第 26 条：补上卡片按下态（标题变 `--accent-hover`）和圆点的防御性禁用态
+  - 第 51 条：卡片标题加 `overflow-wrap: anywhere` 和 `min-width: 0`
+  - 第 24 条：圆点组的 -6px 改写为 `calc((12px - 24px) / 2)`
+- **豁免项（站点原有系统，不在这次范围内）**：1 Inter Tight / Inter；7 纯白页面底；22 hex 灰；24 没有站点级间距刻度；34 根节点没有 `overflow-x: clip`
+- **两个测试环境的坑**
+  - iframe 里用脚本 `focus()` 不会触发 `:focus-visible`，因为 iframe 文档没有系统焦点。改用 CDP 开启 `Emulation.setFocusEmulationEnabled`，再发真实的 Tab 按键
+  - CDP 截图在 Tab 聚焦后要重新滚动，否则裁切区域会落在视口外
+
+**验证**：
+- 基线（上一版 NEWS）和改后各构建一次，都通过，唯一的警告是原有的 `demo.css`
+- 逐页比对 `<main>`：只有 `/`、`/zh/` 变了，其余 20 页一字不差
+- 首页 JS 从 1.21 kB 到 1.26 kB
+- 实测 320 / 375 / 414 / 768 / 1280 / 1440，中英文都测，12 组全部通过：
+  - 没有横向溢出，轨道的负 margin 不会超出视口
+  - 缩略图和标题左边对齐；圆点在标题行，最后一个圆圈和内容右边相差 0px
+  - 卡片静止时 `border: 0`、背景透明
+  - 两张卡等高；缩略图都加载了，下方至少留 31px 给投影
+  - 手机上"阅读详情"距摘要 16px
+  - 圆点切换、滑回、Tab 聚焦第二张卡、点卡片任意处都正常
+- 真实输入事件：鼠标悬停时浮出 `oklch(96% 0.012 258)` 淡蓝底并加下划线，移开后消失；按 13 下 Tab 到卡片，出现淡蓝底和 2px `--accent-hover` 内描边
+- 对比度（WCAG）：
+  - 白底上：正文 17.7、灰字 5.7、"Read more" 5.8、类型标签 7.9
+  - 淡蓝底上：正文 15.8、灰字 5.1、"Read more" 5.2、类型标签 7.0
+  - 圆点圆圈 5.7（非文本要求 3:1）
+- 截图目视检查：桌面静止 / 悬停 / 聚焦，手机中英文
+- dev 服务器 11:56 后停止（最后一次热更新是 11:56:00），不是我停的，原因不明；验证构建都在独立 worktree 里进行
+
+**下一步**：
+1. 提交，建议分两次：英文页按钮一次，首页 NEWS（含这次去框）一次；不加 co-author
+2. canonical / 分享卡片的修复仍待决定
+
+### 白皮书页删掉"摘自完整版执行摘要，有删节。"
+
+用户要求删掉中文白皮书页"三项核心结论"标题下的这句说明。
+
+**修改文件：**
+- `content/pages/white-papers.js` — 删掉 `findingsNote`。上面那行写给维护者的代码注释（"摘自完整版执行摘要，仅做删节，不增加原文没有的判断"）保留，页面上看不到，用来说明三项结论的出处
+- `components/pages/white-papers.js` — 删掉渲染它的 `<p className="wp-pub-note">`
+- `styles/pages/white-papers.css` — 删掉不再使用的 `.wp-pub-note`。删之前全局搜过，没有别处用到
+
+**验证**：
+- dev 服务器上的 `/zh/white-papers/`：这句话出现 0 次，`.wp-pub-note` 0 个，"三项核心结论"标题和 3 条结论都在
+- worktree 正式构建通过：导出的所有页面里都没有这句话，CSS 里没有 `.wp-pub-note`
+- 1280 截图：标题到第一条结论 40px，和结论之间的间距一致
+- dev 服务器这次在构建后依然在运行
+
 ## 2026-10-10
 
 ### 白皮书中文页用 Hallmark 重做（方案 A：封面主视觉）

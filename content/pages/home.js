@@ -1,3 +1,17 @@
+// News cards, newest first. Each card restates a release that has its own page
+// on this site and links there; the external links (arXiv, DOI) live on those
+// pages. Titles are quoted, never translated: the preprint title stays in
+// English on zh (citation rule, see research.js), and the white paper has no
+// English edition yet, so the en card describes the release instead of
+// rendering its title in English. Summaries are abridged from the detail pages'
+// own text — no claim here that those pages do not make.
+// Both thumbnails are 480 × 678: the white paper's cover, and page 1 of the
+// preprint rendered from arXiv:2607.23983v1.
+const newsThumbs = {
+  whitePaper: { src: "/assets/white-papers/hydroagent-wp-v1.0.0-cover.webp", width: 480, height: 678 },
+  preprint: { src: "/assets/papers/hydroagent-preprint-p1.webp", width: 480, height: 678 }
+};
+
 export const homeContent = {
   en: {
     hero: {
@@ -13,6 +27,43 @@ export const homeContent = {
       tertiary: "Discuss a pilot",
       tertiaryPath: "/contact",
       videoTag: "HydroAgent-FF workflow demo"
+    },
+    newsSection: {
+      title: "News",
+      readMore: "Read more",
+      // Screen-reader wording for the carousel; components/news-carousel.js
+      // fills in {n}, {total} and {kind}.
+      a11y: {
+        carousel: "carousel",
+        slide: "slide",
+        slideLabel: "{n} of {total}",
+        dots: "Choose a news item",
+        dot: "{n} of {total}, {kind}"
+      },
+      items: [
+        {
+          id: "white-paper-v1.0.0",
+          kind: "White paper",
+          date: "2026-10-07",
+          dateLabel: "7 Oct 2026",
+          title: "HydroAgent white paper v1.0.0 (Chinese edition)",
+          text: "Our first white paper is now available in Chinese; the English edition is coming soon.",
+          path: "/white-papers",
+          thumb: newsThumbs.whitePaper
+        },
+        {
+          id: "preprint-2607.23983",
+          kind: "Preprint",
+          date: "2026-07-27",
+          dateLabel: "27 Jul 2026",
+          title:
+            "HydroAgent: Formalizing Forecaster Expertise into Skill-Orchestrated Flood Forecasting Workflows",
+          text:
+            "Encoding forecaster judgment as explicit, rule-bounded skills lifted KGE by 0.023–0.154 over a 0.890 scheme-library baseline — and all five tested LLMs completed the same workflow.",
+          path: "/research",
+          thumb: newsThumbs.preprint
+        }
+      ]
     },
     whatSection: {
       eyebrow: "",
@@ -69,6 +120,43 @@ export const homeContent = {
       tertiary: "讨论试点合作",
       tertiaryPath: "/contact",
       videoTag: "洪水预报工作流演示"
+    },
+    newsSection: {
+      title: "最新动态",
+      readMore: "阅读详情",
+      a11y: {
+        carousel: "轮播",
+        slide: "幻灯片",
+        slideLabel: "第 {n} 条，共 {total} 条",
+        dots: "选择要查看的动态",
+        dot: "第 {n} 条，共 {total} 条：{kind}"
+      },
+      items: [
+        {
+          id: "white-paper-v1.0.0",
+          kind: "白皮书",
+          date: "2026-10-07",
+          dateLabel: "2026 年 10 月 7 日",
+          title: "水利行业智能体白皮书：现状、洞察与未来方向",
+          // 删节自白皮书页的简介，不增加原文没有的判断。
+          text: "梳理各水利子领域中的 LLM 与智能体应用，评估其能力边界、应用条件，以及公开资料能在多大程度上证明相关结果。",
+          path: "/white-papers",
+          thumb: newsThumbs.whitePaper
+        },
+        {
+          id: "preprint-2607.23983",
+          kind: "预印本",
+          date: "2026-07-27",
+          dateLabel: "2026 年 7 月 27 日",
+          title:
+            "HydroAgent: Formalizing Forecaster Expertise into Skill-Orchestrated Flood Forecasting Workflows",
+          titleLang: "en",
+          // 与 Research 页 zh 的核心发现同文。
+          text: "把预报员研判经验编码成有明确规则边界的 skill，使 KGE 在 0.890 的方案库基线上再提升 0.023–0.154；五个被测大模型都能跑通同一套工作流。",
+          path: "/research",
+          thumb: newsThumbs.preprint
+        }
+      ]
     },
     whatSection: {
       eyebrow: "",

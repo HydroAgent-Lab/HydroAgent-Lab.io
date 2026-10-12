@@ -46,6 +46,24 @@
   line-height: 1.5;
 }
 
+/* The one action, under the title: until the English edition exists, it links
+   to the Chinese one. Sized like the publication layout's buttons (D1) — the
+   shared pill is 13px and ~38px tall, under a comfortable touch target. */
+.wp-lead-actions {
+  margin-top: var(--wp-space-lg);
+}
+
+.wp-lead-actions .primary-action {
+  min-height: 44px;
+  padding: 0 var(--wp-space-lg);
+  font-size: var(--wp-text-sm);
+  white-space: nowrap;
+}
+
+.wp-lead-actions .primary-action:active {
+  transform: translateY(1px);
+}
+
 /* --- B. Cadence ---
  * Tracks cap at a third of the 840px row (3 × 264 + 2 × 24 gap) and the set
  * is centred, so any count from one to three reads as normal-width cards.
@@ -438,12 +456,6 @@
   letter-spacing: 0;
 }
 
-.wp-pub-note {
-  margin: var(--wp-space-xs) 0 0;
-  font-size: var(--wp-text-sm);
-  color: var(--text-muted);
-}
-
 /* Single column: the numeral sits inside the heading, the paragraph below it at
    the column's full measure. A hanging numeral column read well but is the
    number-left / heading-right pattern (Hallmark gate 54), and on a phone it
@@ -544,7 +556,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .wp-pub-actions .primary-action:active,
-  .wp-pub-actions .secondary-action:active {
+  .wp-pub-actions .secondary-action:active,
+  .wp-lead-actions .primary-action:active {
     transform: none;
   }
 }

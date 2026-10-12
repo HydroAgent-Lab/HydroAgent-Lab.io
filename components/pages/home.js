@@ -1,5 +1,6 @@
 import { CtaBand } from "@/components/cta-band";
 import { Hero } from "@/components/hero";
+import { NewsCarousel } from "@/components/news-carousel";
 import { SectionHeader } from "@/components/section-header";
 import { SiteShell } from "@/components/shell";
 import { getSiteContent, localizeHref } from "@/content/site";
@@ -12,6 +13,21 @@ export function HomePageContent({ lang = "en" }) {
     <SiteShell lang={lang}>
       <main className="main-content">
         <Hero lang={lang} content={content} />
+
+        {/* News — under the hero, so a new release is the first thing after the
+            fold. Marked zh-CN on /zh: the root <html> is always "en". */}
+        <section className="content-section news-section" lang={lang === "zh" ? "zh-CN" : undefined}>
+          {/* The carousel renders its own title row — its dots sit beside it. */}
+          <NewsCarousel
+            title={page.newsSection.title}
+            readMore={page.newsSection.readMore}
+            a11y={page.newsSection.a11y}
+            items={page.newsSection.items.map(({ path, ...item }) => ({
+              ...item,
+              href: localizeHref(lang, path)
+            }))}
+          />
+        </section>
 
         <section className="content-section what-section-wrap">
           <div className="what-section">

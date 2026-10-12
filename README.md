@@ -23,7 +23,7 @@ Google Analytics 4 (Measurement ID `G-6G0RNE8L4Z`) is loaded site-wide via `next
 
 ### Hero CTA 点击埋点
 
-首页 hero 三个按钮通过 `components/track-link.js`（`TrackLink`，唯一的 client 组件边界，`hero.js` 仍是 Server Component）上报 GA4 自定义事件 `cta_click`，参数：
+首页 hero 三个按钮通过 `components/track-link.js`（`TrackLink`，hero 里唯一的 client 组件边界，`hero.js` 仍是 Server Component）上报 GA4 自定义事件 `cta_click`，参数：
 
 | 参数 | 说明 | 示例 |
 |---|---|---|
@@ -57,6 +57,7 @@ components/
     home.js, platform.js, capabilities.js, workflow.js,
     research.js, runs.js, team.js, careers.js, contact.js,
     white-papers.js, events.js, members.js
+  news-carousel.js        # Home NEWS carousel — client component (scroll-snap track + dots)
   cta-band.js, page-lead.js, section-header.js,
   capability-directory.js, product-preview.js, highlight-grid.js
 
@@ -99,6 +100,7 @@ styles/
 - Type pairing: Inter Tight (display / headings `--font-display`) + Inter (body `--font`), loaded via next/font in app/layout.js, with CN fallback (PingFang SC / Microsoft YaHei)
 - Named easings `--ease-out/in/in-out`; global `:focus-visible` ring; clean minimal cards, 200ms hover transitions
 - Body text uses `--text-muted: #5f6773` (≈5.7:1 on white — meets WCAG AA)
+- 首页 **NEWS 板块**（首屏正下方，2026-10-12）：scroll-snap 轨道一屏一张卡，宽 880px，**和 "News" 标题左对齐，没有边框和底色**。同日用 Hallmark 改过：原来那版带边框、居中，比标题缩进去一截，缩略图又自带边框，在无框的首屏下方显得突兀。现在缩略图带纸张投影（和白皮书页封面同一手法），圆点在标题行右端；悬停或键盘聚焦时整块浮出 `--accent-wash` 淡蓝底。卡片的 padding 就是淡蓝底伸出的部分，轨道用负 margin 抵消，所以内容仍然对齐标题。CSS 区块顶部有 Hallmark 组件标记。条目在 `content/pages/home.js` 的 `newsSection.items`，**按时间倒序，每条链到站内详情页**（arXiv / DOI 外链放在详情页上）。加新闻就在两种语言的数组最前面各加一条，缩略图统一 480×678。`components/news-carousel.js` 渲染标题行和卡片，JS 只负责两件事：圆点跟随滚动位置，点圆点滚到对应卡片；JS 不运行时照样能滑。圆点：未选中是空心圆圈，当前是圆圈加实心圆点；点击区 24px，圆圈用 `--text-muted`，满足 3:1 的非文本对比度。整张卡是一个链接（标题链接的 `::after` 撑满卡片）。摘要限宽 62ch；手机上"阅读详情"紧跟摘要，桌面上和缩略图底边对齐。英文白皮书卡片不译标题（还没有官方英文版）；预印本标题在 zh 页保持英文，并标 `lang="en"`。手动滑动，不自动轮播（用户决定）
 - Home "Why Trust It" section: photo evidence cards (`.evidence-*`) — 5 river/basin photos (Unsplash License, free commercial use), label + full evidence text over a bottom scrim, no hover-flip. Titles align on a fixed baseline (`.evidence-overlay` absolute `top`, not flex-end) so all cards start at the same line. Grid capped at 1000px for side whitespace
 - Dark theme placeholder in `styles/tokens.css` (via `[data-theme="dark"]`)
 - Demo 页色彩**三级配给制**（`styles/pages/demo.css`）：品牌蓝是稀缺资源，不是装饰。**L1 实心 `--accent`** 仅给发送按钮与结束 CTA（二者不同屏，故同屏最多 2 处实心蓝）；**L2 `--accent` 描边 / `--accent-wash` 淡底**给激活场景卡与结果卡（「当前」与「结论」）；**L3 中性灰**给用户气泡（`--dark-1`）、头像、checkbox、回放点 —— 它们不需要引导注意力。改此页配色时请维持这个配给，不要因为「这里加点蓝更好看」而回到 11 处蓝的状态
@@ -107,5 +109,5 @@ styles/
 - 首页 Hero 截图是**无边框的切角矩形**，不是显示器边框。左上 / 右下两角以 45° 切掉，形状由 `--cut` 驱动的 `clip-path: polygon()` 定义，且**截图、蓝色光晕叠层、边缘光带三层必须共用同一条 clip-path**，否则叠层会沿着截图并不存在的边缘走。阴影用 `filter: drop-shadow()` 而非 `box-shadow` —— 后者描的是元素盒子，会把切角抹平。`tests/test_hero_monitor.py` 锁定了这几条（断言限定在 `.hero-monitor` 规则体内，不做全文件字符串搜索）
 - Events 页分两层：**Collaborations 区块在上、活动时间线在下**（`components/pages/events.js`）。时间线记录一次性线下事件（有日期、有现场照片、事后不再变），而开放倡议会持续产出 results 和论文 —— 把 HydroTuring 塞进 zigzag 会同时踩两个坑：它没有现场照片（渲染成灰色占位块），也没有"更新"这一层。`collabSection.items[].updates` 是预留的追加位，后续进展只往数组里加，不动组件和样式。**版式直接复用时间线的 `.event-row` / `.event-row-body`**，只把媒体列换成 `.collab-row-media`（logo 要 contain + 留白，照片是 cover 裁切）—— 一页上放两套视觉语言（带边框的卡片 + 无边框的照片行）是这个区块第一版被推翻的原因。论文正式发表后再考虑在 Research 页单列一条
 - **新 class 名先全局 grep 再用**：`styles/` 下所有 CSS 都由 `app/globals.css` @import 进同一个全局作用域，没有 CSS Modules。上面这个区块第一版取名 `.collab-card`，而 `styles/pages/capabilities.css` 里早有一套同名卡片（padding / hover / h3 / p 全都定义了），于是 Events 页的卡片静默继承了 Capabilities 页的样式 —— 构建不报错，只是变丑。页面专属 class 请带页面前缀或足够特异的词根
-- White Papers 页首期 v1.0.0（2026-10-07，Zenodo DOI `10.5281/zenodo.23230110`，仅中文）。**有正式发布的语言（目前只有 zh）走出版物布局 `.wp-pub-*`**（2026-10-10 用 Hallmark 重做，CSS 顶部有标记与 slop-test 结果）：首屏左右分栏 —— 封面 | 标题、两个按钮、一行信息（版本 · 发布日 · 证据截至 · DOI）；下方"三项核心结论"与"关于这份白皮书"在首屏文字栏的左边线上排成单栏，宽 38rem（≈ 每行 36 个汉字）。没有卡片容器、没有眉标、全页一条分隔线；中文标题字距 0、正文行高 1.8；页面级间距/字号刻度挂在 `.white-papers-page` 上（`--wp-space-*` / `--wp-text-*`），不进全局 tokens。**完整版链 DOI，不链 Zenodo 文件直链**（发布两天后文件被改名，直链即 404）；速读版托管在 `public/assets/white-papers/`（2026-10-10 换成用户提供的新字体版，文件名不变）；英文版是"即将推出"占位（`links[].comingSoon`，有文件后换成 `href`）。**en 页只显示 coming soon**（`papers: []` → PageLead + 空状态 + 更新频率）：英文版出来之前不发布任何非官方英文译文（用户决定）。更新频率只保留"每季度白皮书 / 每年年度综述"，出版物布局里的"更新计划"由 `cadenceSection.items` 生成，一处维护。第 2 期需另设计归档列表（目前非 featured 条目不渲染）。`.hallmark/` 是 Hallmark 的运行记录（log + preflight），下次运行会读取
+- White Papers 页首期 v1.0.0（2026-10-07，Zenodo DOI `10.5281/zenodo.23230110`，仅中文）。**有正式发布的语言（目前只有 zh）走出版物布局 `.wp-pub-*`**（2026-10-10 用 Hallmark 重做，CSS 顶部有标记与 slop-test 结果）：首屏左右分栏 —— 封面 | 标题、两个按钮、一行信息（版本 · 发布日 · 证据截至 · DOI）；下方"三项核心结论"与"关于这份白皮书"在首屏文字栏的左边线上排成单栏，宽 38rem（≈ 每行 36 个汉字）。没有卡片容器、没有眉标、全页一条分隔线；中文标题字距 0、正文行高 1.8；页面级间距/字号刻度挂在 `.white-papers-page` 上（`--wp-space-*` / `--wp-text-*`），不进全局 tokens。**完整版链 DOI，不链 Zenodo 文件直链**（发布两天后文件被改名，直链即 404）；速读版托管在 `public/assets/white-papers/`（2026-10-10 换成用户提供的新字体版，文件名不变）；英文版是"即将推出"占位（`links[].comingSoon`，有文件后换成 `href`）。**en 页是 coming soon + 一个"Read the Chinese edition ↗"按钮**（`papers: []` → PageLead + 空状态 + 更新频率；按钮来自 en `lead.action`，经 PageLead 的可选 `actions` 插槽渲染在标题下，链 DOI，和 zh 主按钮共用 `fullReportHref`）：英文版出来之前不发布任何非官方英文译文（用户决定）；英文版上线后 en 走出版物布局，按钮随兜底首屏一起消失。更新频率只保留"每季度白皮书 / 每年年度综述"，出版物布局里的"更新计划"由 `cadenceSection.items` 生成，一处维护。第 2 期需另设计归档列表（目前非 featured 条目不渲染）。`.hallmark/` 是 Hallmark 的运行记录（log + preflight），下次运行会读取
 - 已知遗留：① 所有子页 `<link rel="canonical">` 与 `og:url` 都指向首页、OG 标题也是首页文案 —— 根源是 `app/layout.js` 的 `alternates.canonical: "/"` 与 `openGraph.url`，会妨碍子页被收录、分享卡片显示错误；② 20 个子页 `<title>` 后缀重复（如 "White Papers | HydroAgent-Lab | HydroAgent-Lab"）—— 页面 title 已含后缀，又叠加了 layout 的 `%s | HydroAgent-Lab` 模板；③ 根节点恒为 `<html lang="en">`，/zh 页也一样（`SiteShell` 只加 `lang-zh` 类），中文内容需在元素上自行标 `lang="zh-CN"`；④ `html` / `body` 没有 `overflow-x: clip`（Hallmark 的硬性要求，目前实测 320–1440px 无横向滚动）；⑤ `styles/pages/demo.css:119` 有 autoprefixer 警告（`start` 建议改 `flex-start`）。均待修

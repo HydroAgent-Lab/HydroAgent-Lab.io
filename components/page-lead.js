@@ -1,9 +1,12 @@
-export function PageLead({ eyebrow, title, text, facts = [] }) {
+// `actions` is optional and renders under the title; the page passes its own
+// wrapper and styles it, so pages that omit it render exactly as before.
+export function PageLead({ eyebrow, title, text, facts = [], actions = null }) {
   return (
     <section className="page-lead">
       <div className="page-lead-main">
         <p className="eyebrow">{eyebrow}</p>
         <h1>{title}</h1>
+        {actions}
       </div>
       <div className="page-lead-side">
         {text ? <p>{text}</p> : null}

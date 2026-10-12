@@ -115,7 +115,6 @@ function WhitePaperPublication({ paper, cadence }) {
         <div className="wp-pub-grid">
           <div className="wp-pub-col">
             <h2>{paper.findingsTitle}</h2>
-            <p className="wp-pub-note">{paper.findingsNote}</p>
             {/* An <ol> already announces "1 of 3" — the drawn numeral is for the
                 eye only, so it is hidden from screen readers. */}
             <ol className="wp-pub-findings-list">
@@ -189,12 +188,22 @@ export function WhitePapersPageContent({ lang = "en" }) {
           <WhitePaperPublication paper={featuredPaper} cadence={c.cadenceSection} />
         ) : (
           <>
-            {/* A — Hero */}
+            {/* A — Hero. Until this language has its own edition, the one action
+                links to an edition that exists (en → the Chinese report). */}
             <PageLead
               eyebrow={c.lead.eyebrow}
               title={c.lead.title}
               text={c.lead.text}
               facts={c.lead.facts}
+              actions={
+                c.lead.action ? (
+                  <div className="wp-lead-actions">
+                    <a className="primary-action" href={c.lead.action.href} target="_blank" rel="noreferrer">
+                      {c.lead.action.label} <span className="action-arrow" aria-hidden="true">↗</span>
+                    </a>
+                  </div>
+                ) : null
+              }
             />
 
             {/* B — Archive, empty until the first release in this language */}

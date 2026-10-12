@@ -2,6 +2,10 @@
 // and never translated — translating a title breaks the citation (same rule as
 // research.js).
 const zenodoDoi = "10.5281/zenodo.23230110";
+// The DOI, not a direct file URL: the Zenodo file was renamed two days after
+// release, which silently broke the old file link. A DOI never moves. Shared by
+// the zh page's primary button and the en page's link to the Chinese edition.
+const fullReportHref = `https://doi.org/${zenodoDoi}`;
 
 const whitePaperV1 = {
   featured: true,
@@ -15,9 +19,7 @@ const whitePaperV1 = {
   citation:
     "HydroAgent-Lab, Zhou, S., & Lei, N. (2026). 水利行业智能体白皮书:现状、洞察与未来方向 (Version v1.0.0). Zenodo.",
   links: [
-    // The DOI, not a direct file URL: the Zenodo file was renamed two days
-    // after release, which silently broke the old file link. A DOI never moves.
-    { id: "full", href: `https://doi.org/${zenodoDoi}` },
+    { id: "full", href: fullReportHref },
     // The brief is not on Zenodo — served from our own /public.
     { id: "brief", href: "/assets/white-papers/hydroagent-wp-v1.0.0-brief-zh.pdf" },
     // Placeholder until the English edition exists; swap for an href then.
@@ -35,10 +37,12 @@ const whitePaperV1 = {
 // a release (no version numbers or dates in them).
 export const whitePapersContent = {
   // No English edition exists yet, and an unofficial English rendering of the
-  // report's title or findings is not to be published — so the en page shows
-  // only a coming-soon state. Hero text and cadence items are the page's
-  // pre-existing copy. When the English edition is out, add its entry to
-  // `papers` and it renders in the publication layout, as on the zh page.
+  // report's title or findings is not to be published — so the en page shows a
+  // coming-soon state, plus one link to the Chinese edition (added 2026-10-12).
+  // Hero text and cadence items are the page's pre-existing copy. When the
+  // English edition is out, add its entry to `papers` and it renders in the
+  // publication layout, as on the zh page — the fallback hero, and this link
+  // with it, then stop rendering.
   en: {
     lead: {
       eyebrow: "White Papers",
@@ -49,7 +53,10 @@ export const whitePapersContent = {
         { label: "Scope", value: "AI for hydrology and water operations" },
         { label: "Format", value: "Quarterly white papers and an annual review" },
         { label: "Status", value: "English edition coming soon" }
-      ]
+      ],
+      // Not "early access" or "preview": the Chinese edition is the published
+      // v1.0.0 with a DOI, and either word would make it read as a pre-release.
+      action: { label: "Read the Chinese edition", href: fullReportHref }
     },
     releasesSection: {
       eyebrow: "",
@@ -99,7 +106,6 @@ export const whitePapersContent = {
         },
         comingSoonLabel: "即将推出",
         findingsTitle: "三项核心结论",
-        findingsNote: "摘自完整版执行摘要，有删节。",
         // 摘自完整版执行摘要，仅做删节，不增加原文没有的判断。
         sections: [
           {

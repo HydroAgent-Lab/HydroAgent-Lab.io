@@ -247,6 +247,335 @@ main.main-content > .content-section {
   margin-top: 2px;
 }
 
+/* --- News — borderless carousel under the hero ---
+ * Hallmark · component: news carousel · genre: editorial · theme: project system (preserved)
+ * states: card link — default · hover · focus-visible · active
+ *         dots — default · hover · focus-visible · active · current · disabled
+ *         loading / error / success: n/a — static content
+ * contrast: pass (40–41) · pre-emit critique: P4 H4 E4 S4 R5 V4
+ * slop (component subset): pass — waived as the preserved site system: 1 Inter
+ *   Tight / Inter · 7 #fff page · 22 hex greys · 24 no site spacing scale ·
+ *   34 no root overflow-x clip (styles/base.css)
+ *
+ * No frame. A bordered box straight under the frameless hero read as a foreign
+ * object, sat inset from the "News" title, and framed thumbnails that carried
+ * borders of their own (a box in a box). The documents are the objects now: a
+ * hairline and one soft shadow make each thumbnail a sheet of paper, and the
+ * text needs no container. The block hangs from the title's left edge; the
+ * dots end the title row.
+ *
+ * One card per view on a scroll-snap track: touch screens and trackpads swipe
+ * it natively; components/news-carousel.js keeps the dots in step with the
+ * scroll position and brings a card into view when a dot is pressed. */
+.news-section {
+  /* The white paper page's cover shadow (--wp-shadow-paper), tightened so it
+     fits inside the track — the track clips whatever a card draws past its
+     edge. */
+  --news-shadow-paper: 0 10px 22px -14px oklch(22% 0.02 258 / 0.35);
+  /* How far the hover / focus ground reaches past the content: the content
+     keeps the title's edge, the ground hangs outside it. */
+  --news-bleed: 16px;
+}
+
+.news-carousel {
+  max-width: 880px;
+}
+
+.news-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.news-track {
+  position: relative;            /* the slides' offsetLeft is measured from here */
+  display: flex;
+  gap: 16px;
+  margin-inline: calc(-1 * var(--news-bleed));
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.news-track::-webkit-scrollbar {
+  display: none;
+}
+
+.news-slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* Thumbnail column + text column. The last row is 1fr, so the cards share a
+   height (the flex track stretches them) and "Read more" sits on the same
+   line in both — the shorter card's slack collects above it. The padding is
+   the bleed, invisible at rest; the extra 8px at the bottom is room for the
+   thumbnail's shadow. */
+.news-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  grid-template-rows: auto auto auto 1fr;
+  grid-template-areas:
+    "thumb meta"
+    "thumb title"
+    "thumb text"
+    "thumb more";
+  column-gap: 28px;
+  height: 100%;
+  padding: var(--news-bleed) var(--news-bleed) calc(var(--news-bleed) + 8px);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition);
+}
+
+/* Hover and keyboard focus show the same thing: the card's whole hit area,
+   as a faint brand wash. Two rules, not one list — a browser without :has()
+   would drop the whole list, hover included. */
+.news-card:hover {
+  background: var(--accent-wash);
+}
+
+.news-card:has(.news-title a:focus-visible) {
+  background: var(--accent-wash);
+}
+
+.news-thumb {
+  grid-area: thumb;
+  width: 100%;
+  height: auto;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  box-shadow: var(--news-shadow-paper);
+}
+
+.news-meta {
+  grid-area: meta;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Eyebrow voice (styles/typography.css), one step smaller. */
+.news-kind {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-hover);
+}
+
+.news-title {
+  grid-area: title;
+  min-width: 0;
+  margin-top: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+/* The whole card is the link: the title's ::after stretches over it, so the
+   card is one tab stop with one accessible name — the title. */
+.news-title a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-sm);
+}
+
+.news-card:hover .news-title a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* The track clips anything drawn outside a card, so the focus ring is drawn
+   inside it, around the card's hit area. */
+.news-title a:focus-visible {
+  outline: none;
+}
+
+.news-title a:focus-visible::after {
+  box-shadow: inset 0 0 0 2px var(--accent-hover);
+}
+
+/* Pressed anywhere on the card — the ::after is part of the link. */
+.news-title a:active {
+  color: var(--accent-hover);
+}
+
+/* A teaser: the full text is on the page the card links to. 62ch keeps the
+   measure readable — the column is ~95 Latin characters wide at 1280px, and
+   62ch is ~37 ideographs a line on /zh. */
+.news-text {
+  grid-area: text;
+  display: -webkit-box;
+  min-width: 0;
+  max-width: 62ch;
+  margin: 8px 0 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+.news-more {
+  grid-area: more;
+  align-self: end;
+  margin-top: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+/* CJK: tracking off (ideographs crowd together), more leading. :lang() keeps
+   the English preprint title on /zh at the Latin settings. */
+.news-kind:lang(zh),
+.news-title:lang(zh) {
+  letter-spacing: 0;
+}
+
+.news-text:lang(zh) {
+  line-height: 1.8;
+}
+
+/* Dots: a 24px hit area (WCAG 2.5.8) with a 12px ring drawn inside it. Not
+   current: a hollow ring. Current: the ring turns accent and a solid dot
+   appears inside it. The ring is --text-muted, not a pale grey: an indicator
+   needs 3:1 against the page (WCAG 1.4.11). The group is pulled right by the
+   ring's inset in its hit area, so the last ring — not its hit area — meets
+   the column's edge. */
+.news-dots {
+  display: flex;
+  flex-shrink: 0;
+  gap: 4px;
+  margin-right: calc((12px - 24px) / 2);
+}
+
+.news-dot {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+}
+
+/* `* { box-sizing }` in base.css does not reach pseudo-elements. */
+.news-dot::before,
+.news-dot::after {
+  content: "";
+  grid-area: 1 / 1;
+  box-sizing: border-box;
+  border-radius: 50%;
+}
+
+.news-dot::before {
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--text-muted);
+  transition: border-color var(--transition), transform var(--transition);
+}
+
+.news-dot::after {
+  width: 5px;
+  height: 5px;
+  background: var(--accent);
+  transform: scale(0);
+  transition: transform var(--transition);
+}
+
+.news-dot:hover::before {
+  border-color: var(--text);
+}
+
+.news-dot:active::before {
+  transform: scale(0.88);
+}
+
+.news-dot[aria-current="true"]::before {
+  border-color: var(--accent);
+}
+
+.news-dot[aria-current="true"]::after {
+  transform: scale(1);
+}
+
+.news-dot:focus-visible {
+  outline-offset: 0;
+  border-radius: 50%;
+}
+
+/* Not reachable today — the dots are never disabled — but every interactive
+   state gets a defined look. */
+.news-dot:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* Phone: the thumbnail shrinks beside the kind and date; title, text and
+   "Read more" take the card's full width below. "Read more" follows its text
+   here and the slack goes to an empty last row: with no thumbnail beside the
+   text to align with, a bottom-pinned link sat ~120px under a short summary,
+   detached from it — a frame used to hold that gap, nothing does now. */
+@media (max-width: 560px) {
+  .news-card {
+    grid-template-columns: 56px minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto 1fr;
+    grid-template-areas:
+      "thumb meta"
+      "title title"
+      "text  text"
+      "more  more"
+      ".     .";
+    column-gap: 16px;
+  }
+
+  .news-meta {
+    flex-direction: column;
+    align-self: center;
+  }
+
+  .news-title {
+    margin-top: 16px;
+    font-size: 16px;
+  }
+
+  /* At 3 lines the zh white paper summary lost its last two characters at
+     375px; 4 lines fit it from 320px up. */
+  .news-text {
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .news-dot::before,
+  .news-dot::after {
+    transition: none;
+  }
+
+  .news-dot:active::before {
+    transform: none;
+  }
+}
+
 /* --- What Section — architecture diagram full-bleed to section bottom --- */
 
 /* Remove bottom padding so the diagram sits flush with the section bottom */
