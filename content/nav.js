@@ -12,7 +12,7 @@ export const navContent = {
         id: "B",
         label: "Product",
         children: [
-          { id: "B1", path: "/platform", label: "hydroagent-FF" },
+          { id: "B1", path: "/platform", label: "HydroAgent-FF" },
           { id: "B2", path: "/capabilities", label: "Capabilities" },
           { id: "B3", path: "/demo", label: "Demo" },
           { id: "B4", path: "/paper-digest", label: "Paper Digest" }
@@ -49,7 +49,7 @@ export const navContent = {
       {
         title: "Product",
         items: [
-          { path: "/platform", label: "hydroagent-FF" },
+          { path: "/platform", label: "HydroAgent-FF" },
           { path: "/capabilities", label: "Capabilities" },
           { path: "/demo", label: "Demo" },
           { path: "/paper-digest", label: "Paper Digest" }

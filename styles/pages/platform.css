@@ -56,10 +56,11 @@
   padding: 0 28px 0 max(28px, calc(50vw - 540px));
 }
 
-/* 564px = the width the layout already used at its widest correct state
-   (620 - 28 - 28), now held constant at every viewport above 1136px. */
+/* Held constant at every viewport above 1136px. 600px, not the earlier 564:
+   the English title "HydroAgent for Flood Forecasting" needs 578px on one
+   line at 40px, and 564 broke it as "... Flood / Forecasting". */
 .platform-hero-copy-inner {
-  max-width: 564px;
+  max-width: 600px;
 }
 
 .platform-hero-copy .eyebrow {
@@ -74,6 +75,9 @@
   letter-spacing: -0.02em;
   color: var(--text);
   margin: 0 0 16px;
+  /* Phones can't hold the title on one line; balance keeps "Flood
+     Forecasting" together: "HydroAgent for / Flood Forecasting". */
+  text-wrap: balance;
 }
 
 .platform-hero-tagline {

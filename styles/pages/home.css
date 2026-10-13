@@ -475,6 +475,11 @@ main.main-content > .what-section-wrap {
   margin-bottom: 16px;
 }
 
+/* One line on desktop; on phones "HydroAgent for / Flood Forecasting". */
+.flagship-wrapper .section-header h2 {
+  text-wrap: balance;
+}
+
 .flagship-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

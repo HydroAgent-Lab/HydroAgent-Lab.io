@@ -205,6 +205,53 @@
 
 **文件归类检查的进度**：第 1–4 项已完成。还剩第 5 项（在 ASSETS_GUIDE 里登记 `HydroAgent_SI.pdf` 的文件名例外）和第 6 项（FILE-MAP 其余过时内容）
 
+### 产品命名：标题和第一次出现处改用全称（用户已批准）
+
+**用户的要求和决定**：
+- 首页 HydroAgent-FF 板块标题、产品页大标题，以及产品页正文第一次出现的位置，都不用简写
+- 中文页用中文名"洪水预报智能体"
+- 正文第一次出现时在全称后括注简写
+- 导航大小写统一成 HydroAgent-FF
+
+**修改**：
+- `content/pages/home.js`：`flagshipSection.title` 的 en 改为 "HydroAgent for Flood Forecasting"，zh 改为"洪水预报智能体"。板块正文和按钮不动
+- `content/pages/platform.js`：
+  - `lead.title`（大标题）：en 改为 "HydroAgent for Flood Forecasting"，zh 改为"洪水预报智能体"
+  - `valueSection.paragraphs[0]`（正文第一次出现）：en 改为 "HydroAgent for Flood Forecasting (HydroAgent-FF) is not about letting a large language model (LLM) replace…"，zh 改为"洪水预报智能体（HydroAgent-FF）要解决的不是…"
+  - en 里 "an LLM" 改为 "a large language model (LLM)"：按 CLAUDE.md 第 7 条的审稿口径，这是 LLM 在该页第一次出现，后面的卡片 "Multi-LLM ready" 还会用到这个缩写
+- `content/nav.js`：en 导航和页脚的 "hydroagent-FF" 改为 "HydroAgent-FF"，面包屑也随之变化
+- `FILE-MAP.md`：路由表里同步改了大小写
+- `README.md`：新增"产品命名"规则
+
+**验证**：
+- 构建通过
+- 浏览器检查 en/zh 首页（1440/375）和产品页（1440/1000/375）：文字都符合要求，面包屑、导航、页脚一致，没有横向滚动，没有报错
+- 英文大标题在产品页的 1440/1000/375 宽度下断成 "HydroAgent for Flood / Forecasting"，首页板块标题在 375 宽度下也是这样
+  - 在浏览器里临时注入 `text-wrap: balance` 预览：会断成 "HydroAgent for / Flood Forecasting"
+  - **还没改**，等用户决定（要改的是 `styles/pages/platform.css` 和 `styles/pages/home.css` 各一行）
+
+### 英文大标题：桌面一行，手机两行（用户已批准）
+
+**实测**：`HydroAgent for Flood Forecasting` 在 40px 字号下一行需要 578px
+- 产品页文字列原来只有 564px，差 14px
+- 只把字号缩到 39px 也能塞下，但余量只有 0.4px，渲染稍有差异就会再折行，所以没用这个办法
+- 手机（375px）上可用宽度只有 311px。要一行就得把字号缩到约 21px（320 屏约 17px），和正文拉不开层次
+- 用户选了：桌面一行，手机两行
+
+**修改**：
+- `styles/pages/platform.css`：
+  - `.platform-hero-copy-inner` 的 `max-width` 从 564px 改为 600px，注释写明了原因
+  - `.platform-hero-copy h1` 加 `text-wrap: balance`
+- `styles/pages/home.css`：新增 `.flagship-wrapper .section-header h2 { text-wrap: balance; }`
+- `README.md`：在"产品命名"里补上断行规则
+
+**验证**：在 12 种宽度（1920–320px）下检查 en/zh 的断行：
+- en 产品页大标题：560px 及以上都是一行；414、375、320 是两行 "HydroAgent for / Flood Forecasting"
+- en 首页板块标题：414px 及以上一行；375、320 两行，断法相同
+- zh 两处标题始终一行
+- 没有横向滚动，没有页面报错；`pytest` 30 项通过，包括 `test_platform_hero_width.py`，600px 仍满足"1136px 以上宽度冻结"和"≥500px"
+
+
 ## 2026-10-12
 
 ### 英文白皮书页加"Read the Chinese edition"按钮

@@ -62,7 +62,7 @@
 | 路由 | 对应导航 | 语言 |
 |------|----------|------|
 | `/` | A — Home 首页 | en + zh |
-| `/platform` | B1 — hydroagent-FF 洪水预报智能体 | en + zh |
+| `/platform` | B1 — HydroAgent-FF 洪水预报智能体 | en + zh |
 | `/capabilities` | B2 — Capabilities 能力 | en + zh |
 | `/paper-digest` | B4 — Paper Digest 论文订阅 | en + zh |
 | `/research` | C1 — Research Papers 研究论文 | en + zh |

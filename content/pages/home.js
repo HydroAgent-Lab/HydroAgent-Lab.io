@@ -71,7 +71,7 @@ export const homeContent = {
     },
     flagshipSection: {
       eyebrow: "",
-      title: "HydroAgent-FF",
+      title: "HydroAgent for Flood Forecasting",
       text:
         "HydroAgent-FF is HydroAgent's most concrete product line today, built for flood forecasting operations. It supports the flood forecasting process from end to end, while keeping forecasters in control of the key decisions.",
       cta: "Explore HydroAgent-FF",
@@ -164,7 +164,7 @@ export const homeContent = {
     },
     flagshipSection: {
       eyebrow: "",
-      title: "HydroAgent-FF",
+      title: "洪水预报智能体",
       text:
         "HydroAgent-FF 是 HydroAgent 当前最具体的产品线，面向洪水预报业务。它端到端支撑洪水预报过程，并让预报员始终掌握关键决策。 ",
       cta: "了解 HydroAgent-FF",
