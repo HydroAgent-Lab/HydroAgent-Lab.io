@@ -1,0 +1,168 @@
+/* ==========================================================
+   Paper Digest — the page is its lead: title + sign-up form
+   on the left, what the digest is on the right.
+   ========================================================== */
+
+/* Nothing sits between the lead and the footer, and both use the same
+   #F9FAFB ground — without a rule the two read as one block. */
+.paper-digest-page .page-lead {
+  border-bottom: 1px solid var(--border);
+}
+
+/* Keeps the zh title from ending on a two-character line ("邮箱。"). */
+.paper-digest-page .page-lead h1 {
+  text-wrap: balance;
+}
+
+/* Facts as ruled label/value rows, the same treatment as the other
+   secondary pages (events, research, white papers). */
+.paper-digest-page .page-lead-facts {
+  flex-direction: column;
+  gap: 0;
+}
+
+.paper-digest-page .page-lead-fact {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 16px;
+  align-items: baseline;
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+}
+
+.paper-digest-page .page-lead-fact:last-child {
+  border-bottom: 1px solid var(--border);
+}
+
+.paper-digest-page .page-lead-fact strong {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* --- Sign-up form --- */
+.subscribe-form {
+  max-width: 480px;
+  margin-top: 28px;
+}
+
+.subscribe-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.subscribe-row {
+  display: flex;
+  gap: 8px;
+}
+
+/* 44px tall: a comfortable touch target for both the field and the button.
+   16px, not 15: iOS Safari zooms the page into any field under 16px on focus. */
+.subscribe-row input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 18px;
+  font-family: var(--font);
+  font-size: 16px;
+  color: var(--text);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  transition: border-color var(--transition);
+}
+
+.subscribe-row input::placeholder {
+  color: var(--text-muted);
+}
+
+.subscribe-row input[aria-invalid="true"] {
+  border-color: #b42318;
+}
+
+/* <button> does not inherit the page font; the pill itself is .primary-action. */
+.subscribe-submit {
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 24px;
+  font-family: var(--font);
+  font-size: 15px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.subscribe-submit:active {
+  transform: translateY(1px);
+}
+
+/* Dimmed only while a request is in flight. The button is also disabled until
+   hydration, but that lasts a moment on every load — dimming it would flash. */
+.subscribe-submit.is-busy {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+/* Idle and busy labels stacked in one cell; the hidden one still holds width. */
+.subscribe-submit-labels {
+  display: grid;
+  justify-items: center;
+}
+
+.subscribe-submit-labels > span {
+  grid-area: 1 / 1;
+}
+
+.subscribe-submit-labels > [aria-hidden="true"] {
+  visibility: hidden;
+}
+
+.subscribe-note {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Live region: stays in the tree (an announcement can be missed when a region
+   is inserted), and takes no space until there is something to say. */
+.subscribe-message {
+  margin: 12px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.subscribe-message:empty {
+  margin: 0;
+}
+
+.subscribe-message.is-done {
+  color: var(--accent-hover);
+}
+
+/* ~6:1 on the page-lead ground */
+.subscribe-message.is-invalid,
+.subscribe-message.is-error {
+  color: #b42318;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .subscribe-submit:active {
+    transform: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .paper-digest-page .page-lead-fact {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  /* Field and button stack, both full width — side by side, a 320px screen
+     leaves the field too narrow to show an address. */
+  .subscribe-row {
+    flex-direction: column;
+  }
+}

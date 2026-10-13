@@ -26,6 +26,7 @@
 @import "../styles/pages/contact.css";
 @import "../styles/pages/white-papers.css";
 @import "../styles/pages/events.css";
+@import "../styles/pages/paper-digest.css";
 @import "../styles/pages/designv2.css";
 
 /* --- Responsive enhancement layer (must load LAST) --- */

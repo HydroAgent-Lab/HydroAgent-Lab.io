@@ -94,13 +94,7 @@ main.main-content > .content-section + .content-section {
   background: #F9FAFB;
 }
 
-/* --- Three-Up Grid / Info Cards --- */
-.three-up-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
+/* --- Info Cards --- */
 .info-card {
   padding: 28px;
   background: var(--surface-elevated);
@@ -288,7 +282,6 @@ main.main-content > .content-section + .content-section {
 /* --- Responsive --- */
 @media (max-width: 900px) {
   .page-lead { grid-template-columns: 1fr; gap: 24px; }
-  .three-up-grid { grid-template-columns: 1fr; }
   .split-row { grid-template-columns: 1fr; gap: 8px; padding: 22px 0; }
   .cta-band {
     flex-direction: column;
@@ -299,8 +292,4 @@ main.main-content > .content-section + .content-section {
 @media (max-width: 600px) {
   .editorial-row { grid-template-columns: 36px 1fr; gap: 16px; padding: 22px 0; }
   .editorial-row p { font-size: 16px; }
-}
-
-@media (min-width: 901px) and (max-width: 1100px) {
-  .three-up-grid { grid-template-columns: repeat(2, 1fr); }
 }

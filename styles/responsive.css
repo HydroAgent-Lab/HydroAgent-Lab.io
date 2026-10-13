@@ -60,12 +60,6 @@ dd {
   max-width: 380px;
 }
 
-/* Search input hard min-width could top out narrow phones. */
-.capabilities-page input,
-.capabilities-page select {
-  min-width: min(240px, 100%);
-}
-
 /* ----------------------------------------------------------
    2. FLUID TYPOGRAPHY (fix P1-5, P2-9)
    Replace fixed heading sizes with clamp() so type scales
@@ -76,7 +70,6 @@ dd {
 }
 
 .section-header h2,
-.product-preview-copy h2,
 .agent-thinking-head h2,
 .human-agent-copy h2,
 .business-heading-line h2,
@@ -108,7 +101,6 @@ dd {
   }
 
   /* Home sections that hard-code 80px vertical padding. */
-  .product-preview,
   .agent-thinking,
   .human-agent,
   .architecture-world,
@@ -120,18 +112,7 @@ dd {
 }
 
 /* ----------------------------------------------------------
-   4. TABLET TIER (601-900px) — 2-column intermediates
-   Give wide grids a 2-up stage before collapsing to 1 column,
-   so portrait tablets aren't either cramped or over-stretched.
-   ---------------------------------------------------------- */
-@media (min-width: 601px) and (max-width: 900px) {
-  .preview-module-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* ----------------------------------------------------------
-   5. SMALL PHONE TIER (<=560px) — the missing breakpoint
+   4. SMALL PHONE TIER (<=560px) — the missing breakpoint
    ---------------------------------------------------------- */
 @media (max-width: 560px) {
   /* Tighter gutters + vertical rhythm on the smallest screens. */
@@ -157,7 +138,6 @@ dd {
     padding-right: 32px;
   }
 
-  .product-preview,
   .agent-thinking,
   .human-agent,
   .architecture-world,
@@ -181,11 +161,6 @@ dd {
     gap: 6px;
   }
 
-  /* Preview dashboard mock: 2-up modules are too tight at ~360px. */
-  .preview-module-grid {
-    grid-template-columns: 1fr;
-  }
-
   /* Proof pills wrap instead of overflowing. */
   .proof-line {
     flex-wrap: wrap;
@@ -206,7 +181,7 @@ dd {
 }
 
 /* ----------------------------------------------------------
-   6. TOUCH TARGETS (fix P2-10)
+   5. TOUCH TARGETS (fix P2-10)
    Ensure interactive drawer/nav items meet ~44px on touch.
    ---------------------------------------------------------- */
 @media (max-width: 900px) and (pointer: coarse) {
@@ -220,7 +195,7 @@ dd {
 }
 
 /* ----------------------------------------------------------
-   7. LARGE DESKTOP (>=1600px) — gentle scale-up (fix P2-9)
+   6. LARGE DESKTOP (>=1600px) — gentle scale-up (fix P2-9)
    Let the capped content breathe a touch on ultra-wide so the
    page doesn't read as a small island in an empty field.
    ---------------------------------------------------------- */

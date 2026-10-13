@@ -47,19 +47,21 @@ app/                      # Next.js App Router pages (en + zh, 24 pages total)
   layout.js               # Root layout
   page.js                 # Home (en)
   zh/                     # Chinese locale mirror
-  platform/, capabilities/, workflow/, research/, runs/, team/, careers/, contact/
+  platform/, capabilities/, demo/, research/, team/, careers/, contact/
   white-papers/, events/, members/   # White papers (v1.0.0 live), events, lab members
+  paper-digest/           # Product → Paper Digest: daily AI-paper email sign-up (backend pending)
 
 components/
   hero.js                 # Hero section — split layout (left text/CTA, right autoplay video)
   shell.js                # Site shell (dropdown nav + hamburger menu + footer)
   pages/                  # Per-page content components
-    home.js, platform.js, capabilities.js, workflow.js,
-    research.js, runs.js, team.js, careers.js, contact.js,
-    white-papers.js, events.js, members.js
+    home.js, platform.js, capabilities.js, demo.js,
+    research.js, team.js, careers.js, contact.js,
+    white-papers.js, events.js, members.js, paper-digest.js
   news-carousel.js        # Home NEWS carousel — client component (scroll-snap track + dots)
   cta-band.js, page-lead.js, section-header.js,
-  capability-directory.js, product-preview.js, highlight-grid.js
+  breadcrumb.js, demo-chat.js, track-link.js
+  subscribe-form.js       # Paper Digest email form — client component; backend stub `sendSubscription`
 
 content/
   site.js                 # Re-export assembler (imports sub-modules, exports getSiteContent + helpers)
@@ -67,9 +69,9 @@ content/
   team-members.js         # hydroAgentTeamMembers array (15 members)
   nav.js                  # Nested 2-level nav structure, footer groups, CTA, switchLabel (en/zh)
   pages/                  # Per-page bilingual content
-    home.js, platform.js, capabilities.js, workflow.js,
-    research.js, runs.js, team.js, careers.js, contact.js,
-    white-papers.js, events.js, members.js
+    home.js, platform.js, capabilities.js, demo.js,
+    research.js, team.js, careers.js, contact.js,
+    white-papers.js, events.js, members.js, paper-digest.js
 
 public/assets/            # Static assets for the Next app — see ASSETS_GUIDE.md
   brand/ home/ platform/ careers/ contact/ team/ lab-members/
@@ -77,7 +79,7 @@ public/assets/            # Static assets for the Next app — see ASSETS_GUIDE.
                           # Grouped by consuming page, not by file type. No loose files at
                           # root, and no .md files — everything here is published to the web.
 
-archive/figures/          # Unreferenced source figures — kept in git, NOT deployed (37 MB)
+archive/figures/          # Unreferenced source figures — kept in git, NOT deployed (30 MB)
 
 styles/
   tokens.css              # CSS custom properties (colors, spacing, fonts)
@@ -88,8 +90,8 @@ styles/
   sections.css            # Shared section layouts, cards, grids, buttons
   footer.css              # Site footer
   pages/                  # Per-page styles
-    home.css, platform.css, capabilities.css, workflow.css,
-    research.css, runs.css, team.css, careers.css, contact.css
+    home.css, platform.css, capabilities.css, demo.css, research.css, white-papers.css,
+    events.css, team.css, careers.css, contact.css, designv2.css, paper-digest.css
 ```
 
 ## Design Language
@@ -110,4 +112,5 @@ styles/
 - Events 页分两层：**Collaborations 区块在上、活动时间线在下**（`components/pages/events.js`）。时间线记录一次性线下事件（有日期、有现场照片、事后不再变），而开放倡议会持续产出 results 和论文 —— 把 HydroTuring 塞进 zigzag 会同时踩两个坑：它没有现场照片（渲染成灰色占位块），也没有"更新"这一层。`collabSection.items[].updates` 是预留的追加位，后续进展只往数组里加，不动组件和样式。**版式直接复用时间线的 `.event-row` / `.event-row-body`**，只把媒体列换成 `.collab-row-media`（logo 要 contain + 留白，照片是 cover 裁切）—— 一页上放两套视觉语言（带边框的卡片 + 无边框的照片行）是这个区块第一版被推翻的原因。论文正式发表后再考虑在 Research 页单列一条
 - **新 class 名先全局 grep 再用**：`styles/` 下所有 CSS 都由 `app/globals.css` @import 进同一个全局作用域，没有 CSS Modules。上面这个区块第一版取名 `.collab-card`，而 `styles/pages/capabilities.css` 里早有一套同名卡片（padding / hover / h3 / p 全都定义了），于是 Events 页的卡片静默继承了 Capabilities 页的样式 —— 构建不报错，只是变丑。页面专属 class 请带页面前缀或足够特异的词根
 - White Papers 页首期 v1.0.0（2026-10-07，Zenodo DOI `10.5281/zenodo.23230110`，仅中文）。**有正式发布的语言（目前只有 zh）走出版物布局 `.wp-pub-*`**（2026-10-10 用 Hallmark 重做，CSS 顶部有标记与 slop-test 结果）：首屏左右分栏 —— 封面 | 标题、两个按钮、一行信息（版本 · 发布日 · 证据截至 · DOI）；下方"三项核心结论"与"关于这份白皮书"在首屏文字栏的左边线上排成单栏，宽 38rem（≈ 每行 36 个汉字）。没有卡片容器、没有眉标、全页一条分隔线；中文标题字距 0、正文行高 1.8；页面级间距/字号刻度挂在 `.white-papers-page` 上（`--wp-space-*` / `--wp-text-*`），不进全局 tokens。**完整版链 DOI，不链 Zenodo 文件直链**（发布两天后文件被改名，直链即 404）；速读版托管在 `public/assets/white-papers/`（2026-10-10 换成用户提供的新字体版，文件名不变）；英文版是"即将推出"占位（`links[].comingSoon`，有文件后换成 `href`）。**en 页是 coming soon + 一个"Read the Chinese edition ↗"按钮**（`papers: []` → PageLead + 空状态 + 更新频率；按钮来自 en `lead.action`，经 PageLead 的可选 `actions` 插槽渲染在标题下，链 DOI，和 zh 主按钮共用 `fullReportHref`）：英文版出来之前不发布任何非官方英文译文（用户决定）；英文版上线后 en 走出版物布局，按钮随兜底首屏一起消失。更新频率只保留"每季度白皮书 / 每年年度综述"，出版物布局里的"更新计划"由 `cadenceSection.items` 生成，一处维护。第 2 期需另设计归档列表（目前非 featured 条目不渲染）。`.hallmark/` 是 Hallmark 的运行记录（log + preflight），下次运行会读取
-- 已知遗留：① 所有子页 `<link rel="canonical">` 与 `og:url` 都指向首页、OG 标题也是首页文案 —— 根源是 `app/layout.js` 的 `alternates.canonical: "/"` 与 `openGraph.url`，会妨碍子页被收录、分享卡片显示错误；② 20 个子页 `<title>` 后缀重复（如 "White Papers | HydroAgent-Lab | HydroAgent-Lab"）—— 页面 title 已含后缀，又叠加了 layout 的 `%s | HydroAgent-Lab` 模板；③ 根节点恒为 `<html lang="en">`，/zh 页也一样（`SiteShell` 只加 `lang-zh` 类），中文内容需在元素上自行标 `lang="zh-CN"`；④ `html` / `body` 没有 `overflow-x: clip`（Hallmark 的硬性要求，目前实测 320–1440px 无横向滚动）；⑤ `styles/pages/demo.css:119` 有 autoprefixer 警告（`start` 建议改 `flex-start`）。均待修
+- **Paper Digest 页**（2026-10-13，Product 下第 4 项，`/paper-digest`）：每日抓取最新 AI 大模型论文、AI 提取总结后邮件推送的订阅页。整页只有 PageLead —— 左边标题 + 邮箱表单（经 `actions` 插槽），右边说明 + 3 行事实。**后端由同事另行部署**：接口是 `components/subscribe-form.js` 顶部的 `sendSubscription(email, lang)` 存根。请求成功时返回 `true` 或 fetch 的 Response，失败就抛错。`outcomeOf` 只把 `true` 和 `ok` 的 Response 算作成功，所以 `return fetch(...)`、`return res.ok` 两种写法遇到 4xx/5xx 都会显示失败，**不会对访客谎称已订阅**。接上之前存根返回 `NOT_CONNECTED`，表单显示"订阅功能即将开放"。CORS 要放行 `https://hydroagentlab.com`，并响应 OPTIONS 预检（JSON 请求一定会先发预检）。页面脚本加载完之前提交按钮是禁用的，否则浏览器会按原生 GET 提交，把邮箱放进网址（浏览器历史、服务器日志、GA 都会看到）。这时按钮不变暗，免得每次加载都闪一下；只有提交中才变暗（`.is-busy`）。输入框字号 16px：iOS 遇到小于 16px 的输入框，聚焦时会自动放大。按钮的两种文字叠放在同一格里，提交时宽度不变。校验由组件自己做（`noValidate`），提示语跟页面语言走。首页 NEWS 暂不加这条，等服务上线后再加（用户决定）
+- 已知遗留：① 所有子页 `<link rel="canonical">` 与 `og:url` 都指向首页、OG 标题也是首页文案 —— 根源是 `app/layout.js` 的 `alternates.canonical: "/"` 与 `openGraph.url`，会妨碍子页被收录、分享卡片显示错误；② 22 个子页 `<title>` 后缀重复（如 "White Papers | HydroAgent-Lab | HydroAgent-Lab"）—— 页面 title 已含后缀，又叠加了 layout 的 `%s | HydroAgent-Lab` 模板；③ 根节点恒为 `<html lang="en">`，/zh 页也一样（`SiteShell` 只加 `lang-zh` 类），中文内容需在元素上自行标 `lang="zh-CN"`；④ `html` / `body` 没有 `overflow-x: clip`（Hallmark 的硬性要求，目前实测 320–1440px 无横向滚动）；⑤ `styles/pages/demo.css:119` 有 autoprefixer 警告（`start` 建议改 `flex-start`）。均待修

@@ -1,5 +1,168 @@
 # Work Log
 
+## 2026-10-13
+
+### 新增 Paper Digest 订阅页（Product 下第 4 项）
+
+**背景**：实验室提供一项服务：每天抓取最新的 AI 大模型论文，由 AI 提取要点、生成摘要，再邮件推送给订阅者。用户要求先预留一个订阅界面，后端部署由同事负责。用户的选择：
+- **位置**：放在 Product 下（服务本身是 AI 产品），不放 Research
+- **名称**：Paper Digest，中英文导航都用这个名字
+- **页面范围**：只放服务说明和邮箱输入框，不做流程图和推送样例，Research 页也不加引流横幅
+- **首页 NEWS**：这次不加，等服务正式上线后再加
+
+**修改文件：**
+- 新建 `content/pages/paper-digest.js` — en/zh 文案：导语、3 行事实（内容 / 处理 / 推送）、表单提示语。只写用户描述过的内容，推送时间、来源等细节没写
+- 新建 `components/subscribe-form.js` — 邮箱表单（client 组件）
+  - 后端接口是文件顶部的存根 `sendSubscription(email, lang)`，同事把它换成真实请求：存好返回 `true`，失败就抛错
+  - 接上之前它返回 `false`，表单显示"订阅功能即将开放"。原计划是直接提示"感谢订阅"，但那样访客会以为订阅成功，邮箱其实没存下来，所以改成了这个提示
+  - 校验自己做（`noValidate`），提示语跟页面语言走；错误时 `aria-invalid` 并把焦点放回输入框，结果在 `role="status"` 区域播报
+- 新建 `components/pages/paper-digest.js` — 页面只有一个 PageLead，表单经 `actions` 插槽放在标题下；/zh 在 `<main>` 上标 `lang="zh-CN"`
+- 新建 `app/paper-digest/page.js`、`app/zh/paper-digest/page.js` — 路由和 metadata
+- 新建 `styles/pages/paper-digest.css`，`app/globals.css` 加一行 @import
+  - 事实条用其他二级页同款的横线分隔行
+  - 输入框和按钮高 44px；≤560px 上下堆叠
+  - 首屏加底边线：首屏和页脚都是 #F9FAFB，中间没有其他区块，不加线两块会连成一片
+  - 标题 `text-wrap: balance`：中文标题原来最后一行只剩"邮箱。"
+- `content/nav.js` — en/zh 的 Product 下拉菜单和页脚 Product 组各加一项 Paper Digest
+- `app/sitemap.js` — 加 `paper-digest` 路由
+- `README.md`、`FILE-MAP.md` — 补上新文件、新路由和接口说明；README 已知遗留 ② 的页数 20 → 22
+
+**解决的问题 / 踩到的坑：**
+- **静态服务器锁住了 `out/`**：第一次预览时 `python -m http.server` 的工作目录在 `out/` 里，Windows 下目录被占用，第二次 `next build` 报 EBUSY。改成在 `out/` 外面启动，用 `--directory` 指定目录
+
+**验证**：dev 服务器没在跑，直接在仓库里构建，28 个静态页面全部生成。用 CDP 按真实时间驱动 headless Chrome 测试，en/zh × 1440/375 宽度：
+- 没有横向滚动；面包屑显示"Home > Product > Paper Digest"，导航和页脚都有链接
+- 交互：空值、格式错误都提示错误，再输入时提示清除；合法邮箱点按钮或按回车，都显示"即将开放"
+- 控制台没有报错
+- 新 class 名全局 grep 过，没有重名
+
+**下一步：**
+- 同事接后端：替换 `sendSubscription` 的函数体，并处理 CORS、双重确认和退订
+- 服务上线后：首页 NEWS 加一条；按需补推送时间、论文来源、推送样例
+- 待用户确认：表单下方的"我们只会用这个邮箱发送 Paper Digest"是一项承诺，需要和后端实际做法一致
+
+### Paper Digest 风险测试（没有改代码）
+
+在 D 盘临时 worktree 里，把 `sendSubscription` 换成三种同事可能的写法，配一个模拟后端，用 CDP 按真实时间测试。GA 域名全部拦截，56 个请求无一发出。测完 worktree 已删除。
+
+**结果：**
+- **后端写法 × 响应**（✗ 是显示错了）：
+
+  | 写法 | 200 | 400 | 500 | 无 CORS | 不处理 OPTIONS | 连不上 |
+  |---|---|---|---|---|---|---|
+  | `return fetch(...)` | 成功 | ✗ 成功 | ✗ 成功 | 失败 | 失败 | 失败 |
+  | `return res.ok` | 成功 | ✗ 即将开放 | ✗ 即将开放 | 失败 | 失败 | 失败 |
+  | 检查 `res.ok`，不成功就抛错 | 成功 | 失败 | 失败 | 失败 | 失败 | 失败 |
+
+  根因：`handleSubmit` 按真假值判断结果，`false` 又被用来表示"还没接后端"
+- **CORS**：没放行时前端正确显示"提交失败"，但 POST 根本发不出去（被预检拦下，后端收到 0 次）。JSON 请求一定会先发 OPTIONS 预检。后端收到的数据是 `{"email":"…","lang":"en"}`
+- **导航**：en/zh 下拉菜单（悬停、键盘 Tab）和手机抽屉菜单都有 Paper Digest，点击能跳到页面，"产品"和该项都高亮；4 项等高，没有换行
+- **路由**：首页和 Paper Digest 页上的 26 个站内链接没有断链；sitemap 24 条都存在
+- **慢后端**：提交中按钮禁用，连点两次加回车两次，后端只收到 1 次。按钮文字变长时宽度从 123px 变到 149px，输入框跟着缩了 26px
+- **额外发现 1**：JS 关闭或还没加载完就提交，表单走浏览器原生提交，邮箱出现在网址里（`/paper-digest/?email=someone%40example.com`）
+- **额外发现 2**：手机上输入框字号 15px，iOS Safari 对小于 16px 的输入框会在聚焦时自动放大（WebKit 的行为，这里没法用真机测）
+- 无障碍：输入框名称是 "Email address"，描述是表单下方那句说明，结果区域 `role="status"`
+
+**待用户批准的修复**（都在 `components/subscribe-form.js` 和 `styles/pages/paper-digest.css`）：
+1. 结果判定：用独立的标记表示"还没接后端"，只有 `true` 或 `ok` 的 Response 才算成功
+2. 组件加载完之前禁用提交按钮，不再走原生提交
+3. 手机端输入框字号改成 16px
+4. 按钮两种文字叠在同一格里，宽度取较长的那个（小问题）
+
+**交给同事：** CORS 放行 `https://hydroagentlab.com` 并响应 OPTIONS；成功返回 2xx，失败返回非 2xx
+
+**另外**：上一轮验证没拦 GA，而 gtag 在本机能访问，所以大概往 GA 发了约 20 次 `127.0.0.1` 的 page_view。这些记录不含邮箱
+
+### 修复风险测试发现的 4 个问题（用户已批准）
+
+**修改文件：**
+- `components/subscribe-form.js`
+  - 新增 `NOT_CONNECTED`（一个 Symbol），存根返回它，表示"还没接后端"
+  - 新增 `outcomeOf(result)`：只有 `true` 或 `ok` 的 Response 算成功；失败的 Response、`false`、`undefined` 都算失败
+  - 新增 `hydrated` 状态：页面脚本加载完之前，提交按钮保持禁用。默认按钮被禁用时，回车也不会提交
+  - 按钮里的两种文字（订阅 / 提交中）叠在同一格（`.subscribe-submit-labels`），隐藏的那个加 `aria-hidden`；提交中给按钮加 `is-busy` 类
+- `styles/pages/paper-digest.css`
+  - 输入框字号 15px → 16px
+  - 变暗的选择器从 `:disabled` 改成 `.is-busy`：脚本加载完之前按钮也是禁用的，用 `:disabled` 的话，每次加载都会闪一下
+  - 新增按钮文字叠放的规则
+- `README.md` — 更新 Paper Digest 一条的接口说明
+
+**验证**：仓库里清掉缓存后构建通过，唯一的警告是 README 已记录的 `demo.css:119`。在临时 worktree 里换上测试版存根、配模拟后端，用 CDP 按真实时间测试，**47/47 通过**（上一轮不通过的几项都过了）：
+- 4 种写法 × 6 种后端响应：只有请求成功并且拿到成功凭据，才显示"成功"
+  - `return fetch(...)` 和 `return res.ok` 遇到 400/500 都显示失败。修复前分别显示"订阅成功"和"即将开放"
+  - 漏写 `return` 时，连 200 也显示失败。这是故意的：接错了马上就能发现
+- 提交中按钮宽度不变（en 和 zh 都测了），无障碍名称跟着可见文字变。连点加回车只发出 1 次请求
+- 关闭 JS，或者页面脚本还没加载完：回车和点击都不会提交，网址里没有邮箱。服务端 HTML 里按钮是禁用的，但不变暗；脚本加载完后恢复正常
+- 输入框在 375px 和 1440px 宽度下都是 16px
+- 回归：表单校验、无障碍名称、en/zh 键盘操作下拉菜单到 Paper Digest、站内链接、sitemap 全部正常；控制台没有报错；Google 请求全部拦截
+
+**交给同事（不变）**：CORS 放行 `https://hydroagentlab.com` 并响应 OPTIONS；请求成功返回 `true` 或 Response，失败就抛错
+
+### 文件归类检查（只检查，没有改动）
+
+按 8-25 和 9-17 两次整理定下的约定（`ASSETS_GUIDE.md`）全量对照：
+
+**符合约定**：
+- `public/assets/` 13 个子目录都按用途分，根目录没有散文件，没有 `.md`
+- 正向检查只缺 `/assets/webui_black.jpg`，是已登记的例外（备份 CSS，没被引入）
+- 反向检查没人引用的正好是登记的 5 个有意保留的文件
+- `public/` 根目录只有 CNAME、robots.txt、Zoho 验证文件
+- 今天的 Paper Digest 6 个文件都在对应的层
+- 仓库里没有缓存、日志或锁文件
+
+**不整齐的地方（待用户决定）**：
+1. 6-17 改版删了 `/workflow`、`/runs` 的路由和文案，但留下 `components/pages/{runs,workflow}.js` 和 `styles/pages/{runs,workflow}.css`。这两个组件读的 `content.runs` / `content.workflow` 已经不存在了
+   - 10-13 核查：这两个页面是 Baoying Shan 在 6-17 提交 `419018c` 里有意删的。内容已被现有页面取代：五步流程在 Demo / Platform 页，证据数字在 Research 页，用的是预印本的说法
+   - Runs 页的 "60–85% hit-rate band" 出自 EGU 讲稿（第 193–194 行），和预印本的 "40% to 80%" 不一致，**不建议恢复这个页面**
+   - 原文可以用 `git show 419018c^:content/pages/runs.js`（或 `workflow.js`）取回
+2. 3 个组件没人用：`components/{capability-directory,highlight-grid,product-preview}.js`。连带的死样式：`capabilities.css` 里的 `.capability-directory*`，以及 `home.css` / `responsive.css` 里的 `.product-preview*`
+3. `archive/figures/` 里有 2 个文件和在用文件逐字节相同，共 7.1 MB：
+   - `hero-hydroagent-lab.png` 和 `public/assets/home/hero-hydroagent-lab.png` 一样
+   - `hydroagent_architecture_gemini_zh.png` 和 `public/assets/home/architecture-zh.png` 一样
+4. 根目录的旧静态站不会部署（工作流只发布 `out/`），包括：
+   - `index.html` / `product.html` / `proof.html` / `team.html` / `egu-2026.html` / `manuscript-brief.html` / `script.js` / `styles.css` / `assets/`、根目录的 `.nojekyll`
+   - 根目录的 `zoho-domain-verification.html`：内容是旧令牌 `73LZ21FR9E`，线上用的是 public 里的 `Z2CZXNJ1P5`
+   - `docs/CNAME`：写的是旧域名 `hydroagent-lab.io`
+5. `public/assets/papers/HydroAgent_SI.pdf` 带大写字母，不合命名规则。但它从 8-15 起就在线上，网址可能已被论文引用，建议不改名，在 ASSETS_GUIDE 里登记为例外
+6. `README.md` 的 Project Structure 和 `FILE-MAP.md` 都过时了：
+   - 还列着已经删掉的 workflow / runs
+   - 漏了 demo、events、white-papers、designv2 的 CSS，以及 news-carousel、track-link、demo-chat 组件
+   - FILE-MAP 把已存在的 breadcrumb 标成"计划中"
+
+### 清理三类残留（用户已批准）
+
+对应上面"文件归类检查"的第 1–3 项。
+
+**删除的 9 个文件**（`git rm`，都能从历史里找回）：
+- 被删页面留下的：`components/pages/{runs,workflow}.js`、`styles/pages/{runs,workflow}.css`
+- 没人用的组件：`components/{capability-directory,highlight-grid,product-preview}.js`
+- `archive/figures/` 里和在用文件逐字节相同的 2 张：`hero-hydroagent-lab.png`、`hydroagent_architecture_gemini_zh.png`。`archive/` 从 37 MB 降到 30 MB
+
+**删掉死样式的 4 个 CSS 文件**（保持原有的 CRLF 换行）：
+- `styles/pages/capabilities.css`：删掉文件末尾整段 `.capability-*` 目录样式，共 146 行
+- `styles/pages/home.css`：删掉 Product Preview 整段 `.product-preview*` / `.preview-*`，以及两个媒体查询里对它们的引用，共 246 行
+- `styles/sections.css`：删掉 `.three-up-grid` 的 3 处；它和在用的 `.info-card` 共用一个注释，注释改成 "Info Cards"
+- `styles/responsive.css`：
+  - 删掉 Capabilities 搜索框的 `min-width` 规则，以及 `.product-preview`、`.product-preview-copy h2`、`.preview-module-grid`
+  - 第 4 节 TABLET TIER 唯一的规则是死的预览网格，整节删掉，后面第 5–7 节改编号为 4–6
+
+**怎么确定哪些能删**：从这 5 个死组件里取出 67 个类名，逐个查现有页面有没有用：
+- 共用的类保留，比如 `content-section`、`eyebrow`、`info-card`、`section-text`
+- `one`、`two`、`three`、`ghost` 只和 `.preview-*` 组合出现，一起删了
+- Capabilities 页没有输入框，所以搜索框那条规则也没有作用对象
+
+**文档**：
+- `README.md`：项目结构里删掉 workflow / runs 等已删文件，顺手把这几行改准确（补上 demo、events、white-papers、designv2 和几个组件）；archive 大小改成 30 MB
+- `FILE-MAP.md`：删掉对应行，以及不再使用的"⚠️ 不在导航"图例；样式页数从 9 改成 12
+
+**验证**：
+- 构建通过，页面数量不变；全站 CSS 从 105,276 字节降到 98,980 字节
+- 清理前先构建一份基准，清理后逐元素比对最终样式：24 个页面 × 4 种宽度（375/800/1000/1440），共 96 组、19,784 个元素，**完全一致**
+  - 比对前关掉动画，等字体加载完，并去掉 url() 里的域名端口。第一次运行没去端口时报出了差异，说明这个方法确实能发现变化
+- 没有页面报错；`pytest` 30 项通过；Google 请求全部拦截
+
+**还剩的**：检查清单里的第 4 项（旧静态站，要用户决定）、第 5 项（在 ASSETS_GUIDE 里登记 SI 文件名例外）、第 6 项（FILE-MAP 其余过时内容，比如 breadcrumb 还标着"计划中"，几个组件没列进去）
+
 ## 2026-10-12
 
 ### 英文白皮书页加"Read the Chinese edition"按钮

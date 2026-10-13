@@ -7,6 +7,7 @@ const routes = [
   "platform",
   "capabilities",
   "demo",
+  "paper-digest",
   "research",
   "white-papers",
   "events",

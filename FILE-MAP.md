@@ -12,7 +12,7 @@
 | `hero.css` | 门面招牌 — 首页顶部视频区：视频铺满、文字定位、按钮样式 | ✅ |
 | `sections.css` | 通用房间模板 — CTA 横幅、区块标题、页面导语、卡片网格等共用区块 | ✅ |
 | `footer.css` | 底部门脸 — 页脚 logo、链接列表、版权信息 | ✅ |
-| `pages/*.css` | 每间房的个性装饰 — 某一页独有的样式（如 Platform 架构图、Team 成员卡片） | ✅ 9 个 |
+| `pages/*.css` | 每间房的个性装饰 — 某一页独有的样式（如 Platform 架构图、Team 成员卡片） | ✅ 12 个 |
 
 ## `components/` — 组件层
 
@@ -24,7 +24,7 @@
 | `cta-band.js` | CTA 行动召唤横幅 — 页底 "联系团队" 等引导区块 | ✅ |
 | `page-lead.js` | 页面导语 — 页面顶部的 eyebrow + 标题 + 描述 + 事实条 | ✅ |
 | `section-header.js` | 区块标题 — 各 section 的 eyebrow + title + summary | ✅ |
-| `capability-directory.js` | 能力目录 — Capabilities 页的可筛选卡片目录 | ✅ |
+| `subscribe-form.js` | 邮箱订阅表单 — Paper Digest 页的 client 组件；后端接口存根 `sendSubscription` | ✅ 待接后端 |
 | `pages/home.js` | 首页内容组装 — Hero + 各 section + CTA 拼成完整首页 | ✅ |
 | `pages/platform.js` | Product-FF 页组装 — PageLead + 架构图 + 功能列表 | ✅ |
 | `pages/capabilities.js` | Capabilities 页组装 | ✅ |
@@ -35,8 +35,7 @@
 | `pages/white-papers.js` | 白皮书页组装 | ✅ 占位 |
 | `pages/events.js` | 活动与社区页组装 | ✅ 占位 |
 | `pages/members.js` | 实验室成员页组装 | ✅ 占位 |
-| `pages/workflow.js` | Workflow 页 | ⚠️ 不在导航 |
-| `pages/runs.js` | Runs 页 | ⚠️ 不在导航 |
+| `pages/paper-digest.js` | Paper Digest 页组装 — PageLead + 订阅表单 | ✅ |
 
 ## `content/` — 内容层
 
@@ -56,8 +55,7 @@
 | `pages/white-papers.js` | 白皮书文案 | ✅ 占位 |
 | `pages/events.js` | 活动与社区文案 | ✅ 占位 |
 | `pages/members.js` | 实验室成员文案 | ✅ 占位 |
-| `pages/workflow.js` | Workflow 文案 | ⚠️ 不在导航 |
-| `pages/runs.js` | Runs 文案 | ⚠️ 不在导航 |
+| `pages/paper-digest.js` | Paper Digest 文案（en/zh）— 导语、事实条、表单提示语 | ✅ |
 
 ## `app/` — 路由层
 
@@ -66,6 +64,7 @@
 | `/` | A — Home 首页 | en + zh |
 | `/platform` | B1 — hydroagent-FF 洪水预报智能体 | en + zh |
 | `/capabilities` | B2 — Capabilities 能力 | en + zh |
+| `/paper-digest` | B4 — Paper Digest 论文订阅 | en + zh |
 | `/research` | C1 — Research Papers 研究论文 | en + zh |
 | `/white-papers` | C2 — White Papers 白皮书 | en + zh |
 | `/events` | C3 — Events / Community 活动与社区 | en + zh |
@@ -73,8 +72,6 @@
 | `/members` | D2 — Lab Members 实验室成员 | en + zh |
 | `/contact` | E1 — Contact 联系 | en + zh |
 | `/careers` | E2 — Join Us 加入我们 | en + zh |
-| `/workflow` | — | ⚠️ 不在导航，待处理 |
-| `/runs` | — | ⚠️ 不在导航，待处理 |
 
 ## 图例
 
@@ -83,4 +80,3 @@
 | ✅ | 已完成 |
 | ✅ 占位 | 文件已建，内容待填充 |
 | ⬜ 计划中 | 尚未创建 |
-| ⚠️ 不在导航 | 页面保留但不在新导航结构中，待用户决定 |
