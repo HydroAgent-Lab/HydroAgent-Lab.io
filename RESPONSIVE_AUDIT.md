@@ -2,7 +2,7 @@
 
 > 分支: `fix/responsive-multidevice`
 > 范围: Next.js 静态导出站点 (`app/` + `components/` + `styles/`)，部署到 GitHub Pages。
-> 根目录的 `index.html` / `product.html` 等为遗留文件，**非**线上内容，本次不处理。
+> 根目录的 `index.html` / `product.html` 等为遗留文件，**非**线上内容，本次不处理。（这些旧文件已于 2026-10-13 删除）
 
 ## 根因 (Root Cause)
 

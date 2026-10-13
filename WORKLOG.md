@@ -163,6 +163,48 @@
 
 **还剩的**：检查清单里的第 4 项（旧静态站，要用户决定）、第 5 项（在 ASSETS_GUIDE 里登记 SI 文件名例外）、第 6 项（FILE-MAP 其余过时内容，比如 breadcrumb 还标着"计划中"，几个组件没列进去）
 
+### 删除根目录旧静态站（用户已批准）
+
+对应"文件归类检查"的第 4 项。之前在对话里我说是 15 个文件，算错了，实际是 **21 个、5,601,768 字节（5.34 MiB）**。
+
+**删除的文件**：
+- 6 个页面：`index.html`、`product.html`、`proof.html`、`team.html`、`egu-2026.html`、`manuscript-brief.html`
+- `script.js`、`styles.css`
+- `assets/` 里的 10 张图，`assets/` 目录随之消失
+- 3 个失效的配置文件：
+  - 根目录的 `.nojekyll`
+  - 根目录的 `zoho-domain-verification.html`：旧验证码 `73LZ21FR9E`
+  - `docs/CNAME`：旧域名 `hydroagent-lab.io`，`docs/` 目录随之消失
+
+都是 bing li 在 6-15 / 6-16 提交的，Zoho 那个是 Baoying Shan 在 7-29 提交的。用户 13:29 已把之前的改动分成 `ea401b5`（Paper Digest）和 `1baecec`（清理残留）两次提交，所以这次的删除是单独一组改动。
+
+**删除前核实没有用到**（四步都通过）：
+1. 仓库里的代码、配置和测试都没有引用这 21 个文件
+2. 部署流程只做"`npm ci` → `npm run build` → 上传 `out/`"，没有复制根目录文件的步骤
+   - `out/` 里有 3 个文件和旧站文件内容相同，但它们来自 `public/` 自己的那份（`.nojekyll`、`brand/hydroagent-mark.svg`、`home/hero-hydroagent-lab.png`），不受影响
+3. 线上 18 个旧网址全部 404
+   - `/index.html` 是 Next.js 生成的首页
+   - 线上的 Zoho 验证码是 `public/` 里的 `Z2CZXNJ1P5`
+4. `gh api repos/HydroAgent-Lab/HydroAgent-Lab.github.io/pages` 返回 `build_type: "workflow"`，`cname: "hydroagentlab.com"`
+   - 返回结果里残留的 `source: main /docs` 是早先"从分支发布"时的设置，发布方式是 Actions 时不起作用
+   - `docs/CNAME` 写的是另一个域名，也说明它没在起作用
+
+**删除后验证**：
+- 构建通过；24 个页面的 `<main>`，以及 `out/` 里所有非 `_next` 的文件，删除前后完全一致
+- 只有 404 页（随机 build ID）和 `sitemap.xml`（`lastmod` 时间戳）不同。不做任何改动连续构建两次，这两处同样会变，属于正常现象
+- `pytest` 30 项通过
+
+**文档**：
+- `ASSETS_GUIDE.md`：根目录 `assets/` 那段改成"已删除，资源只放 `public/assets/`"
+- `RESPONSIVE_AUDIT.md`：在那句"本次不处理"后面注明"已于 2026-10-13 删除"
+
+**取回方法**（这些文件在提交 `1baecec` 里都还在）：
+- 看单个文件：`git show 1baecec:product.html`
+- 全部恢复到工作区：`git checkout 1baecec -- index.html product.html proof.html team.html egu-2026.html manuscript-brief.html script.js styles.css assets .nojekyll zoho-domain-verification.html docs/CNAME`
+- 在网页上浏览：https://github.com/HydroAgent-Lab/HydroAgent-Lab.github.io/tree/1baecec
+
+**文件归类检查的进度**：第 1–4 项已完成。还剩第 5 项（在 ASSETS_GUIDE 里登记 `HydroAgent_SI.pdf` 的文件名例外）和第 6 项（FILE-MAP 其余过时内容）
+
 ## 2026-10-12
 
 ### 英文白皮书页加"Read the Chinese edition"按钮

@@ -8,8 +8,8 @@ Next.js 把 `public/` 下的内容**原样**导出到 `out/`，所以那里的�
 > `/assets/README.md` 直接访问。本文档是内部约定，只在仓库里可见即可。
 > 因此 **`public/assets/` 下只放资源文件，不要放任何 `.md` / 说明文件。**
 
-> 项目根目录另有一个 `assets/`，那是给**遗留静态页**（`index.html` / `product.html` / `proof.html` /
-> `team.html` / `egu-2026.html` / `manuscript-brief.html`）用的，与 `public/assets/` 无关，两者不要混用。
+> 项目根目录原先还有一个 `assets/`，是旧静态站专用的。2026-10-13 已随旧站一起删除，取回方法见 `WORKLOG.md`。
+> 网站用到的资源一律放在 `public/assets/`，不要在根目录重新建 `assets/`。
 
 ## 目录约定
 
