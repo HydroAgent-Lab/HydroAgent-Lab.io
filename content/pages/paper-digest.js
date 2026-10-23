@@ -4,13 +4,15 @@
 // build time (lib/load-paper-digest.js); everything below is page copy.
 // `{count}`, `{n}` and `{date}` are filled in by the components.
 
-// Brevo hosted-form endpoints, one per digest language (Brevo → Contacts →
-// Forms → Share → Simple HTML, the form's `action`). Public by design: they
-// only accept a sign-up and send the double opt-in email. Empty until the
-// forms exist; the form then says subscriptions open soon.
+// Brevo hosted-form endpoints, one per digest language (Brevo → Marketing →
+// Forms → Share, the form link = its `action`). Public by design: they only
+// accept a sign-up and send the double opt-in email. zh → Brevo list #3
+// (水利大模型文献日报), confirmation template #5; en → list #4 (HydroAgent
+// Paper Digest), template #6. An empty value makes the form say
+// subscriptions open soon.
 export const paperDigestEndpoints = {
-  zh: "",
-  en: ""
+  zh: "https://6727a847.sibforms.com/serve/MUIFAJUe0iNgGSBV84IAdcAD_TlMjmSn1k0y4TGvx6Il9YECjzk8GQ88MhCMK6Kt8XLhQ_vTqthA6FSqIJCfRdJ6vIeGjzxgHUmPFcFLawFJKu6BvnDKr2v1DgCo8Jn5A9W57m7OneQsPQdnakEO1mQ-cQJPjGrYTeGREEahSHcj2DaC8raQcdBYxEMKm0ELBH8nOMl5bucM5Wiw-Q==",
+  en: "https://6727a847.sibforms.com/serve/MUIFAGW_a8y7khVuB3Aryz5QoKItcLnqB2fy8wGzgpwG6SCAMXo8rc39_ozR_q-dfFKG5PlSAUtwYp47cCDvRr02TzOxRBftSRgtUVk4v2opfztfMv0tsEQNSByuB84YmVXrmC7Pi0-1wwtURmcP4rJbirKwYsLRgRoaL4QPH8GdeY842GcvwfdIca05p1fp5TLjV60bAmAUvYnl5A=="
 };
 
 export const paperDigestContent = {
