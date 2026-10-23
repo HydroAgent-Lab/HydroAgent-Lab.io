@@ -3,7 +3,7 @@ import { PaperDigestPageContent } from "@/components/pages/paper-digest";
 export const metadata = {
   title: "Paper Digest | HydroAgent-Lab",
   description:
-    "A daily email digest of the latest papers on AI and large language models, extracted and summarized by AI."
+    "New papers on large language models in hydrology and water resources, screened and summarized by AI every day, with a daily email digest."
 };
 
 export default function PaperDigestPage() {

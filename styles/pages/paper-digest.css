@@ -1,17 +1,23 @@
 /* ==========================================================
-   Paper Digest — the page is its lead: title + sign-up form
-   on the left, what the digest is on the right.
+   Paper Digest — one page. The lead takes the sign-up (digest
+   language, email, privacy note); below it every public paper
+   is listed as a week-by-week ledger with filter, search and
+   "show earlier". Colour rationing as on Demo: solid --accent
+   only on Subscribe; the active filter gets an --accent outline
+   and wash; badges, radios and disclosures stay neutral.
    ========================================================== */
-
-/* Nothing sits between the lead and the footer, and both use the same
-   #F9FAFB ground — without a rule the two read as one block. */
-.paper-digest-page .page-lead {
-  border-bottom: 1px solid var(--border);
-}
 
 /* Keeps the zh title from ending on a two-character line ("邮箱。"). */
 .paper-digest-page .page-lead h1 {
   text-wrap: balance;
+}
+
+/* Chinese breaks only at the spaces and punctuation, so "文献" stays whole.
+   Not on phones: the column is too narrow for the longest run. */
+@media (min-width: 561px) {
+  .paper-digest-page:lang(zh) .page-lead h1 {
+    word-break: keep-all;
+  }
 }
 
 /* Facts as ruled label/value rows, the same treatment as the other
@@ -148,9 +154,459 @@
   color: #b42318;
 }
 
+/* --- Digest language: a quiet radio pair above the address --- */
+.subscribe-lang {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 18px;
+  margin: 0 0 16px;
+  padding: 0;
+  border: 0;
+}
+
+.subscribe-lang legend {
+  float: left;            /* keeps the legend on the options' line */
+  margin: 0 6px 0 0;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.subscribe-lang label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.subscribe-lang input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--dark-1);
+}
+
+/* --- Privacy note: native disclosure under the form --- */
+.pd-privacy {
+  max-width: 480px;
+  margin-top: 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.pd-privacy summary,
+.pd-paper-more summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  list-style: none;
+  cursor: pointer;
+}
+
+.pd-privacy summary::-webkit-details-marker,
+.pd-paper-more summary::-webkit-details-marker {
+  display: none;
+}
+
+/* A small chevron that turns down when open. */
+.pd-privacy summary::before,
+.pd-paper-more summary::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform var(--transition);
+}
+
+.pd-privacy[open] summary::before,
+.pd-paper-more[open] summary::before {
+  transform: rotate(45deg);
+}
+
+.pd-privacy summary:hover,
+.pd-paper-more summary:hover {
+  color: var(--text);
+}
+
+.pd-privacy ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
+/* --- Confirmation banner (?subscribed=1). Empty, it takes no space. --- */
+.pd-notice {
+  margin: 0;
+  padding: 14px var(--gutter);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--accent-hover);
+  background: var(--accent-wash);
+  border-bottom: 1px solid color-mix(in oklch, var(--accent) 22%, #FFFFFF);
+}
+
+.pd-notice:empty {
+  padding: 0;
+  border: 0;
+}
+
+/* --- Paper list --- */
+/* Aligned with the lead above it (var(--gutter)), not the narrower
+   .content-section column other pages use. Padding only: the width cap
+   stays off this element (see tests/test_platform_hero_width.py). */
+.paper-digest-page .pd-section {
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+}
+
+.pd-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-bottom: 24px;
+}
+
+.pd-head h2 {
+  font-size: clamp(1.35rem, 1rem + 1.2vw, 1.75rem);
+}
+
+.pd-head p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.pd-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
+
+.pd-filter {
+  display: inline-flex;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface-elevated);
+}
+
+.pd-filter-option {
+  min-height: 38px;
+  padding: 0 16px;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: color var(--transition), background-color var(--transition), border-color var(--transition);
+}
+
+.pd-filter-option:hover {
+  color: var(--text);
+}
+
+.pd-filter-option[aria-pressed="true"] {
+  color: var(--accent-hover);
+  background: var(--accent-wash);
+  border-color: var(--accent);
+}
+
+.pd-search {
+  flex: 0 1 340px;
+}
+
+/* 16px text: iOS zooms into smaller fields on focus. */
+.pd-search input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 16px 0 42px;
+  font-family: var(--font);
+  font-size: 16px;
+  color: var(--text);
+  background: var(--surface-elevated) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%235f6773' stroke-width='1.6' stroke-linecap='round'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='M11 11l3.5 3.5'/%3E%3C/svg%3E") no-repeat 16px 50%;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  transition: border-color var(--transition);
+}
+
+.pd-search input::placeholder {
+  color: var(--text-muted);
+}
+
+.pd-search input:hover {
+  border-color: var(--text-muted);
+}
+
+.pd-results {
+  margin: 14px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.pd-results:empty {
+  margin: 0;
+}
+
+/* One week per row of the ledger: the dates hang in a left column and stay
+   in view while its papers scroll past. The first week sits under a full-
+   strength rule, like a table of contents heading. */
+.pd-week {
+  display: grid;
+  grid-template-columns: 172px minmax(0, 1fr);
+  gap: 0 40px;
+  padding: 28px 0 4px;
+  border-top: 1px solid var(--border);
+}
+
+.pd-results + .pd-week,
+.pd-results + .pd-empty {
+  margin-top: 20px;
+  border-top-color: var(--text);
+}
+
+.pd-week-label {
+  position: sticky;
+  top: calc(var(--header-height) + 12px);
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.pd-week-count {
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.pd-week-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pd-paper {
+  padding: 0 0 24px;
+}
+
+.pd-paper + .pd-paper {
+  padding-top: 24px;
+  border-top: 1px solid color-mix(in oklch, var(--border) 55%, #FFFFFF);
+}
+
+.pd-paper-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Same neutral outline as the Research page badge. A preprint's outline is
+   dashed: not yet settled by peer review, said without colour. */
+.pd-badge {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 9px;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.pd-badge.is-preprint {
+  border-style: dashed;
+}
+
+.pd-paper-title {
+  max-width: 62ch;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.38;
+  text-wrap: pretty;
+}
+
+/* Underline grows in on hover rather than recolouring the whole list blue. */
+.pd-paper-title a {
+  color: var(--text);
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0 1px;
+  transition: background-size var(--transition), color var(--transition);
+}
+
+.pd-paper-title a:hover {
+  color: var(--accent-hover);
+  background-size: 100% 1px;
+}
+
+.pd-ext {
+  margin-left: 0.3em;
+  font-size: 0.8em;
+  color: var(--text-muted);
+}
+
+.pd-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.pd-paper-summary {
+  max-width: 68ch;
+  margin: 8px 0 0;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.pd-nowrap {
+  white-space: nowrap;
+}
+
+.pd-paper-byline {
+  max-width: 68ch;
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.pd-paper-more {
+  max-width: 68ch;
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.pd-paper-more dl {
+  margin: 6px 0 0;
+  padding: 14px 18px;
+  font-size: 14px;
+  line-height: 1.65;
+  background: var(--surface-subtle);
+  border-left: 2px solid var(--border-strong);
+}
+
+.pd-paper-more dt {
+  margin: 0 0 2px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.pd-paper-more dd {
+  margin: 0 0 12px;
+  color: var(--text-secondary);
+}
+
+.pd-paper-more dd:last-child {
+  margin-bottom: 0;
+}
+
+.pd-empty {
+  margin: 0;
+  padding: 36px 0;
+  font-size: 15px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+}
+
+/* "Show earlier" lines up with the papers, not with the date column. */
+.pd-more-row {
+  display: grid;
+  grid-template-columns: 172px minmax(0, 1fr);
+  gap: 0 40px;
+  padding: 20px 0 0;
+  border-top: 1px solid var(--border);
+}
+
+.pd-more {
+  grid-column: 2;
+  justify-self: start;
+  font-family: var(--font);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.pd-footnote {
+  max-width: 80ch;
+  margin: 40px 0 0;
+  padding-top: 16px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+}
+
+.pd-footnote a {
+  color: var(--text-secondary);
+  text-underline-offset: 3px;
+}
+
+.pd-footnote a:hover {
+  color: var(--accent-hover);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .subscribe-submit:active {
     transform: none;
+  }
+
+  .pd-paper-title a,
+  .pd-privacy summary::before,
+  .pd-paper-more summary::before {
+    transition: none;
+  }
+}
+
+/* Tablet and below: the date column becomes a heading above its papers. */
+@media (max-width: 900px) {
+  .pd-week,
+  .pd-more-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pd-week-label {
+    position: static;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .pd-more {
+    grid-column: 1;
   }
 }
 
@@ -164,5 +620,23 @@
      leaves the field too narrow to show an address. */
   .subscribe-row {
     flex-direction: column;
+  }
+
+  .pd-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pd-filter {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .pd-search {
+    flex-basis: auto;
+  }
+
+  .pd-paper-title {
+    font-size: 17px;
   }
 }
