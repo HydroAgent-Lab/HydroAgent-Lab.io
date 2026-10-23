@@ -33,8 +33,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Paper Digest papers, pushed daily by the collector server. The build
+      # fails if the file is missing or invalid, so Pages keeps the last site.
+      - name: Check out Paper Digest data
+        uses: actions/checkout@v4
+        with:
+          repository: HydroAgent-Lab/paper-digest-data
+          path: .digest-data
+
+      - name: Test
+        run: npm test
+
       - name: Build static site
         run: npm run build
+        env:
+          PAPER_DIGEST_DATA: .digest-data/papers.json
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
