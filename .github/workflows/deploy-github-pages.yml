@@ -6,6 +6,10 @@ on:
       - master
       - main
   workflow_dispatch:
+  # Daily rebuild to pick up Paper Digest papers. The collector publishes
+  # papers.json at 08:30 Rome; 08:00 UTC is 09:00 (winter) / 10:00 (summer).
+  schedule:
+    - cron: "0 8 * * *"
 
 permissions:
   contents: read
