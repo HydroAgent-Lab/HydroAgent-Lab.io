@@ -1,4 +1,4 @@
-// Paper Digest — new papers on LLMs in hydrology and water resources, found
+// Paper Digest (zh: 水利大模型文献日报; en: HydroAgent Paper Digest) — new papers on LLMs in hydrology and water resources, found
 // and summarized daily by the HydroAgent collector, listed on the page and
 // emailed to subscribers through Brevo. The papers come from papers.json at
 // build time (lib/load-paper-digest.js); everything below is page copy.
@@ -20,7 +20,7 @@ export const paperDigestContent = {
         "New papers on large language models in hydrology and water resources, screened and summarized by AI every day, with a daily email digest."
     },
     lead: {
-      eyebrow: "Paper Digest",
+      eyebrow: "HydroAgent Paper Digest",
       title: "New papers on large language models in hydrology and water resources, in your inbox every day.",
       text:
         "Every morning HydroAgent Lab searches journals and preprint servers for new work that applies large language models to hydrology and water resources. AI screens each paper for relevance and summarizes it; the papers are listed below and emailed to subscribers.",
@@ -81,7 +81,7 @@ export const paperDigestContent = {
       description: "水利 × 大模型领域的新文献：每天由 AI 筛选并生成摘要，并通过邮件推送给订阅者。"
     },
     lead: {
-      eyebrow: "Paper Digest",
+      eyebrow: "水利大模型文献日报",
       title: "水利 × 大模型的新文献，每天送到你的邮箱。",
       text:
         "HydroAgent Lab 每天早上检索期刊和预印本平台，找出把大语言模型用于水文与水资源研究的新文献。每篇文献都经 AI 判断相关性并生成摘要，列在下方，同时通过邮件推送给订阅者。",
@@ -101,20 +101,20 @@ export const paperDigestContent = {
       note: "免费。每天一封，每封邮件里都可以退订。",
       invalid: "请输入有效的邮箱地址。",
       soon: "订阅功能即将开放，感谢关注。",
-      done: "还差一步：请查收确认邮件（也可能在垃圾邮件里），点击其中的链接即可开始接收 Paper Digest。",
+      done: "还差一步：请查收确认邮件（也可能在垃圾邮件里），点击其中的链接即可开始接收文献日报。",
       error: "提交失败，请稍后再试。"
     },
     privacy: {
       summary: "我们如何处理你的邮箱",
       items: [
         "我们只收集你的邮箱地址和你选择的邮件语言。",
-        "仅用于发送 Paper Digest。",
+        "仅用于发送文献日报。",
         "名单由邮件服务商 Brevo 保存，数据存放在欧盟。",
         "每封邮件底部都有退订链接，随时可以退订。",
         "如有疑问，请联系 contact@hydroagentlab.com"
       ]
     },
-    subscribed: "订阅成功！Paper Digest 将在每天 07:00（意大利时间）送到你的邮箱。",
+    subscribed: "订阅成功！文献日报将在每天 07:00（意大利时间）送到你的邮箱。",
     feed: {
       title: "最新文献",
       intro: "共 {count} 篇，按收录时间倒序，按周分组",

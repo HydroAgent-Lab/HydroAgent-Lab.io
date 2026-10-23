@@ -1,7 +1,7 @@
 import { PaperDigestPageContent } from "@/components/pages/paper-digest";
 
 export const metadata = {
-  title: "Paper Digest | HydroAgent-Lab",
+  title: "水利大模型文献日报 | HydroAgent-Lab",
   // Its own canonical (the layout's "/" would point search engines at the home
   // page) and the RSS feed built from the same papers.json.
   alternates: {
