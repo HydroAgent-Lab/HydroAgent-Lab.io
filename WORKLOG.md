@@ -1,5 +1,34 @@
 # Work Log
 
+## 2026-10-23
+
+### Paper Digest 改为单页每日文献列表 + Brevo 订阅（分支 `feat/paper-digest`，未合并）
+
+**背景**：经 brainstorm / grill 与用户逐条确认（Q1–Q20）。要点：收录范围对齐采集系统的"水利 × 大模型"；文献按周分组；中英双语且缺失时不互相顶替；订阅换用 Brevo（双重确认、可退订、EU 存储），订阅时可选中/英；只做一页，不跳子页；服务器推出第一份真实数据且 Brevo 接通后才上线（Q13）。采集端改动在 `HydroAgent_Collector` 的分支 `feat/paper-digest-public`（翻译、papers.json 导出与发布、Brevo 双语发信、给同事的 `docs/paper_digest_rollout.md`）。
+
+**修改文件：**
+- 新建 `lib/paper-digest.mjs`、`lib/paper-digest.test.mjs`、`lib/load-paper-digest.js`、`lib/paper-digest-rss.js`、`content/data/paper-digest.sample.json`
+- 新建 `components/paper-digest-feed.js`、`components/subscribed-notice.js`、`app/paper-digest/feed.xml/route.js`、`app/zh/paper-digest/feed.xml/route.js`
+- 重写 `components/pages/paper-digest.js`、`content/pages/paper-digest.js`；`components/subscribe-form.js` 加邮件语言与 Brevo 提交；`styles/pages/paper-digest.css` 加 `pd-` 前缀样式（已全局 grep 无冲突）
+- `app/(zh/)paper-digest/page.js`：描述改为新范围，加本页 canonical 与 RSS alternate
+- `.github/workflows/deploy-github-pages.yml`：构建前检出 `HydroAgent-Lab/paper-digest-data` 到 `.digest-data/`，先跑 `npm test`
+- `package.json` 加 `test`；`.gitignore` 加 `.digest-data/`、`.tools/`；README、FILE-MAP
+
+**解决的问题 / 踩到的坑：**
+- **Chrome 无头模式最小窗口宽约 500px**：`--window-size=375` 的截图看起来右侧被截断，其实页面按 500px 排版。手机宽度要用 CDP `Emulation.setDeviceMetricsOverride`。
+- **zh 标题"文｜献"被拆开**：CJK 默认任意字间可断。≥561px 用 `word-break: keep-all`；手机列太窄，保持默认以免溢出。
+- **列表区与首屏左边缘不齐**：`.content-section` 是 1080 列、PageLead 是 `--gutter`（1200 列）；本页列表区改用 `--gutter`。
+- **日期被拆成 "2026-08-" / "01"**：出版日期单独包 `white-space: nowrap`。
+- 本地 `node_modules` 是拉取前装的，缺 `cross-env`；`npm ci` 按锁文件重装（锁文件未改）。
+
+**验证**：`npm test` 7/7；`python -m pytest tests` 30/30；本地 build 30 个页面（含两个 feed.xml），RSS 可被 XML 解析（各 23 条）；`CI=true` 且无数据时 build 失败并给出提示。CDP 驱动 headless Chrome，en/zh × 1440/375：无横向滚动；初始 4 周 → 显示更早 8 周；筛选预印本只剩预印本；搜索有/无结果；展开详情；`?subscribed=1` 横幅出现且参数被移除；表单非法邮箱提示、合法邮箱在无 Brevo 地址时提示"即将开放"；控制台零报错。
+
+**下一步：**
+- 用户在 Brevo 建好两个表单后，把表单地址填进 `paperDigestEndpoints`，并用一次真实提交核对字段名与返回格式
+- 创建 `HydroAgent-Lab/paper-digest-data`（README = 数据约定）、Action 与 `SITE_DISPATCH_TOKEN`
+- 同事按 rollout 文档部署；第一份真实数据推送后再合并本分支；上线当天首页 NEWS 加一条
+- 采集数据里 32/158 条英文摘要以 "Source evidence highlights:" / "Core entry:" 开头，待用户决定是否在导出时处理
+
 ## 2026-10-13
 
 ### 新增 Paper Digest 订阅页（Product 下第 4 项）

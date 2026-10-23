@@ -24,7 +24,9 @@
 | `cta-band.js` | CTA 行动召唤横幅 — 页底 "联系团队" 等引导区块 | ✅ |
 | `page-lead.js` | 页面导语 — 页面顶部的 eyebrow + 标题 + 描述 + 事实条 | ✅ |
 | `section-header.js` | 区块标题 — 各 section 的 eyebrow + title + summary | ✅ |
-| `subscribe-form.js` | 邮箱订阅表单 — Paper Digest 页的 client 组件；后端接口存根 `sendSubscription` | ✅ 待接后端 |
+| `subscribe-form.js` | 邮箱订阅表单 — Paper Digest 页的 client 组件；选邮件语言，POST 到该语言的 Brevo 表单 | ✅ 待填 Brevo 表单地址 |
+| `paper-digest-feed.js` | Paper Digest 文献列表 — client 组件；按周分组、类型筛选、搜索、显示更早、就地展开 | ✅ |
+| `subscribed-notice.js` | Paper Digest 订阅确认横幅 — 读 `?subscribed=1` 后显示并去掉参数 | ✅ |
 | `pages/home.js` | 首页内容组装 — Hero + 各 section + CTA 拼成完整首页 | ✅ |
 | `pages/platform.js` | Product-FF 页组装 — PageLead + 架构图 + 功能列表 | ✅ |
 | `pages/capabilities.js` | Capabilities 页组装 | ✅ |
@@ -35,7 +37,7 @@
 | `pages/white-papers.js` | 白皮书页组装 | ✅ 占位 |
 | `pages/events.js` | 活动与社区页组装 | ✅ 占位 |
 | `pages/members.js` | 实验室成员页组装 | ✅ 占位 |
-| `pages/paper-digest.js` | Paper Digest 页组装 — PageLead + 订阅表单 | ✅ |
+| `pages/paper-digest.js` | Paper Digest 页组装 — PageLead（订阅表单 + 隐私说明）+ 文献列表 + RSS 链接；构建时读 papers.json | ✅ |
 
 ## `content/` — 内容层
 
@@ -55,7 +57,7 @@
 | `pages/white-papers.js` | 白皮书文案 | ✅ 占位 |
 | `pages/events.js` | 活动与社区文案 | ✅ 占位 |
 | `pages/members.js` | 实验室成员文案 | ✅ 占位 |
-| `pages/paper-digest.js` | Paper Digest 文案（en/zh）— 导语、事实条、表单提示语 | ✅ |
+| `pages/paper-digest.js` | Paper Digest 文案（en/zh）— 导语、事实条、表单/隐私/列表文案；Brevo 表单地址 `paperDigestEndpoints` | ✅ |
 
 ## `app/` — 路由层
 
@@ -64,7 +66,7 @@
 | `/` | A — Home 首页 | en + zh |
 | `/platform` | B1 — HydroAgent-FF 洪水预报智能体 | en + zh |
 | `/capabilities` | B2 — Capabilities 能力 | en + zh |
-| `/paper-digest` | B4 — Paper Digest 论文订阅 | en + zh |
+| `/paper-digest` | B4 — Paper Digest 每日文献列表 + 订阅；`/paper-digest/feed.xml` 为 RSS | en + zh |
 | `/research` | C1 — Research Papers 研究论文 | en + zh |
 | `/white-papers` | C2 — White Papers 白皮书 | en + zh |
 | `/events` | C3 — Events / Community 活动与社区 | en + zh |
@@ -80,3 +82,13 @@
 | ✅ | 已完成 |
 | ✅ 占位 | 文件已建，内容待填充 |
 | ⬜ 计划中 | 尚未创建 |
+
+## `lib/` — 数据层（Paper Digest）
+
+| 文件 | 用途 | 状态 |
+|------|------|------|
+| `paper-digest.mjs` | 纯函数：校验 papers.json、按周分组、周/日期标签、搜索与筛选（服务端与浏览器共用） | ✅ |
+| `paper-digest.test.mjs` | `npm test`（node:test） | ✅ |
+| `load-paper-digest.js` | 构建时读取数据：`PAPER_DIGEST_DATA` → `.digest-data/papers.json` → 本地回退样例（CI 中缺数据即失败） | ✅ |
+| `paper-digest-rss.js` | `/paper-digest/feed.xml`、`/zh/paper-digest/feed.xml` 的 RSS 2.0 | ✅ |
+| `../content/data/paper-digest.sample.json` | 本地开发样例（23 篇，中文摘要为人工翻译），CI 从不发布 | ✅ |
