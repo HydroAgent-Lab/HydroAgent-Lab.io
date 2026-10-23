@@ -306,6 +306,7 @@
 }
 
 .pd-filter-option {
+  touch-action: manipulation;
   min-height: 38px;
   padding: 0 16px;
   font-family: var(--font);
@@ -399,6 +400,12 @@
   font-size: 13px;
   font-weight: 400;
   color: var(--text-muted);
+}
+
+/* Keyboard focus moving down the list must not land under the sticky header. */
+.pd-paper a,
+.pd-paper summary {
+  scroll-margin-top: calc(var(--header-height) + 16px);
 }
 
 .pd-week-list {
@@ -552,6 +559,7 @@
 }
 
 .pd-more {
+  touch-action: manipulation;
   grid-column: 2;
   justify-self: start;
   font-family: var(--font);

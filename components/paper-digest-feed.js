@@ -44,6 +44,7 @@ export function PaperDigestFeed({ papers, lang, copy, currentYear }) {
         <div className="pd-search">
           <input
             id={searchId}
+            name="q"
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}

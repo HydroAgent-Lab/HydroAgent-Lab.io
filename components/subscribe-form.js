@@ -108,6 +108,7 @@ export function SubscribeForm({ lang = "en", copy, endpoints = {} }) {
           type="email"
           required
           autoComplete="email"
+          spellCheck={false}
           placeholder={copy.placeholder}
           aria-invalid={status === "invalid" || undefined}
           aria-describedby={`${messageId} ${noteId}`}
