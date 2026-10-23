@@ -8,14 +8,17 @@ const LANGS = ["zh", "en"];
 
 // Posts to the Brevo hosted form for the chosen digest language. Brevo then
 // sends a double opt-in email; nobody is on the list until they click it.
-// Field names follow Brevo's "Simple HTML" embed (EMAIL, the empty honeypot
-// email_address_check, locale) — check them against the real embed code.
-async function sendSubscription(email, digestLang, endpoint) {
+// Fields as in Brevo's "Simple HTML" embed: EMAIL, the empty honeypot
+// email_address_check, locale and html_type. Brevo answers {"success":true}
+// as soon as it has the request — even for a malformed address (checked
+// 2026-10-23), so the address is validated here before sending.
+async function sendSubscription(email, endpoint) {
   if (!endpoint) return NOT_CONNECTED;
   const body = new FormData();
   body.append("EMAIL", email);
   body.append("email_address_check", "");
-  body.append("locale", digestLang);
+  body.append("locale", "en");
+  body.append("html_type", "simple");
   return fetch(endpoint, { method: "POST", body });
 }
 
@@ -68,7 +71,7 @@ export function SubscribeForm({ lang = "en", copy, endpoints = {} }) {
     }
     setStatus("submitting");
     try {
-      const outcome = await outcomeOf(await sendSubscription(input.value.trim(), digestLang, endpoints[digestLang]));
+      const outcome = await outcomeOf(await sendSubscription(input.value.trim(), endpoints[digestLang]));
       setStatus(outcome);
       if (outcome === "done") {
         // Only the address: form.reset() would also reset the controlled radios.
