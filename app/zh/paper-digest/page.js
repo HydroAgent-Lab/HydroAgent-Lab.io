@@ -1,4 +1,5 @@
 import { PaperDigestPageContent } from "@/components/pages/paper-digest";
+import { paperDigestContent } from "@/content/pages/paper-digest";
 
 export const metadata = {
   title: "水利大模型文献日报 | HydroAgent-Lab",
@@ -8,7 +9,8 @@ export const metadata = {
     canonical: "/zh/paper-digest/",
     types: { "application/rss+xml": "/zh/paper-digest/feed.xml" }
   },
-  description: "水利 × 大模型领域的新文献：每天由 AI 筛选并生成摘要，并通过邮件推送给订阅者。"
+  // One copy of the text, shared with the RSS channel description.
+  description: paperDigestContent.zh.meta.description
 };
 
 export default function PaperDigestZhPage() {

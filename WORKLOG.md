@@ -1,5 +1,40 @@
 # Work Log
 
+## 2026-10-24
+
+### 审核优化 Paper Digest 页（PR #4 分支，按 Hallmark 审计逐项修改）
+
+2026-10-23 做了 Hallmark 审计，结论是 0 critical · 3 major · 5 minor，另有 1 个功能问题。按任务分开提交，方便同事逐项审。
+
+**任务 A：首屏文案**（`content/pages/paper-digest.js`）
+- en 标题从 94 字符改为 59 字符："New LLM papers in hydrology and water resources, every day."
+  - 用户在两个候选里选了缩写版，下面的说明段会给出全称
+  - 桌面从 3 行变成 2 行，手机从 5 行变成 3 行
+- 删掉事实栏的 Scope / 收录范围：它和标题、说明段说的是同一件事
+- 搜索框提示改短为 "Search papers…" / "搜索文献…"：原来的提示在 375px 下被截断
+- 订阅说明：zh 按用户给的改为"每日一封免费邮件，随时可退订。"；en 改为 "One free email a day. Unsubscribe at any time."
+- en 去掉三处分号，都拆成两句或改用 ", so" 连接，没有直接换成逗号（那样会变成 comma splice）
+  - 订阅说明：见上一条
+  - 说明段："…summarizes it; the papers are listed…" 改为 "AI screens each paper for relevance and writes a summary. The papers that pass are listed below and emailed to subscribers."。AI 只负责筛选和写摘要，发邮件不是 AI 做的，所以拆成两句
+  - 底部提示：改为 "…may contain errors, so please check the original papers."
+- 品牌名：说明段（en/zh）里的 "HydroAgent Lab" 改为全站统一的 "HydroAgent-Lab"；en 在 "Every morning" 后加了逗号
+- 页面简介措辞：en 去掉重复的 "every day … daily"，改为 "…screened and summarized by AI, with a free daily email digest."；zh 去掉重复的"并"，改为"…每天由 AI 筛选、生成摘要，通过邮件推送给订阅者。"
+- zh 底部提示："根据题名和摘要生成"改为"根据题名和原文摘要生成"。原句里两个"摘要"意思不同，读者容易混淆
+- 时区：en 的 "(Italy time)" 改为 "(Rome time)"，共两处（事实栏和订阅成功提示）。用户写的是 "Roma"，按英文习惯用 "Rome"；zh 的"意大利时间"不变
+- 没动：更新时间"07:00"和部署流程注释对不上（采集器罗马时间 08:30 发布数据，网站 UTC 08:00 重建），等同事确认
+- 验证：本地构建（用样例数据），en/zh 各测 6 种宽度，标题行数、事实栏、提示文字都符合预期；没有横向滚动，订阅按钮都在首屏内
+
+**任务 A2：页面简介只存一份**（`app/paper-digest/page.js`、`app/zh/paper-digest/page.js`）
+- 两个路由的 `metadata.description` 原来各自写死一份，和 RSS 用的 `paperDigestContent.*.meta.description` 重复
+- 改为直接引用文案文件，以后只改一处
+- 验证：从 dev 服务器取页面，en/zh 网页的 `<meta name="description">` 和 RSS 的 `<description>` 都是新措辞，而且两者一致
+- 本节 WORKLOG 跟任务 A 一起提交；A2 只提交这两个路由文件
+
+**待做**：
+- 任务 B：日期加说明，修 key 报错
+- 任务 C：RSS 链接不折行，色值改用变量
+- 任务 D：作者名统一格式
+
 ## 2026-10-23
 
 ### Paper Digest 改为单页每日文献列表 + Brevo 订阅（分支 `feat/paper-digest`，未合并）

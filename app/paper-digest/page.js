@@ -1,4 +1,5 @@
 import { PaperDigestPageContent } from "@/components/pages/paper-digest";
+import { paperDigestContent } from "@/content/pages/paper-digest";
 
 export const metadata = {
   title: "Paper Digest | HydroAgent-Lab",
@@ -8,8 +9,8 @@ export const metadata = {
     canonical: "/paper-digest/",
     types: { "application/rss+xml": "/paper-digest/feed.xml" }
   },
-  description:
-    "New papers on large language models in hydrology and water resources, screened and summarized by AI every day, with a daily email digest."
+  // One copy of the text, shared with the RSS channel description.
+  description: paperDigestContent.en.meta.description
 };
 
 export default function PaperDigestPage() {
