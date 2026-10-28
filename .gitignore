@@ -15,3 +15,9 @@ preview-build
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# 本地便携 Node 工具链、npm 缓存与 dev-server 日志（仅本机使用，不入库）
+.tools/
+
+# Paper Digest 数据：CI 从 HydroAgent-Lab/paper-digest-data 检出到这里，不入库
+.digest-data/

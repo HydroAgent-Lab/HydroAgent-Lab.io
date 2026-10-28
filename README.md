@@ -9,6 +9,24 @@ npm install
 npm run dev -- -p 3001
 ```
 
+`.tools/` (git-ignored) is an optional machine-local folder: a portable Node toolchain, npm cache and dev-server logs. Nothing in the build depends on it.
+
+```bash
+npm test          # node:test suite for lib/ (Paper Digest data functions)
+python -m pytest tests   # CSS / layout guards
+```
+
+### Paper Digest data
+
+`/paper-digest` lists papers from `papers.json`, published daily by the collector server to the public repo
+[`HydroAgent-Lab/paper-digest-data`](https://github.com/HydroAgent-Lab/paper-digest-data). CI checks it out into
+`.digest-data/` (git-ignored) and builds with `PAPER_DIGEST_DATA=.digest-data/papers.json`. The Pages workflow also runs
+**daily at 08:00 UTC** (after the server's 08:30 Rome publish) so the page picks up new papers without a push. Until the
+data repo has its first `papers.json`, the workflow skips build and deploy with a notice, so the current site stays online;
+after that, an invalid file **fails the CI build**, so GitHub Pages keeps the last good site. Locally, without that file, the build falls back to
+`content/data/paper-digest.sample.json` (23 papers, hand-translated zh summaries) and prints a warning. To preview real
+data, clone the data repo into `.digest-data/`.
+
 ## Production build
 
 ```bash
@@ -49,7 +67,7 @@ app/                      # Next.js App Router pages (en + zh, 24 pages total)
   zh/                     # Chinese locale mirror
   platform/, capabilities/, demo/, research/, team/, careers/, contact/
   white-papers/, events/, members/   # White papers (v1.0.0 live), events, lab members
-  paper-digest/           # Product → Paper Digest: daily AI-paper email sign-up (backend pending)
+  paper-digest/           # Product → Paper Digest: daily paper list + Brevo sign-up; feed.xml/route.js = RSS
 
 components/
   hero.js                 # Hero section — split layout (left text/CTA, right autoplay video)
@@ -61,7 +79,9 @@ components/
   news-carousel.js        # Home NEWS carousel — client component (scroll-snap track + dots)
   cta-band.js, page-lead.js, section-header.js,
   breadcrumb.js, demo-chat.js, track-link.js
-  subscribe-form.js       # Paper Digest email form — client component; backend stub `sendSubscription`
+  subscribe-form.js       # Paper Digest sign-up — client; digest language + POST to the Brevo form for it
+  paper-digest-feed.js    # Paper Digest list — client; week groups, type filter, search, show earlier, details
+  subscribed-notice.js    # Paper Digest ?subscribed=1 banner after Brevo's confirmation link
 
 content/
   site.js                 # Re-export assembler (imports sub-modules, exports getSiteContent + helpers)
@@ -80,6 +100,15 @@ public/assets/            # Static assets for the Next app — see ASSETS_GUIDE.
                           # root, and no .md files — everything here is published to the web.
 
 archive/figures/          # Unreferenced source figures — kept in git, NOT deployed (30 MB)
+
+lib/
+  paper-digest.mjs        # Pure functions: validate papers.json, group by week, labels, search (server + client)
+  paper-digest.test.mjs   # node:test suite (npm test)
+  load-paper-digest.js    # Build-time loader: PAPER_DIGEST_DATA / .digest-data / sample fallback (not in CI)
+  paper-digest-rss.js     # RSS 2.0 for /paper-digest/feed.xml and /zh/paper-digest/feed.xml
+
+content/data/
+  paper-digest.sample.json # Dev-only sample of papers.json; never published by CI
 
 styles/
   tokens.css              # CSS custom properties (colors, spacing, fonts)
@@ -112,7 +141,15 @@ styles/
 - Events 页分两层：**Collaborations 区块在上、活动时间线在下**（`components/pages/events.js`）。时间线记录一次性线下事件（有日期、有现场照片、事后不再变），而开放倡议会持续产出 results 和论文 —— 把 HydroTuring 塞进 zigzag 会同时踩两个坑：它没有现场照片（渲染成灰色占位块），也没有"更新"这一层。`collabSection.items[].updates` 是预留的追加位，后续进展只往数组里加，不动组件和样式。**版式直接复用时间线的 `.event-row` / `.event-row-body`**，只把媒体列换成 `.collab-row-media`（logo 要 contain + 留白，照片是 cover 裁切）—— 一页上放两套视觉语言（带边框的卡片 + 无边框的照片行）是这个区块第一版被推翻的原因。论文正式发表后再考虑在 Research 页单列一条
 - **新 class 名先全局 grep 再用**：`styles/` 下所有 CSS 都由 `app/globals.css` @import 进同一个全局作用域，没有 CSS Modules。上面这个区块第一版取名 `.collab-card`，而 `styles/pages/capabilities.css` 里早有一套同名卡片（padding / hover / h3 / p 全都定义了），于是 Events 页的卡片静默继承了 Capabilities 页的样式 —— 构建不报错，只是变丑。页面专属 class 请带页面前缀或足够特异的词根
 - White Papers 页首期 v1.0.0（2026-10-07，Zenodo DOI `10.5281/zenodo.23230110`，仅中文）。**有正式发布的语言（目前只有 zh）走出版物布局 `.wp-pub-*`**（2026-10-10 用 Hallmark 重做，CSS 顶部有标记与 slop-test 结果）：首屏左右分栏 —— 封面 | 标题、两个按钮、一行信息（版本 · 发布日 · 证据截至 · DOI）；下方"三项核心结论"与"关于这份白皮书"在首屏文字栏的左边线上排成单栏，宽 38rem（≈ 每行 36 个汉字）。没有卡片容器、没有眉标、全页一条分隔线；中文标题字距 0、正文行高 1.8；页面级间距/字号刻度挂在 `.white-papers-page` 上（`--wp-space-*` / `--wp-text-*`），不进全局 tokens。**完整版链 DOI，不链 Zenodo 文件直链**（发布两天后文件被改名，直链即 404）；速读版托管在 `public/assets/white-papers/`（2026-10-10 换成用户提供的新字体版，文件名不变）；英文版是"即将推出"占位（`links[].comingSoon`，有文件后换成 `href`）。**en 页是 coming soon + 一个"Read the Chinese edition ↗"按钮**（`papers: []` → PageLead + 空状态 + 更新频率；按钮来自 en `lead.action`，经 PageLead 的可选 `actions` 插槽渲染在标题下，链 DOI，和 zh 主按钮共用 `fullReportHref`）：英文版出来之前不发布任何非官方英文译文（用户决定）；英文版上线后 en 走出版物布局，按钮随兜底首屏一起消失。更新频率只保留"每季度白皮书 / 每年年度综述"，出版物布局里的"更新计划"由 `cadenceSection.items` 生成，一处维护。第 2 期需另设计归档列表（目前非 featured 条目不渲染）。`.hallmark/` 是 Hallmark 的运行记录（log + preflight），下次运行会读取
-- **Paper Digest 页**（2026-10-13，Product 下第 4 项，`/paper-digest`）：每日抓取最新 AI 大模型论文、AI 提取总结后邮件推送的订阅页。整页只有 PageLead —— 左边标题 + 邮箱表单（经 `actions` 插槽），右边说明 + 3 行事实。**后端由同事另行部署**：接口是 `components/subscribe-form.js` 顶部的 `sendSubscription(email, lang)` 存根。请求成功时返回 `true` 或 fetch 的 Response，失败就抛错。`outcomeOf` 只把 `true` 和 `ok` 的 Response 算作成功，所以 `return fetch(...)`、`return res.ok` 两种写法遇到 4xx/5xx 都会显示失败，**不会对访客谎称已订阅**。接上之前存根返回 `NOT_CONNECTED`，表单显示"订阅功能即将开放"。CORS 要放行 `https://hydroagentlab.com`，并响应 OPTIONS 预检（JSON 请求一定会先发预检）。页面脚本加载完之前提交按钮是禁用的，否则浏览器会按原生 GET 提交，把邮箱放进网址（浏览器历史、服务器日志、GA 都会看到）。这时按钮不变暗，免得每次加载都闪一下；只有提交中才变暗（`.is-busy`）。输入框字号 16px：iOS 遇到小于 16px 的输入框，聚焦时会自动放大。按钮的两种文字叠放在同一格里，提交时宽度不变。校验由组件自己做（`noValidate`），提示语跟页面语言走。首页 NEWS 暂不加这条，等服务上线后再加（用户决定）
+- **Paper Digest 页**（2026-10-13 占位，2026-10-23 改为单页文献列表 + Brevo 订阅；Product 下第 4 项，`/paper-digest`）：收录范围是**水利 × 大模型**（与采集系统 HydroAgent_Collector 一致，不是泛 AI 论文）。
+  - **名称**（2026-10-23 用户决定）：中文全称「水利大模型文献日报」，导航简写「文献日报」；英文全称「HydroAgent Paper Digest」，导航「Paper Digest」。网址保持 `/paper-digest` 不变。邮件发件人名为 `HydroAgent Paper Digest`。
+  - **数据**：服务器每天 08:30 把公开文献（外部组邮件同一批：已纳入的期刊论文与预印本）导出成白名单字段的 `papers.json`，推到公开仓库 `HydroAgent-Lab/paper-digest-data`；本站每天 08:00 UTC 定时构建时拉取（见上方 "Paper Digest data"），不需要跨仓库令牌（用户决定）。注意 GitHub 会在仓库 60 天无提交后暂停定时任务。网站不调任何接口，访客看到的是构建时写进 HTML 的内容。字段约定见数据仓库 README；`lib/paper-digest.mjs` 校验：文件格式不对直接让构建失败，单条坏数据丢弃并计数；链接只放行 http(s)。
+  - **双语**：每篇的 AI 摘要/内容摘要/证据局限都有 en、zh 两份（采集端翻译补齐）；页面只把当前语言传给浏览器，**某语言缺失就不显示，不拿另一种语言顶替**（用户决定）。论文标题保持原文，zh 页上标 `lang="en"`。
+  - **版式**：PageLead（左：标题 + 邮件语言单选 + 邮箱表单 + 可折叠隐私说明；右：说明 + 3 行事实，"已收录 N 篇"按数据计算）→ 白底列表区。列表是按周（周一起）分组的"目录账本"：桌面端日期在左栏 sticky，≤900px 变成组标题。每条：类型徽章（中性描边，预印本用**虚线**描边表示未经同行评审，不用颜色）、收录日期、标题（新标签页打开原文 ↗）、摘要、来源·作者·出版日期、`<details>` 就地展开"AI 解读与证据局限"。初始显示 4 周，"显示更早的文献"每次 +4 周；类型筛选或搜索时显示全部匹配并播报"找到 N 篇"。没有 JS 时列表照样完整渲染（前 4 周）。列表区左右用 `var(--gutter)` 与首屏对齐（不是其他页 `.content-section` 的 1080 列）。周标签和日期不用 `Intl`，避免服务端和浏览器的 ICU 差异导致水合不一致。
+  - **配色**：实心 `--accent` 只给"订阅"按钮；激活的筛选用 `--accent` 描边 + `--accent-wash`；单选框、徽章、展开块都是中性灰。zh 标题在 ≥561px 用 `word-break: keep-all`，只在空格和标点处断行（"文献"不被拆开）。
+  - **订阅**：Brevo 托管表单，每种邮件语言一个（`content/pages/paper-digest.js` 的 `paperDigestEndpoints`，公开地址；**为空时表单显示"订阅功能即将开放"**）。提交 `EMAIL` + 空的蜜罐字段 `email_address_check` + `locale`（字段名需按 Brevo 的 Simple HTML 嵌入代码核对）。成功判定沿用"必须有明确证据"：`ok` 的 Response 且 JSON 不是 `success:false`。成功文案是"请查收确认邮件"（双重确认，点链接前不在名单里）；GA4 记 `digest_subscribe`，参数只有 `site_language` 与 `digest_language`，从不记邮箱。Brevo 确认链接回跳 `/(zh/)paper-digest/?subscribed=1`，顶部 `role="status"` 横幅提示后用 `history.replaceState` 去掉参数（不用 `useSearchParams`，静态导出会要求 Suspense）。原有的水合前禁用、16px 输入框、`noValidate`、按钮宽度不跳等规则保留。
+  - **RSS**：`app/(zh/)paper-digest/feed.xml/route.js`（`force-static`，最近 50 篇）；页面 metadata 带 RSS alternate 和**本页自己的 canonical**（已知遗留 ① 在这一页已修）。
+  - 首页 NEWS 在服务正式上线当天再加（用户决定）。
 - **产品命名**（2026-10-13，用户决定）：
   - 首页板块标题、产品页大标题写全称：en 用 "HydroAgent for Flood Forecasting"，zh 用"洪水预报智能体"
   - 产品页正文第一次出现时，全称后括注简写：en 写 "HydroAgent for Flood Forecasting (HydroAgent-FF)"，zh 写"洪水预报智能体（HydroAgent-FF）"
@@ -121,4 +158,4 @@ styles/
   - 英文全称的断行：桌面和平板一行，手机两行，断成 "HydroAgent for / Flood Forecasting"（用户决定）
     - 产品页文字列 `.platform-hero-copy-inner` 宽 600px，因为 40px 字号下一行需要 578px，原来的 564px 放不下
     - 两处标题都加了 `text-wrap: balance`，保证 "Flood Forecasting" 不被拆开
-- 已知遗留：① 所有子页 `<link rel="canonical">` 与 `og:url` 都指向首页、OG 标题也是首页文案 —— 根源是 `app/layout.js` 的 `alternates.canonical: "/"` 与 `openGraph.url`，会妨碍子页被收录、分享卡片显示错误；② 22 个子页 `<title>` 后缀重复（如 "White Papers | HydroAgent-Lab | HydroAgent-Lab"）—— 页面 title 已含后缀，又叠加了 layout 的 `%s | HydroAgent-Lab` 模板；③ 根节点恒为 `<html lang="en">`，/zh 页也一样（`SiteShell` 只加 `lang-zh` 类），中文内容需在元素上自行标 `lang="zh-CN"`；④ `html` / `body` 没有 `overflow-x: clip`（Hallmark 的硬性要求，目前实测 320–1440px 无横向滚动）；⑤ `styles/pages/demo.css:119` 有 autoprefixer 警告（`start` 建议改 `flex-start`）。均待修
+- 已知遗留：① 所有子页（Paper Digest 除外）`<link rel="canonical">` 与 `og:url` 都指向首页、OG 标题也是首页文案 —— 根源是 `app/layout.js` 的 `alternates.canonical: "/"` 与 `openGraph.url`，会妨碍子页被收录、分享卡片显示错误；② 22 个子页 `<title>` 后缀重复（如 "White Papers | HydroAgent-Lab | HydroAgent-Lab"）—— 页面 title 已含后缀，又叠加了 layout 的 `%s | HydroAgent-Lab` 模板；③ 根节点恒为 `<html lang="en">`，/zh 页也一样（`SiteShell` 只加 `lang-zh` 类），中文内容需在元素上自行标 `lang="zh-CN"`；④ `html` / `body` 没有 `overflow-x: clip`（Hallmark 的硬性要求，目前实测 320–1440px 无横向滚动）；⑤ `styles/pages/demo.css:119` 有 autoprefixer 警告（`start` 建议改 `flex-start`）。均待修

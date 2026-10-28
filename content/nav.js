@@ -107,7 +107,7 @@ export const navContent = {
           { id: "B1", path: "/platform", label: "洪水预报智能体" },
           { id: "B2", path: "/capabilities", label: "服务" },
           { id: "B3", path: "/demo", label: "产品体验" },
-          { id: "B4", path: "/paper-digest", label: "Paper Digest" }
+          { id: "B4", path: "/paper-digest", label: "文献日报" }
         ]
       },
       {
@@ -144,7 +144,7 @@ export const navContent = {
           { path: "/platform", label: "洪水预报智能体" },
           { path: "/capabilities", label: "服务" },
           { path: "/demo", label: "产品体验" },
-          { path: "/paper-digest", label: "Paper Digest" }
+          { path: "/paper-digest", label: "文献日报" }
         ]
       },
       {

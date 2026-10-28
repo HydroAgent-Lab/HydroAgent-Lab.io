@@ -1,5 +1,80 @@
 # Work Log
 
+## 2026-10-28
+
+### 套用同事的部署工作流补丁（PR #4 分支）
+
+- 同事（davidanan）10-26 发来 `website-fix.commit.patch`，他们对本仓库和 fork 都没有写权限，所以由我们套用后推送
+- 先把本地分支快进到 fork 上 tiantian 10-24 的文案提交，再 `git am`，作者保留为 davidanan
+- 改动只在 `.github/workflows/deploy-github-pages.yml`：数据仓库还没有 `papers.json` 时，跳过测试、构建和部署，并给出 notice，线上网站保持不变；文件存在但内容无效时仍然构建失败
+- README 的 "Paper Digest data" 一节同步改了这条行为说明
+- 验证：补丁无冲突；改后的 workflow 用 PyYAML 解析通过，`deploy.if` 和 `build.outputs` 都在。workflow 只在推到 main、定时任务和手动触发时运行，推到 PR 分支不会触发
+- **仍然要等**服务器推送首份 `papers.json` 后才能合并 PR #4
+
+## 2026-10-24
+
+### 审核优化 Paper Digest 页（PR #4 分支，按 Hallmark 审计逐项修改）
+
+2026-10-23 做了 Hallmark 审计，结论是 0 critical · 3 major · 5 minor，另有 1 个功能问题。按任务分开提交，方便同事逐项审。
+
+**任务 A：首屏文案**（`content/pages/paper-digest.js`）
+- en 标题从 94 字符改为 59 字符："New LLM papers in hydrology and water resources, every day."
+  - 用户在两个候选里选了缩写版，下面的说明段会给出全称
+  - 桌面从 3 行变成 2 行，手机从 5 行变成 3 行
+- 删掉事实栏的 Scope / 收录范围：它和标题、说明段说的是同一件事
+- 搜索框提示改短为 "Search papers…" / "搜索文献…"：原来的提示在 375px 下被截断
+- 订阅说明：zh 按用户给的改为"每日一封免费邮件，随时可退订。"；en 改为 "One free email a day. Unsubscribe at any time."
+- en 去掉三处分号，都拆成两句或改用 ", so" 连接，没有直接换成逗号（那样会变成 comma splice）
+  - 订阅说明：见上一条
+  - 说明段："…summarizes it; the papers are listed…" 改为 "AI screens each paper for relevance and writes a summary. The papers that pass are listed below and emailed to subscribers."。AI 只负责筛选和写摘要，发邮件不是 AI 做的，所以拆成两句
+  - 底部提示：改为 "…may contain errors, so please check the original papers."
+- 品牌名：说明段（en/zh）里的 "HydroAgent Lab" 改为全站统一的 "HydroAgent-Lab"；en 在 "Every morning" 后加了逗号
+- 页面简介措辞：en 去掉重复的 "every day … daily"，改为 "…screened and summarized by AI, with a free daily email digest."；zh 去掉重复的"并"，改为"…每天由 AI 筛选、生成摘要，通过邮件推送给订阅者。"
+- zh 底部提示："根据题名和摘要生成"改为"根据题名和原文摘要生成"。原句里两个"摘要"意思不同，读者容易混淆
+- 时区：en 的 "(Italy time)" 改为 "(Rome time)"，共两处（事实栏和订阅成功提示）。用户写的是 "Roma"，按英文习惯用 "Rome"；zh 的"意大利时间"不变
+- 没动：更新时间"07:00"和部署流程注释对不上（采集器罗马时间 08:30 发布数据，网站 UTC 08:00 重建），等同事确认
+- 验证：本地构建（用样例数据），en/zh 各测 6 种宽度，标题行数、事实栏、提示文字都符合预期；没有横向滚动，订阅按钮都在首屏内
+
+**任务 A2：页面简介只存一份**（`app/paper-digest/page.js`、`app/zh/paper-digest/page.js`）
+- 两个路由的 `metadata.description` 原来各自写死一份，和 RSS 用的 `paperDigestContent.*.meta.description` 重复
+- 改为直接引用文案文件，以后只改一处
+- 验证：从 dev 服务器取页面，en/zh 网页的 `<meta name="description">` 和 RSS 的 `<description>` 都是新措辞，而且两者一致
+- 本节 WORKLOG 跟任务 A 一起提交；A2 只提交这两个路由文件
+
+**待做**：
+- 任务 B：日期加说明，修 key 报错
+- 任务 C：RSS 链接不折行，色值改用变量
+- 任务 D：作者名统一格式
+
+## 2026-10-23
+
+### Paper Digest 改为单页每日文献列表 + Brevo 订阅（分支 `feat/paper-digest`，未合并）
+
+**背景**：经 brainstorm / grill 与用户逐条确认（Q1–Q20）。要点：收录范围对齐采集系统的"水利 × 大模型"；文献按周分组；中英双语且缺失时不互相顶替；订阅换用 Brevo（双重确认、可退订、EU 存储），订阅时可选中/英；只做一页，不跳子页；服务器推出第一份真实数据且 Brevo 接通后才上线（Q13）。采集端改动在 `HydroAgent_Collector` 的分支 `feat/paper-digest-public`（翻译、papers.json 导出与发布、Brevo 双语发信、给同事的 `docs/paper_digest_rollout.md`）。
+
+**修改文件：**
+- 新建 `lib/paper-digest.mjs`、`lib/paper-digest.test.mjs`、`lib/load-paper-digest.js`、`lib/paper-digest-rss.js`、`content/data/paper-digest.sample.json`
+- 新建 `components/paper-digest-feed.js`、`components/subscribed-notice.js`、`app/paper-digest/feed.xml/route.js`、`app/zh/paper-digest/feed.xml/route.js`
+- 重写 `components/pages/paper-digest.js`、`content/pages/paper-digest.js`；`components/subscribe-form.js` 加邮件语言与 Brevo 提交；`styles/pages/paper-digest.css` 加 `pd-` 前缀样式（已全局 grep 无冲突）
+- `app/(zh/)paper-digest/page.js`：描述改为新范围，加本页 canonical 与 RSS alternate
+- `.github/workflows/deploy-github-pages.yml`：构建前检出 `HydroAgent-Lab/paper-digest-data` 到 `.digest-data/`，先跑 `npm test`
+- `package.json` 加 `test`；`.gitignore` 加 `.digest-data/`、`.tools/`；README、FILE-MAP
+
+**解决的问题 / 踩到的坑：**
+- **Chrome 无头模式最小窗口宽约 500px**：`--window-size=375` 的截图看起来右侧被截断，其实页面按 500px 排版。手机宽度要用 CDP `Emulation.setDeviceMetricsOverride`。
+- **zh 标题"文｜献"被拆开**：CJK 默认任意字间可断。≥561px 用 `word-break: keep-all`；手机列太窄，保持默认以免溢出。
+- **列表区与首屏左边缘不齐**：`.content-section` 是 1080 列、PageLead 是 `--gutter`（1200 列）；本页列表区改用 `--gutter`。
+- **日期被拆成 "2026-08-" / "01"**：出版日期单独包 `white-space: nowrap`。
+- 本地 `node_modules` 是拉取前装的，缺 `cross-env`；`npm ci` 按锁文件重装（锁文件未改）。
+
+**验证**：`npm test` 7/7；`python -m pytest tests` 30/30；本地 build 30 个页面（含两个 feed.xml），RSS 可被 XML 解析（各 23 条）；`CI=true` 且无数据时 build 失败并给出提示。CDP 驱动 headless Chrome，en/zh × 1440/375：无横向滚动；初始 4 周 → 显示更早 8 周；筛选预印本只剩预印本；搜索有/无结果；展开详情；`?subscribed=1` 横幅出现且参数被移除；表单非法邮箱提示、合法邮箱在无 Brevo 地址时提示"即将开放"；控制台零报错。
+
+**下一步：**
+- 用户在 Brevo 建好两个表单后，把表单地址填进 `paperDigestEndpoints`，并用一次真实提交核对字段名与返回格式
+- 创建 `HydroAgent-Lab/paper-digest-data`（README = 数据约定）、Action 与 `SITE_DISPATCH_TOKEN`
+- 同事按 rollout 文档部署；第一份真实数据推送后再合并本分支；上线当天首页 NEWS 加一条
+- 采集数据里 32/158 条英文摘要以 "Source evidence highlights:" / "Core entry:" 开头，待用户决定是否在导出时处理
+
 ## 2026-10-13
 
 ### 新增 Paper Digest 订阅页（Product 下第 4 项）

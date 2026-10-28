@@ -2,36 +2,53 @@
 
 import { useEffect, useId, useState } from "react";
 
-// What the stub below returns until the backend is wired up.
+// What sendSubscription returns while no Brevo form exists for a language.
 const NOT_CONNECTED = Symbol("not connected");
+const LANGS = ["zh", "en"];
 
-// TODO(backend): replace this stub with the call to the subscription service.
-// Return true, or the fetch Response, once the request has gone through; throw
-// if it fails. Until then it returns NOT_CONNECTED and the form says
-// subscriptions open soon — a visitor is never told they subscribed when
-// nothing was saved.
-async function sendSubscription(email, lang) {
-  return NOT_CONNECTED;
+// Posts to the Brevo hosted form for the chosen digest language. Brevo then
+// sends a double opt-in email; nobody is on the list until they click it.
+// Fields as in Brevo's "Simple HTML" embed: EMAIL, the empty honeypot
+// email_address_check, locale and html_type. Brevo answers {"success":true}
+// as soon as it has the request — even for a malformed address (checked
+// 2026-10-23), so the address is validated here before sending.
+async function sendSubscription(email, endpoint) {
+  if (!endpoint) return NOT_CONNECTED;
+  const body = new FormData();
+  body.append("EMAIL", email);
+  body.append("email_address_check", "");
+  body.append("locale", "en");
+  body.append("html_type", "simple");
+  return fetch(endpoint, { method: "POST", body });
 }
 
-// Success needs explicit evidence: true, or a Response with ok. A failed
-// Response, false or undefined is an error, so `return fetch(...)` and
-// `return res.ok` both report a 4xx/5xx as a failure, never as "subscribed".
-function outcomeOf(result) {
+// Success needs explicit evidence: true, or an ok Response whose JSON (when
+// Brevo sends one) does not say success: false. Anything else is an error,
+// so a visitor is never told the request went through when it did not.
+async function outcomeOf(result) {
   if (result === NOT_CONNECTED) return "soon";
-  if (result === true || (result instanceof Response && result.ok)) return "done";
-  return "error";
+  if (result === true) return "done";
+  if (!(result instanceof Response) || !result.ok) return "error";
+  const data = await result.json().catch(() => null);
+  return data && data.success === false ? "error" : "done";
 }
 
-// Strings arrive as props — importing content/site here would ship the whole
-// site's copy to the browser. Validation is ours (noValidate) so its message
-// follows the page language instead of the browser's.
-export function SubscribeForm({ lang = "en", copy }) {
+function track(params) {
+  if (typeof window !== "undefined" && typeof window.gtag === "function") {
+    window.gtag("event", "digest_subscribe", params);
+  }
+}
+
+// Strings and endpoints arrive as props — importing content/site here would
+// ship the whole site's copy to the browser. Validation is ours (noValidate)
+// so its message follows the page language instead of the browser's.
+export function SubscribeForm({ lang = "en", copy, endpoints = {} }) {
   const inputId = useId();
   const noteId = useId();
   const messageId = useId();
   // idle | submitting | invalid | soon | done | error
   const [status, setStatus] = useState("idle");
+  const [digestLang, setDigestLang] = useState(lang === "zh" ? "zh" : "en");
   // The server HTML has no submit handler yet. A submit before hydration would
   // be the browser's own GET, putting the address in the URL (history, server
   // logs, analytics). The button stays disabled until then, and a disabled
@@ -40,6 +57,8 @@ export function SubscribeForm({ lang = "en", copy }) {
   useEffect(() => setHydrated(true), []);
   const busy = status === "submitting";
   const message = copy[status] && !busy ? copy[status] : "";
+  // The page's own language first.
+  const order = lang === "zh" ? LANGS : [...LANGS].reverse();
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -52,9 +71,14 @@ export function SubscribeForm({ lang = "en", copy }) {
     }
     setStatus("submitting");
     try {
-      const outcome = outcomeOf(await sendSubscription(input.value.trim(), lang));
+      const outcome = await outcomeOf(await sendSubscription(input.value.trim(), endpoints[digestLang]));
       setStatus(outcome);
-      if (outcome === "done") form.reset();
+      if (outcome === "done") {
+        // Only the address: form.reset() would also reset the controlled radios.
+        input.value = "";
+        // The language only — never the address.
+        track({ site_language: lang, digest_language: digestLang });
+      }
     } catch {
       setStatus("error");
     }
@@ -62,6 +86,21 @@ export function SubscribeForm({ lang = "en", copy }) {
 
   return (
     <form className="subscribe-form" onSubmit={handleSubmit} noValidate>
+      <fieldset className="subscribe-lang">
+        <legend>{copy.languageLabel}</legend>
+        {order.map((value) => (
+          <label key={value} lang={value === "zh" ? "zh-CN" : "en"}>
+            <input
+              type="radio"
+              name="digest-language"
+              value={value}
+              checked={digestLang === value}
+              onChange={() => setDigestLang(value)}
+            />
+            {copy.languages[value]}
+          </label>
+        ))}
+      </fieldset>
       <label className="subscribe-label" htmlFor={inputId}>
         {copy.label}
       </label>
@@ -72,6 +111,7 @@ export function SubscribeForm({ lang = "en", copy }) {
           type="email"
           required
           autoComplete="email"
+          spellCheck={false}
           placeholder={copy.placeholder}
           aria-invalid={status === "invalid" || undefined}
           aria-describedby={`${messageId} ${noteId}`}
