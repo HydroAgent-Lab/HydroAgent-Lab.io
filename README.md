@@ -21,8 +21,9 @@ python -m pytest tests   # CSS / layout guards
 `/paper-digest` lists papers from `papers.json`, published daily by the collector server to the public repo
 [`HydroAgent-Lab/paper-digest-data`](https://github.com/HydroAgent-Lab/paper-digest-data). CI checks it out into
 `.digest-data/` (git-ignored) and builds with `PAPER_DIGEST_DATA=.digest-data/papers.json`. The Pages workflow also runs
-**daily at 08:00 UTC** (after the server's 08:30 Rome publish) so the page picks up new papers without a push; a missing or invalid file
-**fails the CI build**, so GitHub Pages keeps the last good site. Locally, without that file, the build falls back to
+**daily at 08:00 UTC** (after the server's 08:30 Rome publish) so the page picks up new papers without a push. Until the
+data repo has its first `papers.json`, the workflow skips build and deploy with a notice, so the current site stays online;
+after that, an invalid file **fails the CI build**, so GitHub Pages keeps the last good site. Locally, without that file, the build falls back to
 `content/data/paper-digest.sample.json` (23 papers, hand-translated zh summaries) and prints a warning. To preview real
 data, clone the data repo into `.digest-data/`.
 

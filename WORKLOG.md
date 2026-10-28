@@ -1,5 +1,16 @@
 # Work Log
 
+## 2026-10-28
+
+### 套用同事的部署工作流补丁（PR #4 分支）
+
+- 同事（davidanan）10-26 发来 `website-fix.commit.patch`，他们对本仓库和 fork 都没有写权限，所以由我们套用后推送
+- 先把本地分支快进到 fork 上 tiantian 10-24 的文案提交，再 `git am`，作者保留为 davidanan
+- 改动只在 `.github/workflows/deploy-github-pages.yml`：数据仓库还没有 `papers.json` 时，跳过测试、构建和部署，并给出 notice，线上网站保持不变；文件存在但内容无效时仍然构建失败
+- README 的 "Paper Digest data" 一节同步改了这条行为说明
+- 验证：补丁无冲突；改后的 workflow 用 PyYAML 解析通过，`deploy.if` 和 `build.outputs` 都在。workflow 只在推到 main、定时任务和手动触发时运行，推到 PR 分支不会触发
+- **仍然要等**服务器推送首份 `papers.json` 后才能合并 PR #4
+
 ## 2026-10-24
 
 ### 审核优化 Paper Digest 页（PR #4 分支，按 Hallmark 审计逐项修改）
