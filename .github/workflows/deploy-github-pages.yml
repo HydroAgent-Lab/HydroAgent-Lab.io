@@ -7,9 +7,13 @@ on:
       - main
   workflow_dispatch:
   # Daily rebuild to pick up Paper Digest papers. The collector publishes
-  # papers.json at 08:30 Rome; 08:00 UTC is 09:00 (winter) / 10:00 (summer).
+  # papers.json at 08:30 Rome (07:30 UTC in winter, 06:30 UTC in summer).
+  # GitHub delays scheduled runs most at the top of the hour; a "0 8" run
+  # started 6-10 h late, so run off the hour, with two later runs as backups.
   schedule:
-    - cron: "0 8 * * *"
+    - cron: "47 7 * * *"
+    - cron: "17 10 * * *"
+    - cron: "17 13 * * *"
 
 permissions:
   contents: read
