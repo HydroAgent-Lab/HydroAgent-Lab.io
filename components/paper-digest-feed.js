@@ -1,7 +1,7 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
-import { dayLabel, filterPapers, groupByWeek, weekRange } from "@/lib/paper-digest.mjs";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { dayLabel, filterPapers, groupByWeek, planBriefLink, weekRange } from "@/lib/paper-digest.mjs";
 
 const TYPES = ["all", "published", "preprint"];
 // Weeks shown before "show earlier"; each click adds as many again.
@@ -13,11 +13,41 @@ const plural = (forms, n) => (n === 1 ? forms.one : forms.other).replace("{n}", 
 // The week-grouped list. Papers arrive already localized (one language, no
 // fallback) and fully rendered on the server, so the page reads without JS;
 // filtering, search and "show earlier" need it.
-export function PaperDigestFeed({ papers, lang, copy, currentYear }) {
+export function PaperDigestFeed({ papers, aliases, lang, copy, currentYear }) {
   const searchId = useId();
   const [type, setType] = useState("all");
   const [query, setQuery] = useState("");
   const [visibleWeeks, setVisibleWeeks] = useState(WEEKS_PER_STEP);
+
+  const [linkTarget, setLinkTarget] = useState(null);
+  const [unavailable, setUnavailable] = useState(false);
+  const view = useRef({ type, query, visibleWeeks });
+  view.current = { type, query, visibleWeeks };
+
+  useEffect(() => {
+    const followHash = () => {
+      const plan = planBriefLink(window.location.hash, papers, aliases, view.current);
+      setUnavailable(Boolean(plan?.unavailable));
+      setLinkTarget(null);
+      if (!plan || plan.unavailable) return;
+      setType(plan.type);
+      setQuery(plan.query);
+      setVisibleWeeks(plan.visibleWeeks);
+      setLinkTarget({ id: plan.id });
+    };
+    followHash();
+    window.addEventListener("hashchange", followHash);
+    return () => window.removeEventListener("hashchange", followHash);
+  }, [papers, aliases]);
+
+  useEffect(() => {
+    if (!linkTarget) return;
+    const row = document.getElementById(`brief-${linkTarget.id}`);
+    if (!row) return;
+    const reading = row.querySelector("details");
+    if (reading) reading.open = true;
+    row.scrollIntoView({ block: "start" });
+  }, [linkTarget]);
 
   const matches = useMemo(() => filterPapers(papers, { type, query }), [papers, type, query]);
   const weeks = useMemo(() => groupByWeek(matches), [matches]);
@@ -56,7 +86,7 @@ export function PaperDigestFeed({ papers, lang, copy, currentYear }) {
         </div>
       </div>
       <p className="pd-results" role="status">
-        {filtering ? plural(copy.results, matches.length) : ""}
+        {unavailable ? copy.unavailable : filtering ? plural(copy.results, matches.length) : ""}
       </p>
 
       {shown.length ? (
@@ -100,7 +130,7 @@ function PaperRow({ paper, lang, copy }) {
   const titleLang = lang === "zh" && !CJK.test(paper.title) ? "en" : undefined;
 
   return (
-    <li className="pd-paper">
+    <li className="pd-paper" id={`brief-${paper.id}`}>
       <div className="pd-paper-meta">
         <span className={`pd-badge is-${paper.type}`}>{copy.badges[paper.type]}</span>
         <time dateTime={paper.includedOn}>{copy.addedOn.replace("{date}", dayLabel(paper.includedOn, lang))}</time>
