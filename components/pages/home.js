@@ -17,11 +17,10 @@ export function HomePageContent({ lang = "en" }) {
         {/* News — under the hero, so a new release is the first thing after the
             fold. Marked zh-CN on /zh: the root <html> is always "en". */}
         <section className="content-section news-section" lang={lang === "zh" ? "zh-CN" : undefined}>
-          {/* The carousel renders its own title row — its dots sit beside it. */}
+          {/* The list renders its own title row. */}
           <NewsCarousel
             title={page.newsSection.title}
             readMore={page.newsSection.readMore}
-            a11y={page.newsSection.a11y}
             items={page.newsSection.items.map(({ path, ...item }) => ({
               ...item,
               href: localizeHref(lang, path)
