@@ -28,24 +28,30 @@ V2 的目标不是推翻原有网站，而是在保留 HydroAgent-Lab 品牌视�
 | 区域 | 当前线上页面 | V2 原型方向 |
 | --- | --- | --- |
 | Header / Navigation | 沿用网站全局导航 | 保留网站导航，并在 Paper Digest 页面增加 Saved Papers 入口和数量 |
-| Hero | 产品标题、介绍、订阅入口和更新信息 | 保留产品定位，强化 Latest Edition 信息卡和统计层次 |
+| Hero | 产品标题、介绍、订阅入口和更新信息 | 保留产品定位，定位文案统一为 `LLM × Hydrology`（含 og:title），强化 Latest Edition 信息卡和统计层次；标题字号与官网其他页面一致（桌面 40px、移动 28px、字重 600）；**Hero**区的按钮中，实心蓝只用于 Subscribe to Digest，另一个使用描边样式。 |
 | Highlights | 当前线上页面未形成独立的精选论文卡片区 | 新增独立 Highlights 区域，展示精选论文及推荐理由 |
-| Latest papers | 按周分组、Published / Preprint 筛选、搜索 | 增加 Daily / Weekly / Monthly、Edition、Saved only、Domain / Method / Application 多维筛选 |
+| Latest papers | 按周分组、Published / Preprint 筛选、搜索 | 增加 Daily / Weekly / Monthly、Edition、Saved only、Domain / Method 多维筛选 |
 | AI Summary & Evidence Limits | 位于论文条目下方，可展开 | 延续内联展开方式，明确 Summary 与 Limits of the Evidence 两部分 |
 | Saved Papers | 当前线上页面无完整个人收藏库 | 新增本地收藏、独立收藏视图、JSON 导入导出 |
 | Share | 当前线上页面以原始论文外链为主 | 增加复制 HydroAgent-Lab 单篇 AI 解读锚点链接的能力 |
-| Subscription | 接入现有订阅服务 | 原型仅保留视觉示意；生产版必须继续使用现有订阅组件和服务 |
+| Subscription | 接入现有订阅服务 | 原型仅保留视觉示意；生产版必须继续使用现有订阅组件和服务。订阅区使用深蓝底（#0E2A47），不套白色卡片，表单直接置于深蓝底上，输入框为白色。 |
 
 ### 2.2 Highlights
 
-V2 增加独立的 Highlights 区域，当前原型中每篇精选论文展示：
+V2 增加独立的 Highlights 区域，每篇精选论文展示：
 
-- `Highlight` 标签。
+- `Highlight` 标签（中性灰徽章）。
+- Published / Preprint 类型标记；预印本卡片使用虚线描边。
 - Domain 标签。
 - 原始论文标题，点击后在新标签页打开原始论文链接。
 - Why It Matters（一段推荐理由）。
-- 出版来源和日期。
+- 来源行：期刊 · 第一作者 et al. · 日期。
+- 「查看 AI 解读」链接（英文界面为 View AI Summary）：点击后跳到 Latest papers 中该论文的位置，并自动展开其 Summary 与 Limits of the Evidence；复用 Share 的锚点机制。
 - Bookmark 和 Share 操作。
+
+卡片不包含 Paper Overview；完整的 AI 解读位于 Latest papers 的对应论文条目中。
+
+**其中**：`et al.` 仅在作者不止一人时使用；来源、作者或日期缺失时，省略该段，不输出空占位。
 
 **筛选机制**
 
@@ -109,7 +115,7 @@ Highlights 由 AI 根据明确的筛选规则主动选择，而不仅仅是将 A
 
 **Why It Matters**
 
-由 AI 为入选论文撰写简短的 Why It Matters，说明该研究的重要性及其对水文学领域的意义。Why It Matters 必须中英双语齐全，缺任一语言即不入选。
+由 AI 为入选论文撰写简短的 Why It Matters，说明该研究的重要性及其对水文学领域的意义。
 
 **数据来源**
 
@@ -157,20 +163,54 @@ V2 原型把工具栏组织为三个入口：
 - Saved only 开关。
 - 当前结果数量。
 
+Paper Type 第一版只设 Published 与 Preprint 两类，与现有数据保持一致，不改动数据结构。（后续如需细分，优先增加 Conference，前提是采集端能稳定保留类型信息。）
+
 高级 Filters 面板包含：
 
 - Paper Domain。
 - AI / Method。
-- Application。
 - Reset all。
 
-筛选逻辑采用 AND 关系：搜索词、具体期次、论文类型、Saved only、Domain、Method、Application 同时生效。列表分组和数量随筛选状态更新，并提供无结果状态与重置操作。
+筛选逻辑采用 AND 关系：搜索词、具体期次、论文类型、Saved only、Domain、Method 同时生效。列表分组和数量随筛选状态更新，并提供无结果状态与重置操作。
+
+**分类体系（Taxonomy）**
+
+分类只设 Domain 与 Method 两个维度。两维度均可多选，每篇论文每个维度最多 2 个标签。
+
+Domain（固定 6 个值）：
+
+| English | 中文标签 | 数据 ID |
+| --- | --- | --- |
+| Catchment Hydrology | 流域水文 | `catchment_hydrology` |
+| Floods | 洪涝 | `floods` |
+| Water Resources & Reservoirs | 水资源与水库 | `water_resources_reservoirs` |
+| Urban Water | 城市水务 | `urban_water` |
+| Water Quality & Ecology | 水质与水生态 | `water_quality_ecology` |
+| Groundwater | 地下水 | `groundwater` |
+
+Method（固定 7 个值，平级，不分层级）：
+
+| English | 中文标签 | 数据 ID |
+| --- | --- | --- |
+| Prompting | 提示工程 | `prompting` |
+| RAG & Knowledge Graphs | 检索增强与知识图谱 | `rag_knowledge_graphs` |
+| Fine-tuning & Domain Models | 微调与领域模型 | `fine_tuning_domain_models` |
+| Agents & Tool Use | 智能体与工具调用 | `agents_tool_use` |
+| Multi-agent | 多智能体 | `multi_agent` |
+| Multimodal | 多模态 | `multimodal` |
+| Benchmarks | 评测与基准 | `benchmarks` |
+
+Method 标签按论文的核心技术贡献选取，不按层级取舍。
+
+数据约定：分类由服务器端根据标题与摘要标注，已收录论文一次性补标；数据字段只存上表的英文 ID，不存显示文字，中英文显示名由网站按 ID 统一对应。缺少某维度分类的论文不显示该维度标签，也不写「未分类」；按该维度筛选时，该论文不出现在结果中。
+
+标签样式：Domain 与 Method 标签统一使用中性灰徽章，颜色与字号取自 `styles/tokens.css` 的变量与现有层级；实心蓝只用于 Subscribe 按钮。
 
 ### 2.4 论文条目与 AI 分析
 
 Latest papers 中每篇论文保留：
 
-- Published / Preprint 状态。
+- Published / Preprint 状态（预印本使用虚线描边）。
 - Added 日期和来源信息。
 - 论文标题及原始论文链接。
 - 一句简短内容预览。
@@ -183,7 +223,13 @@ AI 分析保持两个部分：
 1. Summary
 2. Limits of the Evidence
 
-正文采用连贯段落，而不是把每句话拆成独立项目符号。重要技术术语和数值可以适当加粗。Limits of the Evidence 使用独立的浅色背景和强调边线，方便用户辨认证据边界。
+正文采用连贯段落，而不是把每句话拆成独立项目符号。重要技术术语和数值可以适当加粗。Limits of the Evidence 使用独立的浅色背景和强调边线，方便用户辨认证据边界；其强调色（暖金）仅用于证据局限这一含义，不用于其他元素。
+
+内容依据仅限论文标题与摘要，不使用全文。列表上方统一说明一次「AI 解读只根据标题和摘要生成」，单篇条目内不重复标注。
+
+没有有效摘要时（有效性的判定由服务器端执行），summary、details、limitations 三个字段均为 null，条目只显示「暂无摘要，未生成 AI 解读」，且该论文不参与 Highlights 挑选（见 §2.2）。
+
+有摘要但摘要未写明局限时，只显示 Summary，隐藏 Limits of the Evidence，不写「无局限」。Limits of the Evidence 只呈现可由摘要核实的内容，无法核实的内容不公开展示。
 
 ### 2.5 Saved Papers 收藏机制
 
@@ -204,11 +250,14 @@ V2 原型增加：
 
 V2 的 Share 目标不是原始论文 URL，而是 HydroAgent-Lab 对应论文的 AI 解读位置。
 
-当前原型使用 `#brief-<slug>` 作为锚点（线上形式为 `https://hydroagentlab.com/paper-digest/#brief-<slug>`）：
+当前原型使用 `#brief-<slug>` 作为锚点（线上形式为 `https://hydroagentlab.com/paper-digest/#brief-<slug>`），正式数据以稳定 Paper ID 作为锚点标识：
 
-- Share：复制当前论文的 AI Summary & Evidence Limits 深链接。
-- 打开深链接：定位到对应论文条目，自动展开 AI Summary & Evidence Limits，并短暂高亮目标条目。
-- Highlights 中无站内跳转入口：标题直达原始论文，卡内 Share 复制同一深链接。
+- Share：复制当前语言页面中该论文的深链接。
+- Paper ID 在论文首次收录时分配并保留，不随预印本合并或版本更新而改变；对已经发生变更的旧 ID，数据集提供 aliases 映射，打开链接时解析到当前记录，旧链接继续有效。
+- 打开深链接：仅清除与目标论文冲突的筛选与搜索条件，加载目标论文所在周，滚动定位到对应条目，自动展开 AI Summary & Evidence Limits，并短暂高亮目标条目。
+- 目标论文已不在公开列表时：在页面顶部提示该论文已不在公开列表中；用户开始新的搜索或修改筛选时，提示自动清除。
+- 无需登录即可打开；中英文页面使用同一 Paper ID。
+- 已知限制：链接分享到微信等平台时，预览卡片显示的是 Paper Digest 页面标题，不是该论文的标题，第一版接受。
 
 各操作职责：
 
@@ -244,15 +293,18 @@ V2 的 Share 目标不是原始论文 URL，而是 HydroAgent-Lab 对应论文�
 在把 V2 作为开发依据之前，建议先处理或确认以下差异：
 
 1. **Highlights 的文案与筛选机制——已确认。** 筛选机制与透明度文案已确认（见 §2.2）；栏目级披露统一为 `AI-selected`，删除 `AI-surfaced · AI-generated · Not human-reviewed` 及原说明句。当前原型仍显示旧披露文案，待原型同步时一并更新。
-2. **Highlights 卡片内容——已确认。** 当前原型卡片只保留 Why It Matters，不含 Paper Overview，即为最终规范。
-3. **Latest papers 仍有单条内容前的&#32;`AI`&#32;小标识。** 如果最终决定不在单篇条目重复显示 AI 来源标签，需要明确是否移除。
+2. **Highlights 卡片内容——已确认。** 最终规范见 §2.2：卡片保留既有六项，并增加 Published / Preprint 类型标记、来源行第一作者与「查看 AI 解读」链接，不含 Paper Overview。当前原型尚未包含新增三项，待原型同步时一并更新。
+3. **单篇条目的 AI 小标识——已确认移除。** AI 来源说明统一在列表上方说明一次（见 §2.4），单篇条目不再重复显示小标识；当前原型仍有该标识，待原型同步时移除。
 4. **移动端两个筛选面板的交互——已统一。** 当前原型中 Time 面板与 Advanced Filters 在手机端均为 Bottom Sheet，共用遮罩与关闭逻辑。
 5. **Saved Papers 空状态——已解决。** 当前原型在收藏数量为零时隐藏 Export backup、保留 Import，并将说明改为短句 + “How saving works” 折叠展开。
 6. **订阅表单不是生产实现。** 当前 HTML 提交后只显示 `Prototype only: nothing was submitted.`，生产环境必须保留现有 Brevo 订阅流程。
-7. **原型数据是静态样本。** 当前 HTML 内嵌 8 条论文记录，并显示 `sample of 217`；论文数量、日期和部分统计为演示数据，不能作为生产数据源。另注意：`217` 本身与真实总量不符（仓库样本数据为 23 条），属占位数字，迁移时必须由真实数据动态生成。
+7. **原型数据是静态样本。** 当前 HTML 内嵌 8 条论文记录，并显示 `sample of 217`；论文数量、日期和部分统计为演示数据，不能作为生产数据源。仓库内的本地开发样本为 23 条；原型中出现的任何总数（包括与真实值接近的数字）均为占位，生产环境必须全部由真实数据动态生成。
 8. **当前 HTML 主要是英文原型。** 生产网站已有 en / zh 双语结构，需要补充中文文案、标签翻译、字体与窄屏排版检查。
+9. **原型的分类仍是旧方案。** 当前原型保留 Application 筛选维度与旧标签色板，样本论文的标签也尚未按 §2.3 的固定值标注；待原型同步时删除 Application 维度、统一为中性灰徽章，并按固定英文 ID 重新标注样本数据。
+10. **字号尚未与官网层级对齐。** 区块标题由 34px / 600 调整为最大约 30px / 500；底部订阅区标题由 40px 调整为最大约 26px；收藏页标题由 42px 调整为 40px；眉标由 12px 品牌蓝调整为 13.5px `--accent-hover`；首屏说明由 18px 调整为 15px `--text-muted`。待原型同步时一并调整。
+11. **版式与组件细节尚未对齐。** 去掉三处左侧色条（AI 解读卡、证据局限、Why It Matters），改以卡片边框与小标题区分；按钮与输入框描边统一为 `--border-strong`；原型 CSS 变量名与网站 tokens 对齐（`--tx2` → `--text-secondary`、`--mu` → `--text-muted`、`--ln` → `--border`）；移动端英雄区按钮整行堆叠；正文行长控制在约 75 字符内；去掉收藏成功的 toast 提示，以书签变色与收藏计数增加作为反馈。待原型同步时一并处理。
+12. **深色模式的按钮对比度待修。** 深色模式先保留，是否全站统一另行决定；深色模式下主按钮当前为白字浅蓝底（对比度约 2.5:1），需改为深色文字。
 
----
 
 ## 5. 建议由团队共同确认的产品问题
 
@@ -264,55 +316,19 @@ V2 的 Share 目标不是原始论文 URL，而是 HydroAgent-Lab 对应论文�
 
 ### 5.2 Highlights 卡片最终内容
 
-需要确认最终卡片是否只保留：
-
-- Highlight。
-- Paper Domain。
-- Paper Title。
-- Why It Matters（一段推荐理由）。
-- Publication Source / Date。
-- Bookmark / Share。
-
-**建议：** 如果 Highlights 的定位是“发现入口”，卡片只保留 Why It Matters，完整 AI Summary 留在 Latest papers 对应论文条目下。
+已确认：卡片保留 Highlight、Domain、标题、Why It Matters、来源行与 Bookmark / Share，并增加 Published / Preprint 类型标记（预印本虚线描边）、来源行第一作者与「查看 AI 解读」链接；卡片不含 Paper Overview。最终规范见 §2.2。
 
 ### 5.3 Taxonomy 分类体系
 
-需要确认三类标签的正式定义、可选值和数据来源：
-
-- Domain：研究领域。
-- Methods：采用的方法或技术。
-- Application：应用场景。
-
-已讨论的颜色映射：
-
-- Domain：蓝色。
-- Methods：青绿色。
-- Application：淡紫色。
-- Highlight：暖金色。
-
-需要确定：分类是否允许多选、分类字段是否已进入正式 `papers.json` 数据结构、英文和中文如何对应，以及缺失分类时如何展示。
+已确认：分类只设 Domain（6 个值）与 Method（7 个值，平级）两个维度，不设 Application；每篇论文每个维度最多 2 个标签，数据只存英文 ID。原讨论中的颜色映射（Domain 蓝、Methods 青绿、Application 淡紫、Highlight 暖金）不再使用，标签统一为中性灰徽章。完整规范见 §2.3。
 
 ### 5.4 Paper Type 的正式分类
 
-当前线上和当前原型主要采用 `Published / Preprint`。早期需求曾讨论 Journal、Conference、Preprint、Review 等更细分类。
-
-**建议团队确认：** 第一版是否继续沿用 Published / Preprint，以保持与现有数据模型一致；如果要增加 Journal / Conference / Review，需要先确认上游数据是否能可靠提供这些字段。
+已确认：Paper Type 第一版只设 Published / Preprint 两类，不设 Journal / Conference / Review。规则与理由见 §2.3。
 
 ### 5.5 AI Summary 与证据边界
 
-建议保持两个且仅两个部分：
-
-1. Summary
-2. Limits of the Evidence
-
-需要确认：
-
-- 内容依据仅限 title / abstract，还是可使用全文？
-- 缺失摘要、只有标题或只有元数据时如何展示？
-- 是否始终显示 AI-generated 标签？
-- Summary 和 Limits 是否都使用连续段落，而不是项目符号？
-
-**建议：** 明确标注内容依据，不将推断写成论文已验证的结果。
+已确认：AI 解读只依据标题与摘要，来源说明在列表上方统一出现一次；Summary 与 Limits of the Evidence 两个部分保持不变，均使用连续段落；无有效摘要时三个内容字段均为 null 并显示固定提示；Limits 只呈现可由摘要核实的内容。完整规范见 §2.4。
 
 ### 5.6 Bookmark 的存储边界
 
@@ -328,26 +344,11 @@ V2 的 Share 目标不是原始论文 URL，而是 HydroAgent-Lab 对应论文�
 
 ### 5.7 Share 深链接规则
 
-需要确认正式论文数据是否有稳定且跨语言一致的 Paper ID。
-
-建议将分享 URL 设计为稳定的论文锚点，并确保：
-
-- 接收者无需登录即可打开。
-- 页面能定位到对应论文。
-- AI Summary & Evidence Limits 自动展开。
-- 即使当前列表筛选条件隐藏该论文，也能恢复或定位到目标记录。
-- en / zh 页面都能正确处理对应链接。
+已确认：Share 使用以稳定 Paper ID 为锚点的站内深链接；ID 首次分配并保留，已变更的旧 ID 经 aliases 映射解析；打开链接时仅清除冲突的筛选与搜索条件，定位并展开目标条目。规范见 §2.6。短暂高亮尚未在线上实现，列为后续补齐项。
 
 ### 5.8 订阅与数据源
 
-生产版必须继续使用现有 Brevo 订阅组件和当前论文数据流水线，不使用原型中的 mock 提交和静态样本数据。
-
-需要确认：
-
-- 217 等数量是否全部由真实数据动态生成。
-- Highlights 是否由现有论文数据字段驱动。
-- Why It Matters、AI Summary 和 Evidence Limits 的生成及存储字段由谁负责。
-- 数据更新后，静态站点的构建和部署如何触发。
+已确认：订阅继续使用现有 Brevo 订阅组件，生产环境不使用原型中的 mock 提交。页面上的全部数量均由真实数据动态生成——已收录总数、数据更新时间、每周篇数与期次日期都来自 papers.json，不写死任何数字。Highlights、Why It Matters 与分类字段不是现有数据字段，由服务器端数据流水线新增（见 §2.2、§2.3），网站在字段就绪后读取展示；数据更新后的构建与部署沿用现有流水线。「数据更新于」不得直接使用 papers.json 的 generated_at——那是文件导出时间，每次导出都会变化；内容更新时间以单篇论文的 updated_at 为准。
 
 ---
 
