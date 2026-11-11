@@ -4,10 +4,20 @@
 // English on zh (citation rule, see research.js), and the white paper has no
 // English edition yet, so the en card describes the release instead of
 // rendering its title in English. Summaries are abridged from the detail pages'
-// own text — no claim here that those pages do not make.
-// Both thumbnails are 480 × 678: the white paper's cover, and page 1 of the
-// preprint rendered from arXiv:2607.23983v1.
+// own text — no claim here that those pages do not make. The Paper Digest card
+// leaves out the delivery time and the paper count: the page's "07:00" has not
+// been confirmed against the collector schedule, and the count changes daily.
+// All thumbnails are 480 × 678: the white paper's cover, page 1 of the preprint
+// rendered from arXiv:2607.23983v1, and the live Paper Digest page captured at
+// phone width (400 × 565 CSS px, 2×) on 2026-11-11 — one per language, because
+// that page, unlike the two documents, exists in both. `screen: true` styles
+// a thumbnail as a screen instead of a sheet of paper. The first item is the
+// lead (large, left); an item may set `cta` to replace "Read more".
 const newsThumbs = {
+  paperDigest: {
+    en: { src: "/assets/paper-digest/hydroagent-paper-digest-en.webp", width: 480, height: 678, screen: true },
+    zh: { src: "/assets/paper-digest/hydroagent-paper-digest-zh.webp", width: 480, height: 678, screen: true }
+  },
   whitePaper: { src: "/assets/white-papers/hydroagent-wp-v1.0.0-cover.webp", width: 480, height: 678 },
   preprint: { src: "/assets/papers/hydroagent-preprint-p1.webp", width: 480, height: 678 }
 };
@@ -31,16 +41,21 @@ export const homeContent = {
     newsSection: {
       title: "News",
       readMore: "Read more",
-      // Screen-reader wording for the carousel; components/news-carousel.js
-      // fills in {n}, {total} and {kind}.
-      a11y: {
-        carousel: "carousel",
-        slide: "slide",
-        slideLabel: "{n} of {total}",
-        dots: "Choose a news item",
-        dot: "{n} of {total}, {kind}"
-      },
       items: [
+        {
+          // Live since the first data publication on 2026-10-31 (first deploy
+          // with papers.json: that day's scheduled run).
+          id: "paper-digest-launch",
+          kind: "Paper Digest",
+          date: "2026-10-31",
+          dateLabel: "31 Oct 2026",
+          title: "HydroAgent Paper Digest: new LLM papers in hydrology and water resources, every day",
+          text:
+            "Each morning, AI screens new journal articles and preprints for relevance and summarizes each one that passes. Subscribe for one free email a day.",
+          path: "/paper-digest",
+          cta: "Subscribe",
+          thumb: newsThumbs.paperDigest.en
+        },
         {
           id: "white-paper-v1.0.0",
           kind: "White paper",
@@ -124,14 +139,19 @@ export const homeContent = {
     newsSection: {
       title: "最新动态",
       readMore: "阅读详情",
-      a11y: {
-        carousel: "轮播",
-        slide: "幻灯片",
-        slideLabel: "第 {n} 条，共 {total} 条",
-        dots: "选择要查看的动态",
-        dot: "第 {n} 条，共 {total} 条：{kind}"
-      },
       items: [
+        {
+          id: "paper-digest-launch",
+          kind: "文献日报",
+          date: "2026-10-31",
+          dateLabel: "2026 年 10 月 31 日",
+          title: "水利大模型文献日报上线",
+          // 删节自文献日报页的简介与订阅说明。
+          text: "每天早上检索期刊和预印本平台，由 AI 筛选水利 × 大模型的新文献并生成摘要。订阅即可每天收到一封免费邮件，随时可退订。",
+          path: "/paper-digest",
+          cta: "去订阅",
+          thumb: newsThumbs.paperDigest.zh
+        },
         {
           id: "white-paper-v1.0.0",
           kind: "白皮书",

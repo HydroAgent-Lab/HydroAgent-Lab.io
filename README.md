@@ -79,7 +79,7 @@ components/
     home.js, platform.js, capabilities.js, demo.js,
     research.js, team.js, careers.js, contact.js,
     white-papers.js, events.js, members.js, paper-digest.js
-  news-carousel.js        # Home NEWS carousel — client component (scroll-snap track + dots)
+  news-carousel.js        # Home NEWS list (one large + two small; name kept from the old carousel)
   cta-band.js, page-lead.js, section-header.js,
   breadcrumb.js, demo-chat.js, track-link.js
   subscribe-form.js       # Paper Digest sign-up — client; digest language + POST to the Brevo form for it
@@ -134,7 +134,7 @@ styles/
 - Type pairing: Inter Tight (display / headings `--font-display`) + Inter (body `--font`), loaded via next/font in app/layout.js, with CN fallback (PingFang SC / Microsoft YaHei)
 - Named easings `--ease-out/in/in-out`; global `:focus-visible` ring; clean minimal cards, 200ms hover transitions
 - Body text uses `--text-muted: #5f6773` (≈5.7:1 on white — meets WCAG AA)
-- 首页 **NEWS 板块**（首屏正下方，2026-10-12）：scroll-snap 轨道一屏一张卡，宽 880px，**和 "News" 标题左对齐，没有边框和底色**。同日用 Hallmark 改过：原来那版带边框、居中，比标题缩进去一截，缩略图又自带边框，在无框的首屏下方显得突兀。现在缩略图带纸张投影（和白皮书页封面同一手法），圆点在标题行右端；悬停或键盘聚焦时整块浮出 `--accent-wash` 淡蓝底。卡片的 padding 就是淡蓝底伸出的部分，轨道用负 margin 抵消，所以内容仍然对齐标题。CSS 区块顶部有 Hallmark 组件标记。条目在 `content/pages/home.js` 的 `newsSection.items`，**按时间倒序，每条链到站内详情页**（arXiv / DOI 外链放在详情页上）。加新闻就在两种语言的数组最前面各加一条，缩略图统一 480×678。`components/news-carousel.js` 渲染标题行和卡片，JS 只负责两件事：圆点跟随滚动位置，点圆点滚到对应卡片；JS 不运行时照样能滑。圆点：未选中是空心圆圈，当前是圆圈加实心圆点；点击区 24px，圆圈用 `--text-muted`，满足 3:1 的非文本对比度。整张卡是一个链接（标题链接的 `::after` 撑满卡片）。摘要限宽 62ch；手机上"阅读详情"紧跟摘要，桌面上和缩略图底边对齐。英文白皮书卡片不译标题（还没有官方英文版）；预印本标题在 zh 页保持英文，并标 `lang="en"`。手动滑动，不自动轮播（用户决定）
+- 首页 **NEWS 板块**（首屏正下方）：**一大两小的列表，不是轮播**（2026-11-11 改；原来一屏一张卡，其余藏在圆点后面，右侧 40% 空着）。最新一条在左、缩略图 160px；其余在右侧上下叠放、缩略图 72px；≤900px 单列，≤560px 三张卡同款（缩略图 56px）。纯 CSS，没有客户端脚本。没有边框和底色；文档缩略图带纸张投影，页面截图（`thumb.screen: true`）用屏幕式圆角和更轻的阴影，不画设备外框。悬停或键盘聚焦时整块浮出 `--accent-wash` 淡蓝底，整张卡是一个链接（标题链接的 `::after` 撑满卡片）。条目在 `content/pages/home.js` 的 `newsSection.items`，**按时间倒序，每条链到站内详情页**；加新闻就在两种语言的数组最前面各加一条，缩略图统一 480×678；可选 `cta` 替换"阅读详情"（订阅卡用 "Subscribe" /「去订阅」）。目前显示全部条目，超过 3 条时需要决定只显示最新 3 条还是另做归档。组件文件仍叫 `components/news-carousel.js`（导出名 `NewsCarousel`），为少动文件没有改名。英文白皮书卡片不译标题（还没有官方英文版）；预印本标题在 zh 页保持英文，并标 `lang="en"`
 - Home "Why Trust It" section: photo evidence cards (`.evidence-*`) — 5 river/basin photos (Unsplash License, free commercial use), label + full evidence text over a bottom scrim, no hover-flip. Titles align on a fixed baseline (`.evidence-overlay` absolute `top`, not flex-end) so all cards start at the same line. Grid capped at 1000px for side whitespace
 - Dark theme placeholder in `styles/tokens.css` (via `[data-theme="dark"]`)
 - Demo 页色彩**三级配给制**（`styles/pages/demo.css`）：品牌蓝是稀缺资源，不是装饰。**L1 实心 `--accent`** 仅给发送按钮与结束 CTA（二者不同屏，故同屏最多 2 处实心蓝）；**L2 `--accent` 描边 / `--accent-wash` 淡底**给激活场景卡与结果卡（「当前」与「结论」）；**L3 中性灰**给用户气泡（`--dark-1`）、头像、checkbox、回放点 —— 它们不需要引导注意力。改此页配色时请维持这个配给，不要因为「这里加点蓝更好看」而回到 11 处蓝的状态
@@ -152,7 +152,7 @@ styles/
   - **配色**：实心 `--accent` 只给"订阅"按钮；激活的筛选用 `--accent` 描边 + `--accent-wash`；单选框、徽章、展开块都是中性灰。zh 标题在 ≥561px 用 `word-break: keep-all`，只在空格和标点处断行（"文献"不被拆开）。
   - **订阅**：Brevo 托管表单，每种邮件语言一个（`content/pages/paper-digest.js` 的 `paperDigestEndpoints`，公开地址；**为空时表单显示"订阅功能即将开放"**）。提交 `EMAIL` + 空的蜜罐字段 `email_address_check` + `locale`（字段名需按 Brevo 的 Simple HTML 嵌入代码核对）。成功判定沿用"必须有明确证据"：`ok` 的 Response 且 JSON 不是 `success:false`。成功文案是"请查收确认邮件"（双重确认，点链接前不在名单里）；GA4 记 `digest_subscribe`，参数只有 `site_language` 与 `digest_language`，从不记邮箱。Brevo 确认链接回跳 `/(zh/)paper-digest/?subscribed=1`，顶部 `role="status"` 横幅提示后用 `history.replaceState` 去掉参数（不用 `useSearchParams`，静态导出会要求 Suspense）。原有的水合前禁用、16px 输入框、`noValidate`、按钮宽度不跳等规则保留。
   - **RSS**：`app/(zh/)paper-digest/feed.xml/route.js`（`force-static`，最近 50 篇）；页面 metadata 带 RSS alternate 和**本页自己的 canonical**（已知遗留 ① 在这一页已修）。
-  - 首页 NEWS 在服务正式上线当天再加（用户决定）。
+  - **首页 NEWS 第一张**（2026-11-11 加）：日期 2026-10-31，即 `papers.json` 首次发布、页面带数据上线的那天；链 `/paper-digest`。文案删节自本页简介与订阅说明，**不写"07:00"**（与采集时间对不上，待确认）**也不写篇数**（每天在变）。缩略图是线上页面的手机宽度截图（400×565 CSS px，2×，隐藏回到顶部按钮），中英各一张，在 `public/assets/paper-digest/`。页面改版后要重截。
 - **产品命名**（2026-10-13，用户决定）：
   - 首页板块标题、产品页大标题写全称：en 用 "HydroAgent for Flood Forecasting"，zh 用"洪水预报智能体"
   - 产品页正文第一次出现时，全称后括注简写：en 写 "HydroAgent for Flood Forecasting (HydroAgent-FF)"，zh 写"洪水预报智能体（HydroAgent-FF）"
