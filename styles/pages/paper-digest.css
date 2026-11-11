@@ -402,7 +402,9 @@
   color: var(--text-muted);
 }
 
-/* Keyboard focus moving down the list must not land under the sticky header. */
+/* Keep deep links, unavailable notices and focused controls below the sticky header. */
+.pd-results,
+.pd-paper,
 .pd-paper a,
 .pd-paper summary {
   scroll-margin-top: calc(var(--header-height) + 16px);

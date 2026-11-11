@@ -6,15 +6,15 @@ import { SubscribedNotice } from "@/components/subscribed-notice";
 import { paperDigestContent, paperDigestEndpoints } from "@/content/pages/paper-digest";
 import { localizeHref } from "@/content/helpers";
 import { loadPaperDigest } from "@/lib/load-paper-digest";
-import { dayLabel, localizePaper } from "@/lib/paper-digest.mjs";
+import { dayLabel, localizeDigest } from "@/lib/paper-digest.mjs";
 
 // One page: the lead takes the sign-up (form, language, privacy note), the
 // section below lists every public paper, read from papers.json at build
 // time. Only the page language's text is passed to the client feed.
 export function PaperDigestPageContent({ lang = "en" }) {
   const c = paperDigestContent[lang] || paperDigestContent.en;
-  const data = loadPaperDigest();
-  const papers = data.papers.map((paper) => localizePaper(paper, lang));
+  const data = localizeDigest(loadPaperDigest(), lang);
+  const papers = data.papers;
   const count = String(papers.length);
   const generatedDay = data.generatedAt ? data.generatedAt.slice(0, 10) : null;
   const currentYear = generatedDay ? Number(generatedDay.slice(0, 4)) : new Date().getUTCFullYear();
@@ -52,7 +52,7 @@ export function PaperDigestPageContent({ lang = "en" }) {
               {generatedDay ? <> · {c.feed.updated.replace("{date}", dayLabel(generatedDay, lang))}</> : null}
             </p>
           </div>
-          <PaperDigestFeed papers={papers} lang={lang} copy={c.feed} currentYear={currentYear} />
+          <PaperDigestFeed papers={papers} aliases={data.aliases} lang={lang} copy={c.feed} currentYear={currentYear} />
           <p className="pd-footnote">
             {c.feed.footnote}{" "}
             <a href={localizeHref(lang, "/paper-digest/feed.xml")}>{c.feed.rss}</a>
