@@ -20,20 +20,18 @@ export function PaperDigestFeed({ papers, aliases, lang, copy, currentYear }) {
   const [visibleWeeks, setVisibleWeeks] = useState(WEEKS_PER_STEP);
 
   const [linkTarget, setLinkTarget] = useState(null);
-  const [unavailable, setUnavailable] = useState(false);
+  const statusRef = useRef(null);
   const view = useRef({ type, query, visibleWeeks });
   view.current = { type, query, visibleWeeks };
 
   useEffect(() => {
     const followHash = () => {
       const plan = planBriefLink(window.location.hash, papers, aliases, view.current);
-      setUnavailable(Boolean(plan?.unavailable));
-      setLinkTarget(null);
+      setLinkTarget(plan);
       if (!plan || plan.unavailable) return;
       setType(plan.type);
       setQuery(plan.query);
       setVisibleWeeks(plan.visibleWeeks);
-      setLinkTarget({ id: plan.id });
     };
     followHash();
     window.addEventListener("hashchange", followHash);
@@ -42,6 +40,10 @@ export function PaperDigestFeed({ papers, aliases, lang, copy, currentYear }) {
 
   useEffect(() => {
     if (!linkTarget) return;
+    if (linkTarget.unavailable) {
+      statusRef.current?.scrollIntoView({ block: "start" });
+      return;
+    }
     const row = document.getElementById(`brief-${linkTarget.id}`);
     if (!row) return;
     const reading = row.querySelector("details");
@@ -65,7 +67,10 @@ export function PaperDigestFeed({ papers, aliases, lang, copy, currentYear }) {
               type="button"
               className="pd-filter-option"
               aria-pressed={type === value}
-              onClick={() => setType(value)}
+              onClick={() => {
+                setLinkTarget(null);
+                setType(value);
+              }}
             >
               {copy.filters[value]}
             </button>
@@ -77,7 +82,10 @@ export function PaperDigestFeed({ papers, aliases, lang, copy, currentYear }) {
             name="q"
             type="search"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              setLinkTarget(null);
+              setQuery(event.target.value);
+            }}
             placeholder={copy.searchPlaceholder}
             aria-label={copy.searchLabel}
             autoComplete="off"
@@ -85,8 +93,8 @@ export function PaperDigestFeed({ papers, aliases, lang, copy, currentYear }) {
           />
         </div>
       </div>
-      <p className="pd-results" role="status">
-        {unavailable ? copy.unavailable : filtering ? plural(copy.results, matches.length) : ""}
+      <p ref={statusRef} className="pd-results" role="status">
+        {linkTarget?.unavailable ? copy.unavailable : filtering ? plural(copy.results, matches.length) : ""}
       </p>
 
       {shown.length ? (
