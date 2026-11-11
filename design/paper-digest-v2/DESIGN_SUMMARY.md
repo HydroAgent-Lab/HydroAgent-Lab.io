@@ -47,6 +47,100 @@ V2 增加独立的 Highlights 区域，当前原型中每篇精选论文展示�
 - 出版来源和日期。
 - Bookmark 和 Share 操作。
 
+**筛选机制**
+
+Highlights 由 AI 根据明确的筛选规则主动选择，而不仅仅是将 AI 发现或收集到的论文展示为精选。
+
+论文筛选主要考虑以下三个方面，按优先顺序排列：
+
+1. **期刊水平（Publication Quality）**：优先考虑发表在高水平期刊上的论文，具体依据团队提供的高水平期刊名单进行判断。名单已定稿（49 本期刊，另含 arXiv），全文见本节附录；名单的增删在确认后更新，服务器端同步进 WP #5 的 `enrichment.journal_whitelist` 配置。
+2. **水文学相关性（Hydrological Relevance）**：优先考虑与水文学密切相关的论文。
+3. **LLM Reasoning 质量（LLM Reasoning Quality）**：优先考虑 LLM reasoning 方面表现较好的研究工作。
+
+**筛选轮次与执行机制（Selection Rounds）**
+
+每轮 Highlights 筛选定义为一次按周触发的完整筛选任务，包括首次执行、必要的重试，以及最终成功保存筛选结果的过程。
+
+**1. 每轮候选范围**
+
+每轮筛选的候选论文包括：
+
+- 新增论文：自上一轮成功截止时间之后新纳入 Paper Digest，且不晚于本轮数据快照截止时间的所有论文。
+- 现有精选：上一轮仍然有效的 Highlights。
+
+不按照自然周划分新增论文的范围，而是以上一轮成功截止时间作为下一轮的起点。
+
+**2. 本轮时间窗口**
+
+每轮任务启动时，记录本轮的数据快照截止时间，并确定候选论文的时间范围：
+
+（上一轮成功截止时间，本轮数据快照截止时间]
+
+本轮执行期间新入库的论文，不加入已经确定的本轮候选快照，而进入下一轮筛选。
+
+**3. 成功与截止时间更新**
+
+只有当本轮筛选结果成功保存后，才将成功截止时间推进至本轮记录的数据快照截止时间。
+
+如果本轮没有新的合格论文，但筛选任务已成功完成评估并保存结果，则保留仍然有效的现有 Highlights，并正常推进截止时间。
+
+**4. 失败与重试**
+
+如果筛选失败或结果未能成功保存：
+
+- 保留上一轮的 Highlights。
+- 不更新成功截止时间。
+- 不将本轮标记为成功完成。
+- 后续重试继续使用本轮已经确定的时间窗口和候选数据快照。
+
+同一轮中的重试不视为新一轮筛选。
+
+**5. 新一轮启动**
+
+上一轮成功完成后，下一次按周触发的筛选任务启动新的轮次，并以上一轮成功截止时间作为新增论文候选范围的起点。
+
+通过上述机制，确保新纳入的论文能够获得一次筛选机会，并避免因筛选失败、任务重试或论文入库时间差异而遗漏候选论文。
+
+每轮筛选仍遵循既定的精选规则，最多展示 3 篇 Highlights；仅当新旧合计无任何入选时，Highlights 区域整体隐藏。
+
+**入选门槛**
+
+没有有效摘要的论文不参与 Highlights 挑选。
+
+**Why It Matters**
+
+由 AI 为入选论文撰写简短的 Why It Matters，说明该研究的重要性及其对水文学领域的意义。Why It Matters 必须中英双语齐全，缺任一语言即不入选。
+
+**数据来源**
+
+精选结果与 Why It Matters 由服务器端（WP #5）生成、随论文数据下发，网站只负责展示；数据未就位时整个区域隐藏。
+
+**透明度文案**
+
+Highlights 仅保留一个标识：
+
+`AI-selected`
+
+删除原有的以下标签和说明：
+
+- `AI-surfaced`
+- `AI-generated`
+- `Not human-reviewed`
+- `A Highlight is a discovery label, not a quality grade.`
+
+不再使用多重标签或额外的免责声明描述 AI 筛选过程。
+
+- 中文页面的 `AI-selected`译作「AI 精选」。
+
+**附：Highlights 期刊白名单**（比对时忽略期刊名的大小写、标点与 `&` / `and` 差别。）
+
+- **水文与水资源**：Water Research、Water Research X、Journal of Hydrology、Journal of Hydrology: Regional Studies、Journal of Hydrology X、Hydrology and Earth System Sciences、Water Resources Research、Water Resources Management、Advances in Water Resources、Hydrological Processes、npj Clean Water
+- **地学、环境与灾害**：Earth's Future、AGU Advances、Geophysical Research Letters、Communications Earth & Environment、Earth System Science Data、Geoscientific Model Development、Environmental Science & Technology、Environmental Science and Ecotechnology、Environmental Research Letters、Environmental Modelling & Software、Journal of Environmental Management、Ecological Indicators、Natural Hazards and Earth System Sciences、International Journal of Disaster Risk Reduction、International Journal of Geographical Information Science
+- **Nature 系列与综合**：Nature、Nature Communications、Nature Climate Change、Nature Geoscience、Nature Sustainability、Nature Machine Intelligence、Nature Human Behaviour
+- **工程与 AI 交叉**：Engineering Applications of Artificial Intelligence、Advanced Engineering Informatics、Reliability Engineering & System Safety、Sustainable Cities and Society、Computers and Electronics in Agriculture、Applied Energy、Engineering Structures、Transportation Research Part D: Transport and Environment、Journal of Transport Geography、Advanced Materials
+- **新刊（中科院 2025 尚未收录）**：Nature Water、npj Natural Hazards、Journal of Geophysical Research: Machine Learning and Computation、npj Artificial Intelligence、Communications AI & Computing、npj Climate Action
+- **预印名单**：arXiv（预印本服务器，非期刊；其预印本同样获得优先依据地位，但仍须满足水文相关性与 LLM reasoning 两项条件）
+
 ### 2.3 Latest papers 工具栏与筛选
 
 V2 原型把工具栏组织为三个入口：
@@ -149,7 +243,7 @@ V2 的 Share 目标不是原始论文 URL，而是 HydroAgent-Lab 对应论文�
 
 在把 V2 作为开发依据之前，建议先处理或确认以下差异：
 
-1. **Highlights 的文案旧表述——已解决。** 当前原型已将 `Papers the HydroAgent-Lab editors flagged as especially relevant` 替换为栏目级披露 `AI-surfaced · AI-generated · Not human-reviewed` 及说明句；筛选机制的真实口径仍待团队确认（见 §5.1）。
+1. **Highlights 的文案与筛选机制——已确认。** 筛选机制与透明度文案已确认（见 §2.2）；栏目级披露统一为 `AI-selected`，删除 `AI-surfaced · AI-generated · Not human-reviewed` 及原说明句。当前原型仍显示旧披露文案，待原型同步时一并更新。
 2. **Highlights 卡片内容——已确认。** 当前原型卡片只保留 Why It Matters，不含 Paper Overview，即为最终规范。
 3. **Latest papers 仍有单条内容前的&#32;`AI`&#32;小标识。** 如果最终决定不在单篇条目重复显示 AI 来源标签，需要明确是否移除。
 4. **移动端两个筛选面板的交互——已统一。** 当前原型中 Time 面板与 Advanced Filters 在手机端均为 Bottom Sheet，共用遮罩与关闭逻辑。
@@ -166,14 +260,7 @@ V2 的 Share 目标不是原始论文 URL，而是 HydroAgent-Lab 对应论文�
 
 ### 5.1 Highlights 的筛选机制与透明度文案
 
-需要确认：
-
-- 论文是由 AI 主动选择，还是由规则 / 排序机制自动浮出？
-- 如果是 AI 主动筛选，使用 `AI-selected`；如果是自动机制 surfaced，使用 `AI-surfaced`。
-- 是否统一展示 `AI-generated · Not human-reviewed` 的栏目级说明？（注：当前原型已采用 `AI-surfaced · AI-generated · Not human-reviewed`；因无法证实存在显式的 AI 选择过程，不使用 `AI-selected`。）
-- 是否保留 `A Highlight is a discovery label, not a quality grade.` 这样的解释？
-
-**建议：** 对外文案必须与真实筛选机制一致，不要保留暗示人工编辑审核的措辞。
+已确认：Highlights 由 AI 按明确规则主动挑选，并为每篇入选论文撰写 Why It Matters；栏目级披露统一为 `AI-selected`，不再使用多重标签或解释句。筛选规则、轮次与执行机制、期刊白名单见 §2.2。
 
 ### 5.2 Highlights 卡片最终内容
 
