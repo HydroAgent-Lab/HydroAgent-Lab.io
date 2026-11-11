@@ -9,7 +9,7 @@
 - 缩略图（用户选"手机版页面截图"）：headless Chrome + CDP 截线上 `/paper-digest/` 与 `/zh/paper-digest/`，视口 400×565 CSS px、2×，截图前拦 GA、隐藏 `.back-to-top`；Pillow 缩到 480×678 WebP（约 21 KB/张）。轮播组件要求每张卡都有 `thumb`，所以没有走"无图卡"
 - 验证：`npm run build` 通过；`out/` 预览中英首页各 3 张卡、3 个圆点，第一张是 Paper Digest，链接 `/paper-digest/`、`/zh/paper-digest/`；1280 与 390 宽都无横向溢出
 - 修改文件：`content/pages/home.js`（`newsThumbs.paperDigest` + en/zh 各加一条）、`public/assets/paper-digest/hydroagent-paper-digest-{en,zh}.webp`（新增）、`ASSETS_GUIDE.md`、`README.md`、`WORKLOG.md`
-- 下一步：用户确认后提交并开 PR；页面改版（如 V2）上线后重截缩略图；"07:00"时间待和采集端确认
+- 下一步：页面改版（如 V2）上线后重截缩略图；"07:00"时间待和采集端确认
 
 ### 首页 NEWS 从轮播改为"一大两小"列表（同一分支，Hallmark 审计后）
 
@@ -22,6 +22,12 @@
 - 验证：构建通过；1280 / 768 / 375 / 320 宽截图检查，均无横向溢出
 - 修改文件：`components/news-carousel.js`（重写，文件名未改）、`styles/pages/home.css`（News 区块重写）、`content/pages/home.js`、`components/pages/home.js`（去掉 a11y 属性）、`README.md`、`WORKLOG.md`
 - 下一步：新闻超过 3 条时决定显示规则；可考虑把组件文件改名为 `news-list.js`
+
+### 发布分支并开 PR #18
+
+- 用户提交 `38317e6`（9 个文件）后推送 `feat/home-news-paper-digest`；部署工作流只在 `main` / `master` 上运行，推分支不影响线上
+- 开 PR #18 → `main`（英文描述，列出改动、检查和待定事项：超过 3 条的显示规则、V2 上线后重截缩略图、"07:00"待确认）。合并由用户在 GitHub 上操作
+- 下一步：合并后看 Actions 部署是否成功，并到线上首页确认 News 列表
 
 ## 2026-11-03
 
