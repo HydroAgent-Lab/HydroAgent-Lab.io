@@ -47,12 +47,13 @@ export function PaperDigestPageContent({ lang = "en" }) {
               </a>
             </div>
           </div>
-          <aside className="pd-edition" aria-labelledby="pd-edition-label">
-            <p className="pd-edition-label" id="pd-edition-label">
-              {c.lead.edition}
-            </p>
+          {/* With no papers there is no edition to name, only the facts. */}
+          <aside className="pd-edition" aria-labelledby={edition ? "pd-edition-label" : undefined}>
             {edition ? (
               <>
+                <p className="pd-edition-label" id="pd-edition-label">
+                  {c.lead.edition}
+                </p>
                 <p className="pd-edition-day">
                   <time dateTime={edition.day}>{dayLabel(edition.day, lang)}</time>
                 </p>

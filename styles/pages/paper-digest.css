@@ -51,15 +51,15 @@
 
 /* Chinese breaks only at spaces and punctuation, so "水文学" stays whole.
    Safe on phones too: the longest run ("的研究情报", 5 characters) is about
-   140px at 28px, inside the 264px column at 320px. A longer title would
+   140px at 28px, inside the 256px column at 320px. A longer title would
    still wrap: styles/responsive.css sets overflow-wrap: break-word. */
 .paper-digest-page:lang(zh) .pd-hero h1 {
   word-break: keep-all;
 }
 
-/* Emphasis by colour, never italics: --accent is 5.9:1 on white. The phrase
-   never splits ("LLM × / 水文学"): about 215px (en) and 170px (zh) at 28px,
-   inside the 264px column at 320px. Keep it that short. */
+/* Emphasis by colour, never italics: --accent is 5.6:1 on this ground. The
+   phrase never splits ("LLM × / 水文学"): about 215px (en) and 170px (zh) at
+   28px, inside the 256px column at 320px. Keep it that short. */
 .pd-hero-accent {
   color: var(--accent);
   white-space: nowrap;
@@ -71,6 +71,16 @@
   font-size: 15px;
   line-height: 1.65;
   color: var(--text-muted);
+  /* English: no single word left alone on the last line. */
+  text-wrap: pretty;
+}
+
+/* Chinese: break only at punctuation and spaces, so the lede wraps phrase by
+   phrase and never leaves "阅者。" alone on the last line. Its longest run
+   ("通过邮件推送给订阅者。", 11 characters) is about 165px, inside the 256px
+   column at 320px. */
+.paper-digest-page:lang(zh) .pd-hero-text {
+  word-break: keep-all;
 }
 
 .pd-hero-actions {
@@ -140,6 +150,13 @@
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   margin: 16px 0 0;
   border-top: 1px solid var(--border);
+}
+
+/* With no papers at all there is no edition above the facts, so they start
+   at the top of the card. */
+.pd-edition-stats:first-child {
+  margin-top: 0;
+  border-top: 0;
 }
 
 .pd-edition-stats > div {
@@ -405,7 +422,9 @@
 
 .pd-subscribe h2 {
   max-width: 25ch;
-  font-size: clamp(22px, 2.2vw, 26px);
+  /* 24px on phones and tablets, up to 26px on wide screens: never smaller
+     on a larger screen. */
+  font-size: clamp(24px, 2.2vw, 26px);
   font-weight: 500;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -452,15 +471,23 @@
   box-shadow: 0 0 0 1px var(--pd-on-navy-error);
 }
 
+/* On navy the default dark dot made the chosen radio look emptier than the
+   other, a plain white disc. The light blue ring and dot read as "on". */
+.pd-subscribe .subscribe-lang input {
+  accent-color: var(--pd-on-navy-accent);
+}
+
 /* The blue fill is only 2.5:1 on navy; a light edge takes the button's
    outline to 8:1. */
 .pd-subscribe .subscribe-submit {
   border-color: var(--pd-on-navy-accent);
 }
 
-/* One line is always kept for the message, so an error appearing does not
-   move the band or the title beside it. The same line spaces the privacy
-   note below, which therefore drops its own top margin. */
+/* One line is always kept for the message, so a one-line error does not
+   move the band or the title beside it. A message that wraps still adds
+   lines: the English error below about 360px, and the long confirmation.
+   The kept line also spaces the privacy note below, which therefore drops
+   its own top margin. */
 .pd-subscribe .subscribe-message,
 .pd-subscribe .subscribe-message:empty {
   min-height: 1.5em; /* one line at this line-height */
@@ -1022,7 +1049,6 @@
   }
 
   .pd-subscribe h2 {
-    font-size: 24px;
     line-height: 1.22;
   }
 }
@@ -1034,5 +1060,12 @@
     padding-right: 12px;
     padding-left: 12px;
     font-size: 13px;
+  }
+
+  /* "Digest language" takes its own line, so the two options stay side by
+     side instead of the second one dropping under the legend. */
+  .pd-subscribe .subscribe-lang legend {
+    float: none;
+    margin: 0 0 4px;
   }
 }
