@@ -19,8 +19,9 @@ export function PaperDigestPageContent({ lang = "en" }) {
   const papers = data.papers;
   const count = String(papers.length);
   const edition = latestEdition(papers);
-  const generatedDay = data.generatedAt ? data.generatedAt.slice(0, 10) : null;
-  const currentYear = generatedDay ? Number(generatedDay.slice(0, 4)) : new Date().getUTCFullYear();
+  // generated_at is not shown: it changes on every export even when no paper
+  // does (DESIGN_SUMMARY §5.8). The latest edition dates the page instead.
+  const currentYear = edition ? Number(edition.day.slice(0, 4)) : new Date().getUTCFullYear();
   const facts = c.lead.facts.map((fact) => ({ ...fact, value: fact.value.replace("{count}", count) }));
 
   return (
@@ -73,9 +74,15 @@ export function PaperDigestPageContent({ lang = "en" }) {
             <h2 id="pd-feed-title">{c.feed.title}</h2>
             <p>
               {c.feed.intro.replace("{count}", count)}
-              {generatedDay ? <> · {c.feed.updated.replace("{date}", dayLabel(generatedDay, lang))}</> : null}
+              {edition ? (
+                <>
+                  {" · "}
+                  <span className="pd-nowrap">{c.feed.latest.replace("{date}", dayLabel(edition.day, lang))}</span>
+                </>
+              ) : null}
             </p>
           </div>
+          <p className="pd-ai-note">{c.feed.aiNote}</p>
           <PaperDigestFeed papers={papers} aliases={data.aliases} lang={lang} copy={c.feed} currentYear={currentYear} />
           <p className="pd-footnote">
             {c.feed.footnote}{" "}

@@ -460,16 +460,26 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 8px 24px;
-  margin-bottom: 24px;
+  margin-bottom: 8px;
 }
 
 .pd-head h2 {
-  font-size: clamp(1.35rem, 1rem + 1.2vw, 1.75rem);
+  /* The site's section-heading scale (styles/responsive.css). */
+  font-size: clamp(1.4rem, 1.05rem + 1.6vw, 1.85rem);
 }
 
 .pd-head p {
   margin: 0;
   font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* Said once above the list, not on every paper (DESIGN_SUMMARY §2.4). */
+.pd-ai-note {
+  max-width: 75ch;
+  margin: 0 0 24px;
+  font-size: 13px;
+  line-height: 1.55;
   color: var(--text-muted);
 }
 
