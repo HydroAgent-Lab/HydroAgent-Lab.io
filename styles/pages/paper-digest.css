@@ -171,6 +171,12 @@
   color: var(--text);
 }
 
+/* "（意大利时间）" stays whole when the value wraps. The English copy does
+   the same for "(Rome time)" with a no-break space. */
+.paper-digest-page:lang(zh) .pd-edition-stats dd {
+  word-break: keep-all;
+}
+
 /* --- Sign-up form --- */
 .subscribe-form {
   max-width: 480px;

@@ -32,8 +32,9 @@ export const paperDigestContent = {
       edition: "Latest edition",
       // 07:00 is when the email goes out (it arrives 07:00-07:20). The page
       // itself is rebuilt later in the day, so it claims no clock time.
+      //   is a no-break space: "(Rome time)" never splits across lines.
       facts: [
-        { label: "Email digest", value: "Daily at 07:00 (Rome time)" },
+        { label: "Email digest", value: "Daily at 07:00 (Rome time)" },
         { label: "Papers so far", value: "{count}" }
       ]
     },
