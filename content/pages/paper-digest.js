@@ -18,6 +18,9 @@ export const paperDigestEndpoints = {
 export const paperDigestContent = {
   en: {
     meta: {
+      // The tab title, and the title a shared link shows (og:title).
+      title: "Paper Digest | HydroAgent-Lab",
+      shareTitle: "HydroAgent Paper Digest — LLM × Hydrology",
       // One copy of the text: the hero's lede, the page description and the
       // RSS channel description.
       description:
@@ -32,9 +35,9 @@ export const paperDigestContent = {
       edition: "Latest edition",
       // 07:00 is when the email goes out (it arrives 07:00-07:20). The page
       // itself is rebuilt later in the day, so it claims no clock time.
-      //   is a no-break space: "(Rome time)" never splits across lines.
+      // \u00A0 is a no-break space: "(Rome time)" never splits across lines.
       facts: [
-        { label: "Email digest", value: "Daily at 07:00 (Rome time)" },
+        { label: "Email digest", value: "Daily at 07:00 (Rome\u00A0time)" },
         { label: "Papers so far", value: "{count}" }
       ]
     },
@@ -90,6 +93,8 @@ export const paperDigestContent = {
   },
   zh: {
     meta: {
+      title: "水利大模型文献日报 | HydroAgent-Lab",
+      shareTitle: "水利大模型文献日报 — LLM × 水文学",
       description: "水利 × 大模型领域的新文献：每天由 AI 筛选、生成摘要，通过邮件推送给订阅者。"
     },
     lead: {

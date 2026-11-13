@@ -5,9 +5,31 @@ import { SubscribedNotice } from "@/components/subscribed-notice";
 import { paperDigestContent, paperDigestEndpoints } from "@/content/pages/paper-digest";
 import { localizeHref } from "@/content/helpers";
 import { loadPaperDigest } from "@/lib/load-paper-digest";
-import { dayLabel, latestEdition, localizeDigest } from "@/lib/paper-digest.mjs";
+import { dayLabel, latestEdition, localizeDigest, plural } from "@/lib/paper-digest.mjs";
 
-const plural = (forms, n) => (n === 1 ? forms.one : forms.other).replace("{n}", String(n));
+// Metadata for both routes (app/paper-digest, app/zh/paper-digest): its own
+// canonical, because the layout's "/" would point search engines at the home
+// page, and the RSS feed built from the same papers.json. A page-level
+// openGraph or twitter object replaces the layout's whole object, so the
+// shared fields are repeated here.
+export function paperDigestMetadata(lang) {
+  const { title, shareTitle, description } = paperDigestContent[lang].meta;
+  const path = lang === "zh" ? "/zh/paper-digest/" : "/paper-digest/";
+  return {
+    title,
+    alternates: { canonical: path, types: { "application/rss+xml": `${path}feed.xml` } },
+    description,
+    openGraph: {
+      type: "website",
+      siteName: "HydroAgent-Lab",
+      title: shareTitle,
+      description,
+      url: path,
+      locale: lang === "zh" ? "zh_CN" : "en_US"
+    },
+    twitter: { card: "summary_large_image", title: shareTitle, description }
+  };
+}
 
 // One page in three parts: the hero (what the digest is, the latest edition
 // and the two actions), every public paper read from papers.json at build
