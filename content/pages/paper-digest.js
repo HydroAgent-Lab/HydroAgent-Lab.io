@@ -54,6 +54,10 @@ export const paperDigestContent = {
         "Questions: contact@hydroagentlab.com"
       ]
     },
+    subscribeBand: {
+      eyebrow: "Free daily digest",
+      title: "New LLM papers in hydrology and water resources, every day."
+    },
     subscribed: "Subscription confirmed. Paper Digest will arrive every day at 07:00 (Rome time).",
     feed: {
       title: "Latest papers",
@@ -114,6 +118,10 @@ export const paperDigestContent = {
         "每封邮件底部都有退订链接，随时可以退订。",
         "如有疑问，请联系 contact@hydroagentlab.com"
       ]
+    },
+    subscribeBand: {
+      eyebrow: "免费每日文献摘要",
+      title: "水利 × 大模型的新文献，每天送到你的邮箱。"
     },
     subscribed: "订阅成功！文献日报将在每天 07:00（意大利时间）送到你的邮箱。",
     feed: {

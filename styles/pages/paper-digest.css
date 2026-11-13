@@ -7,6 +7,15 @@
    and wash; badges, radios and disclosures stay neutral.
    ========================================================== */
 
+/* Page-only colours (DESIGN_SUMMARY §2.1, §2.4); everything else comes from
+   styles/tokens.css. Ratios are WCAG contrast on the ground named. */
+.paper-digest-page {
+  --pd-navy: #0E2A47;             /* sign-up band; white text 14.6:1 */
+  --pd-on-navy-muted: #D4D9DE;    /* secondary text on navy, 10.3:1 */
+  --pd-on-navy-accent: #9CC4F0;   /* eyebrow and success text on navy, 8.0:1 */
+  --pd-on-navy-error: #FDA29B;    /* error text and invalid field edge on navy, 7.5:1 */
+}
+
 /* Keeps the zh title from ending on a two-character line ("邮箱。"). */
 .paper-digest-page .page-lead h1 {
   text-wrap: balance;
@@ -242,6 +251,84 @@
 .pd-privacy ul {
   margin: 6px 0 0;
   padding-left: 18px;
+}
+
+/* --- Sign-up band: navy ground, the form sits on it directly (no white card).
+   The wrapper owns the gutter, the band owns the colour; no rule does both,
+   and neither sets a width cap (tests/test_platform_hero_width.py). --- */
+.pd-subscribe-wrap {
+  padding: 16px var(--gutter) 96px;
+}
+
+.pd-subscribe {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(24px, 5vw, 64px);
+  align-items: center;
+  padding: clamp(28px, 4.5vw, 52px);
+  color: var(--text-on-dark);
+  background: var(--pd-navy);
+  border-radius: 18px;
+  scroll-margin-top: calc(var(--header-height) + 16px);
+}
+
+.pd-subscribe .eyebrow {
+  color: var(--pd-on-navy-accent);
+}
+
+.pd-subscribe h2 {
+  max-width: 25ch;
+  margin-top: 10px;
+  font-size: clamp(22px, 2.2vw, 26px);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--text-on-dark);
+}
+
+.pd-subscribe .subscribe-form {
+  margin-top: 0;
+}
+
+.pd-subscribe .subscribe-label,
+.pd-subscribe .subscribe-lang legend,
+.pd-subscribe .subscribe-lang label,
+.pd-subscribe .subscribe-message {
+  color: var(--text-on-dark);
+}
+
+.pd-subscribe .subscribe-note,
+.pd-subscribe .pd-privacy,
+.pd-subscribe .pd-privacy summary {
+  color: var(--pd-on-navy-muted);
+}
+
+.pd-subscribe .pd-privacy summary:hover {
+  color: var(--text-on-dark);
+}
+
+.pd-subscribe .subscribe-message.is-done {
+  color: var(--pd-on-navy-accent);
+}
+
+.pd-subscribe .subscribe-message.is-invalid,
+.pd-subscribe .subscribe-message.is-error {
+  color: var(--pd-on-navy-error);
+}
+
+/* A white field on navy: its own edge is the boundary (14.6:1). */
+.pd-subscribe .subscribe-row input {
+  border-color: var(--text-on-dark);
+}
+
+.pd-subscribe .subscribe-row input[aria-invalid="true"] {
+  border-color: var(--pd-on-navy-error);
+  box-shadow: 0 0 0 1px var(--pd-on-navy-error);
+}
+
+/* The site ring (--accent-hover) is 1.85:1 on navy; white is 14.6:1. */
+.pd-subscribe :focus-visible {
+  outline-color: var(--text-on-dark);
 }
 
 /* --- Confirmation banner (?subscribed=1). Empty, it takes no space. --- */
@@ -618,6 +705,10 @@
   .pd-more {
     grid-column: 1;
   }
+
+  .pd-subscribe {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @media (max-width: 560px) {
@@ -648,5 +739,20 @@
 
   .pd-paper-title {
     font-size: 17px;
+  }
+
+  .pd-subscribe-wrap {
+    padding-top: 0;
+    padding-bottom: 64px;
+  }
+
+  .pd-subscribe {
+    padding: 24px 20px;
+    border-radius: 14px;
+  }
+
+  .pd-subscribe h2 {
+    font-size: 24px;
+    line-height: 1.22;
   }
 }

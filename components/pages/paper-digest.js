@@ -8,9 +8,10 @@ import { localizeHref } from "@/content/helpers";
 import { loadPaperDigest } from "@/lib/load-paper-digest";
 import { dayLabel, localizeDigest } from "@/lib/paper-digest.mjs";
 
-// One page: the lead takes the sign-up (form, language, privacy note), the
-// section below lists every public paper, read from papers.json at build
-// time. Only the page language's text is passed to the client feed.
+// One page: the lead introduces the digest, the section below lists every
+// public paper (read from papers.json at build time), and the navy band at
+// the bottom takes the sign-up (form, language, privacy note). Only the page
+// language's text is passed to the client feed.
 export function PaperDigestPageContent({ lang = "en" }) {
   const c = paperDigestContent[lang] || paperDigestContent.en;
   const data = localizeDigest(loadPaperDigest(), lang);
@@ -25,25 +26,7 @@ export function PaperDigestPageContent({ lang = "en" }) {
       {/* The shell sets no lang and <html> is always "en", so /zh marks its copy here. */}
       <main className="main-content paper-digest-page" lang={lang === "zh" ? "zh-CN" : undefined}>
         <SubscribedNotice text={c.subscribed} />
-        <PageLead
-          eyebrow={c.lead.eyebrow}
-          title={c.lead.title}
-          text={c.lead.text}
-          facts={facts}
-          actions={
-            <>
-              <SubscribeForm lang={lang} copy={c.form} endpoints={paperDigestEndpoints} />
-              <details className="pd-privacy">
-                <summary>{c.privacy.summary}</summary>
-                <ul>
-                  {c.privacy.items.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </details>
-            </>
-          }
-        />
+        <PageLead eyebrow={c.lead.eyebrow} title={c.lead.title} text={c.lead.text} facts={facts} />
         <section className="content-section pd-section" aria-labelledby="pd-feed-title">
           <div className="pd-head">
             <h2 id="pd-feed-title">{c.feed.title}</h2>
@@ -58,6 +41,25 @@ export function PaperDigestPageContent({ lang = "en" }) {
             <a href={localizeHref(lang, "/paper-digest/feed.xml")}>{c.feed.rss}</a>
           </p>
         </section>
+        <div className="pd-subscribe-wrap">
+          <section id="subscribe" className="pd-subscribe" aria-labelledby="pd-subscribe-title">
+            <div>
+              <p className="eyebrow">{c.subscribeBand.eyebrow}</p>
+              <h2 id="pd-subscribe-title">{c.subscribeBand.title}</h2>
+            </div>
+            <div>
+              <SubscribeForm lang={lang} copy={c.form} endpoints={paperDigestEndpoints} />
+              <details className="pd-privacy">
+                <summary>{c.privacy.summary}</summary>
+                <ul>
+                  {c.privacy.items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </details>
+            </div>
+          </section>
+        </div>
       </main>
     </SiteShell>
   );
