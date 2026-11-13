@@ -1,14 +1,12 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { dayLabel, filterPapers, groupByWeek, planBriefLink, weekRange } from "@/lib/paper-digest.mjs";
+import { dayLabel, filterPapers, groupByWeek, planBriefLink, plural, weekRange } from "@/lib/paper-digest.mjs";
 
 const TYPES = ["all", "published", "preprint"];
 // Weeks shown before "show earlier"; each click adds as many again.
 const WEEKS_PER_STEP = 4;
 const CJK = /[㐀-鿿]/;
-
-const plural = (forms, n) => (n === 1 ? forms.one : forms.other).replace("{n}", String(n));
 
 // The week-grouped list. Papers arrive already localized (one language, no
 // fallback) and fully rendered on the server, so the page reads without JS;
