@@ -5,6 +5,12 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 
+/* Anchor jumps are instant for people who ask for less motion: some in-page
+   links travel a long way (Paper Digest's Subscribe is ~10,000px). */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
 body {
   margin: 0;
   font-family: var(--font);
