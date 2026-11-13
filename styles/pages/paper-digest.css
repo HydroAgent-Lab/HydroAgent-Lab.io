@@ -1,10 +1,12 @@
 /* ==========================================================
-   Paper Digest — one page. The lead takes the sign-up (digest
-   language, email, privacy note); below it every public paper
-   is listed as a week-by-week ledger with filter, search and
-   "show earlier". Colour rationing as on Demo: solid --accent
-   only on Subscribe; the active filter gets an --accent outline
-   and wash; badges, radios and disclosures stay neutral.
+   Paper Digest — one page in three parts: the hero (what the
+   digest is, the latest edition, Explore and Subscribe), every
+   public paper as a week-by-week ledger with filter, search and
+   "show earlier", and the navy sign-up band (digest language,
+   email, privacy note). Colour rationing as on Demo: solid
+   --accent only on Subscribe; the active filter gets an
+   --accent outline and wash; badges, radios and disclosures
+   stay neutral.
    ========================================================== */
 
 /* Page-only colours (DESIGN_SUMMARY §2.1, §2.4); everything else comes from
@@ -16,43 +18,137 @@
   --pd-on-navy-error: #FDA29B;    /* error text and invalid field edge on navy, 7.5:1 */
 }
 
-/* Keeps the zh title from ending on a two-character line ("邮箱。"). */
-.paper-digest-page .page-lead h1 {
+/* --- Hero: what the digest is and the two actions on the left, the latest
+   edition on the right. It replaces the shared PageLead on this page only. --- */
+.pd-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: clamp(36px, 5.5vw, 76px);
+  align-items: center;
+  padding: 80px var(--gutter) 64px;
+  background: var(--surface-subtle);
+}
+
+.pd-hero .eyebrow {
+  margin-bottom: 14px;
+}
+
+/* The Platform hero scale: 40px / 600, 28px at 900px and below. */
+.pd-hero h1 {
+  margin: 0 0 18px;
+  font-size: 2.5rem;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
   text-wrap: balance;
 }
 
-/* Chinese breaks only at the spaces and punctuation, so "文献" stays whole.
-   Not on phones: the column is too narrow for the longest run. */
-@media (min-width: 561px) {
-  .paper-digest-page:lang(zh) .page-lead h1 {
-    word-break: keep-all;
-  }
+/* Chinese breaks only at spaces and punctuation, so "水文学" stays whole.
+   Safe on phones too: the longest run ("的研究情报", 5 characters) is about
+   140px at 28px, inside the 264px column at 320px. A longer title would
+   still wrap: styles/responsive.css sets overflow-wrap: break-word. */
+.paper-digest-page:lang(zh) .pd-hero h1 {
+  word-break: keep-all;
 }
 
-/* Facts as ruled label/value rows, the same treatment as the other
-   secondary pages (events, research, white papers). */
-.paper-digest-page .page-lead-facts {
-  flex-direction: column;
-  gap: 0;
+/* Emphasis by colour, never italics: --accent is 5.9:1 on white. The phrase
+   never splits ("LLM × / 水文学"): about 215px (en) and 170px (zh) at 28px,
+   inside the 264px column at 320px. Keep it that short. */
+.pd-hero-accent {
+  color: var(--accent);
+  white-space: nowrap;
 }
 
-.paper-digest-page .page-lead-fact {
+.pd-hero-text {
+  max-width: 75ch;
+  margin: 0 0 26px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+.pd-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* The site pills one size up. Solid blue only on Subscribe. */
+.pd-hero-actions .primary-action,
+.pd-hero-actions .secondary-action {
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 22px;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.pd-edition {
+  padding: 25px 26px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.pd-edition-label {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.pd-edition-day {
+  margin: 4px 0 0;
+  font-family: var(--font-display);
+  font-size: 27px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  color: var(--text);
+}
+
+.pd-edition-count {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.pd-edition-stats {
   display: grid;
-  grid-template-columns: 120px 1fr;
-  gap: 16px;
-  align-items: baseline;
-  padding: 14px 0;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  margin: 18px 0 0;
   border-top: 1px solid var(--border);
 }
 
-.paper-digest-page .page-lead-fact:last-child {
+.pd-edition-stats > div {
+  padding: 14px 0;
   border-bottom: 1px solid var(--border);
 }
 
-.paper-digest-page .page-lead-fact strong {
+.pd-edition-stats > div:nth-child(odd) {
+  padding-right: 12px;
+  border-right: 1px solid var(--border);
+}
+
+.pd-edition-stats > div:nth-child(even) {
+  padding-left: 16px;
+}
+
+.pd-edition-stats dt {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.pd-edition-stats dd {
+  margin: 4px 0 0;
   font-size: 15px;
   font-weight: 500;
   line-height: 1.5;
+  color: var(--text);
 }
 
 /* --- Sign-up form --- */
@@ -157,7 +253,8 @@
   color: var(--accent-hover);
 }
 
-/* ~6:1 on the page-lead ground */
+/* The form's default on a light ground (6.6:1 on white); the navy band
+   below overrides it. */
 .subscribe-message.is-invalid,
 .subscribe-message.is-error {
   color: #b42318;
@@ -354,6 +451,7 @@
 .paper-digest-page .pd-section {
   padding-left: var(--gutter);
   padding-right: var(--gutter);
+  scroll-margin-top: calc(var(--header-height) + 16px);
 }
 
 .pd-head {
@@ -709,12 +807,57 @@
   .pd-subscribe {
     grid-template-columns: minmax(0, 1fr);
   }
+
+  .pd-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+
+  .pd-hero h1 {
+    font-size: 1.75rem;
+    line-height: 1.16;
+  }
 }
 
 @media (max-width: 560px) {
-  .paper-digest-page .page-lead-fact {
-    grid-template-columns: 1fr;
-    gap: 6px;
+  .pd-hero {
+    gap: 24px;
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  /* Both actions full width, one per row: no two-line buttons on 320px. */
+  .pd-hero-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .pd-hero-actions .primary-action,
+  .pd-hero-actions .secondary-action {
+    width: 100%;
+    min-height: 48px;
+  }
+
+  .pd-edition {
+    padding: 18px;
+    border-radius: 14px;
+  }
+
+  .pd-edition-day {
+    font-size: 24px;
+  }
+
+  /* Long values ("Daily at 07:00 (Rome time)") get a full row each. */
+  .pd-edition-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pd-edition-stats > div:nth-child(odd),
+  .pd-edition-stats > div:nth-child(even) {
+    padding-left: 0;
+    padding-right: 0;
+    border-right: 0;
   }
 
   /* Field and button stack, both full width — side by side, a 320px screen

@@ -1,4 +1,3 @@
-import { PageLead } from "@/components/page-lead";
 import { PaperDigestFeed } from "@/components/paper-digest-feed";
 import { SiteShell } from "@/components/shell";
 import { SubscribeForm } from "@/components/subscribe-form";
@@ -6,17 +5,20 @@ import { SubscribedNotice } from "@/components/subscribed-notice";
 import { paperDigestContent, paperDigestEndpoints } from "@/content/pages/paper-digest";
 import { localizeHref } from "@/content/helpers";
 import { loadPaperDigest } from "@/lib/load-paper-digest";
-import { dayLabel, localizeDigest } from "@/lib/paper-digest.mjs";
+import { dayLabel, latestEdition, localizeDigest } from "@/lib/paper-digest.mjs";
 
-// One page: the lead introduces the digest, the section below lists every
-// public paper (read from papers.json at build time), and the navy band at
-// the bottom takes the sign-up (form, language, privacy note). Only the page
-// language's text is passed to the client feed.
+const plural = (forms, n) => (n === 1 ? forms.one : forms.other).replace("{n}", String(n));
+
+// One page in three parts: the hero (what the digest is, the latest edition
+// and the two actions), every public paper read from papers.json at build
+// time, and the navy sign-up band. Only the page language's text is passed
+// to the client feed.
 export function PaperDigestPageContent({ lang = "en" }) {
   const c = paperDigestContent[lang] || paperDigestContent.en;
   const data = localizeDigest(loadPaperDigest(), lang);
   const papers = data.papers;
   const count = String(papers.length);
+  const edition = latestEdition(papers);
   const generatedDay = data.generatedAt ? data.generatedAt.slice(0, 10) : null;
   const currentYear = generatedDay ? Number(generatedDay.slice(0, 4)) : new Date().getUTCFullYear();
   const facts = c.lead.facts.map((fact) => ({ ...fact, value: fact.value.replace("{count}", count) }));
@@ -26,8 +28,47 @@ export function PaperDigestPageContent({ lang = "en" }) {
       {/* The shell sets no lang and <html> is always "en", so /zh marks its copy here. */}
       <main className="main-content paper-digest-page" lang={lang === "zh" ? "zh-CN" : undefined}>
         <SubscribedNotice text={c.subscribed} />
-        <PageLead eyebrow={c.lead.eyebrow} title={c.lead.title} text={c.lead.text} facts={facts} />
-        <section className="content-section pd-section" aria-labelledby="pd-feed-title">
+        <section className="pd-hero" aria-labelledby="pd-hero-title">
+          <div className="pd-hero-copy">
+            <p className="eyebrow">{c.lead.eyebrow}</p>
+            <h1 id="pd-hero-title">
+              {c.lead.title.before}
+              <span className="pd-hero-accent">{c.lead.title.accent}</span>
+              {c.lead.title.after}
+            </h1>
+            <p className="pd-hero-text">{c.lead.text}</p>
+            <div className="pd-hero-actions">
+              <a className="secondary-action" href="#latest">
+                {c.lead.explore} <span aria-hidden="true">↓</span>
+              </a>
+              <a className="primary-action" href="#subscribe">
+                {c.lead.subscribe}
+              </a>
+            </div>
+          </div>
+          <aside className="pd-edition" aria-labelledby="pd-edition-label">
+            <p className="pd-edition-label" id="pd-edition-label">
+              {c.lead.edition}
+            </p>
+            {edition ? (
+              <>
+                <p className="pd-edition-day">
+                  <time dateTime={edition.day}>{dayLabel(edition.day, lang)}</time>
+                </p>
+                <p className="pd-edition-count">{plural(c.feed.weekCount, edition.count)}</p>
+              </>
+            ) : null}
+            <dl className="pd-edition-stats">
+              {facts.map((fact) => (
+                <div key={fact.label}>
+                  <dt>{fact.label}</dt>
+                  <dd>{fact.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </aside>
+        </section>
+        <section className="content-section pd-section" id="latest" aria-labelledby="pd-feed-title">
           <div className="pd-head">
             <h2 id="pd-feed-title">{c.feed.title}</h2>
             <p>

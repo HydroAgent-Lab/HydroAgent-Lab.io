@@ -23,9 +23,13 @@ export const paperDigestContent = {
     },
     lead: {
       eyebrow: "HydroAgent Paper Digest",
-      title: "New LLM papers in hydrology and water resources, every day.",
+      // Rendered as before + accent (blue, upright) + after.
+      title: { before: "Research intelligence for ", accent: "LLM × Hydrology", after: "" },
       text:
         "Every morning, HydroAgent-Lab searches journals and preprint servers for new work that applies large language models to hydrology and water resources. AI screens each paper for relevance and writes a summary. The papers that pass are listed below and emailed to subscribers.",
+      explore: "Explore Latest papers",
+      subscribe: "Subscribe to Digest",
+      edition: "Latest edition",
       facts: [
         { label: "Updated", value: "Daily at 07:00 (Rome time)" },
         { label: "Papers so far", value: "{count}" }
@@ -88,9 +92,12 @@ export const paperDigestContent = {
     },
     lead: {
       eyebrow: "水利大模型文献日报",
-      title: "水利 × 大模型的新文献，每天送到你的邮箱。",
+      title: { before: "面向 ", accent: "LLM × 水文学", after: " 的研究情报" },
       text:
         "HydroAgent-Lab 每天早上检索期刊和预印本平台，找出把大语言模型用于水文与水资源研究的新文献。每篇文献都经 AI 判断相关性并生成摘要，列在下方，同时通过邮件推送给订阅者。",
+      explore: "浏览最新文献",
+      subscribe: "订阅文献日报",
+      edition: "最新一期",
       facts: [
         { label: "更新时间", value: "每天 07:00（意大利时间）" },
         { label: "已收录", value: "{count} 篇" }
