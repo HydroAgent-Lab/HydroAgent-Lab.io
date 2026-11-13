@@ -1,5 +1,49 @@
 # Work Log
 
+## 2026-11-13
+
+### Paper Digest V2：PR #6 合并、整理 main 历史、外观第一阶段（分支 `feat/paper-digest-v2-appearance`）
+
+- **PR #6 合并**
+  - 合并前先在分支上同步了设计文档（内容已并入 ea3d04a）：
+    - §2.2 加注：#7 定的期刊白名单是"优先"，而 WP#5 的代码（尚未合并）把它当作门槛；
+    - §4 第 1/2/3/9–12 条改为"已在 V2.1 原型中同步"；
+    - §6 补一条：原型里的颜色取值不能照搬，以 `tokens.css` 为准。
+  - 09:27 UTC 合并时误用了普通合并，把一张已删除的 3.35 MB 截图带进了 main 的历史。确认合并后没人 pull 过，就把这次合并改写成 Squash（ea3d04a，`git push --force-with-lease=main:169511f`）。文件内容没有变化，部署成功，远端旧分支也已删除。还需要 xiaoyihydro 删掉她本地的旧分支。
+- **外观第一阶段**（设计依据在 `design/paper-digest-v2/`；实施计划只留在本地 `.claude/plans/`，不提交）
+  1. 919daac 新增 `latestEdition()`（最新一期的日期和篇数）和 `noReading`（两种语言都没有解读，才算无摘要）。先写测试，现在 14/14 通过
+  2. 504046b 订阅表单移到页面底部的深蓝订阅区
+  3. 8f5ddac 首屏改版：新标题、两个按钮、"最新一期"信息卡
+  4. 4001c34 列表标题区用"最新一期"代替导出时间；AI 来源说明只在列表上方出现一次；页脚删掉重复的半句
+  5. 0e48d68 AI 解读改成卡片（Summary 白底、Limits 暖色底，去掉左侧色条）；新增无摘要提示；正文行长放宽到 75ch
+  6. ea0407a 本页有了自己的 og/twitter 标题、描述和网址（原来分享卡片显示的是首页的信息）
+- **用户的决定**
+  - 文案：线上已有的沿用；新增元素用原型里的中英文；中文统一用"文献"，不用"论文"；页脚去掉重复的半句；中文 og:title 用产品名加原型短语拼成
+  - "数据更新于"改为"最新一期"
+  - 订阅区的错误提示色用 #FDA29B
+  - 首屏保持浅灰底，信息卡用白色
+  - WP#5 的白名单按 #7 处理为"优先"，通知 davidanan 的事暂缓
+- **验证**
+  - `npm test` 14/14，`pytest` 30/30
+  - 用当天的真实 `papers.json`（228 篇）构建
+  - headless Chrome（CDP，拦截了 GA）检查中英文页在 320/375/414/768/1280 宽度下都没有横向滚动
+  - 两个按钮跳转后不会被顶部导航挡住
+  - 订阅区不填邮箱提交会被拦下，不发请求；焦点框是白色
+  - 深链接打开最旧的一篇（6-20）能展开并停在导航下方，和线上旧版一致
+  - 用临时数据确认无摘要提示能正常显示
+- **执行中修正的两处断行**
+  - 中文首屏标题在手机宽度下断成"水文 / 学"：改为所有宽度都用 `keep-all`，强调短语整体不换行
+  - "最新一期"断成"最新一 / 期"：用已有的 `.pd-nowrap` 包起来
+- **修改的文件**：`lib/paper-digest.mjs`、`lib/paper-digest.test.mjs`、`components/pages/paper-digest.js`、`components/paper-digest-feed.js`、`content/pages/paper-digest.js`、`styles/pages/paper-digest.css`、`app/paper-digest/page.js`、`app/zh/paper-digest/page.js`、`README.md`、`WORKLOG.md`
+- **下一步**
+  - 推送分支、开 PR，请 yqingypolimi 或 xiaoyihydro 审阅，用 Squash 合并。上线后重截首页 NEWS 的缩略图，并收尾 Issue #7
+  - 第二阶段各开一个 PR：工具栏（时间面板、筛选面板、手机底部弹层）；Share 和 Saved Papers；Highlights 和分类（要等 papers.json 里真的有这些字段）
+  - 请 davidanan 处理 WP#5 的两件事：
+    - 白名单从门槛改为优先，交给模型的资料里要加上期刊信息；
+    - 没有有效摘要时，三项解读应该置空。现在有的论文只有标题和订阅源元数据，也生成了解读。
+  - 全站问题：`<title>` 后缀重复（`app/layout.js` 里的模板）；没有 og:image；其他子页的 canonical 和 og 都指向首页（README 已知遗留 ①②⑥）
+  - "07:00"和实际 08:30 的发布时间对不上，待确认
+
 ## 2026-11-11
 
 ### 首页 NEWS 第一张加上 Paper Digest（分支 `feat/home-news-paper-digest`）
