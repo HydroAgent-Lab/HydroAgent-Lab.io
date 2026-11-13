@@ -14,7 +14,7 @@
 .paper-digest-page {
   --pd-navy: #0E2A47;             /* sign-up band; white text 14.6:1 */
   --pd-on-navy-muted: #D4D9DE;    /* secondary text on navy, 10.3:1 */
-  --pd-on-navy-accent: #9CC4F0;   /* eyebrow and success text on navy, 8.0:1 */
+  --pd-on-navy-accent: #9CC4F0;   /* success text and the button edge on navy, 8.0:1 */
   --pd-on-navy-error: #FDA29B;    /* error text and invalid field edge on navy, 7.5:1 */
   --pd-evidence-surface: #FFF8EA; /* Limits of the evidence; body text 9.8:1 */
   --pd-evidence-border: #E3C989;  /* its top rule, decorative */
@@ -397,13 +397,8 @@
   scroll-margin-top: calc(var(--header-height) + 16px);
 }
 
-.pd-subscribe .eyebrow {
-  color: var(--pd-on-navy-accent);
-}
-
 .pd-subscribe h2 {
   max-width: 25ch;
-  margin-top: 10px;
   font-size: clamp(22px, 2.2vw, 26px);
   font-weight: 500;
   line-height: 1.2;

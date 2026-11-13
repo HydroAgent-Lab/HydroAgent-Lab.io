@@ -37,7 +37,7 @@ export function PaperDigestPageContent({ lang = "en" }) {
               <span className="pd-hero-accent">{c.lead.title.accent}</span>
               {c.lead.title.after}
             </h1>
-            <p className="pd-hero-text">{c.lead.text}</p>
+            <p className="pd-hero-text">{c.meta.description}</p>
             <div className="pd-hero-actions">
               <a className="secondary-action" href="#latest">
                 {c.lead.explore} <span aria-hidden="true">↓</span>
@@ -72,15 +72,7 @@ export function PaperDigestPageContent({ lang = "en" }) {
         <section className="content-section pd-section" id="latest" aria-labelledby="pd-feed-title">
           <div className="pd-head">
             <h2 id="pd-feed-title">{c.feed.title}</h2>
-            <p>
-              {c.feed.intro.replace("{count}", count)}
-              {edition ? (
-                <>
-                  {" · "}
-                  <span className="pd-nowrap">{c.feed.latest.replace("{date}", dayLabel(edition.day, lang))}</span>
-                </>
-              ) : null}
-            </p>
+            <p>{c.feed.intro}</p>
           </div>
           <p className="pd-ai-note">{c.feed.aiNote}</p>
           <PaperDigestFeed papers={papers} aliases={data.aliases} lang={lang} copy={c.feed} currentYear={currentYear} />
@@ -91,10 +83,7 @@ export function PaperDigestPageContent({ lang = "en" }) {
         </section>
         <div className="pd-subscribe-wrap">
           <section id="subscribe" className="pd-subscribe" aria-labelledby="pd-subscribe-title">
-            <div>
-              <p className="eyebrow">{c.subscribeBand.eyebrow}</p>
-              <h2 id="pd-subscribe-title">{c.subscribeBand.title}</h2>
-            </div>
+            <h2 id="pd-subscribe-title">{c.subscribeBand.title}</h2>
             <div>
               <SubscribeForm lang={lang} copy={c.form} endpoints={paperDigestEndpoints} />
               <details className="pd-privacy">
