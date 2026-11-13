@@ -81,6 +81,7 @@ export const paperDigestContent = {
       badges: { published: "Published", preprint: "Preprint" },
       moreAuthors: " et al.",
       details: { summary: "AI summary and evidence limits", details: "Summary", limitations: "Limits of the evidence" },
+      noAbstract: "No abstract available; AI insights have not been generated.",
       newTab: "(opens in a new tab)",
       footnote: "AI summaries may contain errors, so please check the original papers. Preprints have not been peer-reviewed.",
       rss: "RSS feed"
@@ -149,6 +150,7 @@ export const paperDigestContent = {
       badges: { published: "已发表", preprint: "预印本" },
       moreAuthors: " 等 {n} 人",
       details: { summary: "AI 解读与证据局限", details: "内容摘要", limitations: "证据局限" },
+      noAbstract: "暂无摘要，未生成 AI 解读。",
       newTab: "（在新标签页打开）",
       footnote: "AI 解读可能有误，请以原文为准。预印本尚未经过同行评审。",
       rss: "RSS 订阅"

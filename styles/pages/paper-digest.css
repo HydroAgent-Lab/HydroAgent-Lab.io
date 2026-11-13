@@ -16,6 +16,8 @@
   --pd-on-navy-muted: #D4D9DE;    /* secondary text on navy, 10.3:1 */
   --pd-on-navy-accent: #9CC4F0;   /* eyebrow and success text on navy, 8.0:1 */
   --pd-on-navy-error: #FDA29B;    /* error text and invalid field edge on navy, 7.5:1 */
+  --pd-evidence-surface: #FFF8EA; /* Limits of the evidence; body text 9.8:1 */
+  --pd-evidence-border: #E3C989;  /* its top rule, decorative */
 }
 
 /* --- Hero: what the digest is and the two actions on the left, the latest
@@ -688,7 +690,7 @@
 }
 
 .pd-paper-summary {
-  max-width: 68ch;
+  max-width: 75ch;
   margin: 8px 0 0;
   font-size: 15px;
   line-height: 1.65;
@@ -700,42 +702,82 @@
 }
 
 .pd-paper-byline {
-  max-width: 68ch;
+  max-width: 75ch;
   margin: 8px 0 0;
   font-size: 13px;
   line-height: 1.5;
   color: var(--text-muted);
 }
 
+/* The reading opens as a card: a summary row, then Summary and Limits of the
+   evidence as paragraphs. No side stripe; the Limits block alone gets the warm
+   ground, so that colour means only "edge of the evidence". */
 .pd-paper-more {
-  max-width: 68ch;
-  margin-top: 6px;
-  font-size: 13px;
+  max-width: 75ch;
+  margin-top: 12px;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  overflow: hidden;
+}
+
+.pd-paper-more summary {
+  display: flex;
+  min-height: 44px;
+  padding: 10px 14px;
+  background: var(--surface-subtle);
+  transition: background-color var(--transition);
+}
+
+.pd-paper-more summary:hover {
+  background: var(--accent-wash);
 }
 
 .pd-paper-more dl {
-  margin: 6px 0 0;
-  padding: 14px 18px;
-  font-size: 14px;
-  line-height: 1.65;
-  background: var(--surface-subtle);
-  border-left: 2px solid var(--border-strong);
+  margin: 0;
+  border-top: 1px solid var(--border);
+}
+
+.pd-reading-part {
+  padding: 14px 17px 16px;
+}
+
+.pd-reading-part.is-limits {
+  background: var(--pd-evidence-surface);
+  border-top: 1px solid var(--pd-evidence-border);
+}
+
+/* Limits alone: the list's own top rule is enough. */
+.pd-reading-part.is-limits:first-child {
+  border-top: 0;
 }
 
 .pd-paper-more dt {
-  margin: 0 0 2px;
-  font-size: 12px;
+  margin: 0 0 6px;
+  font-size: 11px;
   font-weight: 600;
-  color: var(--text-muted);
-}
-
-.pd-paper-more dd {
-  margin: 0 0 12px;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
   color: var(--text-secondary);
 }
 
-.pd-paper-more dd:last-child {
-  margin-bottom: 0;
+.pd-paper-more dd {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.68;
+  color: var(--text-secondary);
+}
+
+.pd-no-ai {
+  max-width: 75ch;
+  margin: 12px 0 0;
+  padding: 11px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: 9px;
 }
 
 .pd-empty {
@@ -790,6 +832,7 @@
 
   .pd-paper-title a,
   .pd-privacy summary::before,
+  .pd-paper-more summary,
   .pd-paper-more summary::before {
     transition: none;
   }

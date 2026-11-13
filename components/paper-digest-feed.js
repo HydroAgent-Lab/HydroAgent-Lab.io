@@ -161,19 +161,21 @@ function PaperRow({ paper, lang, copy }) {
           <summary>{copy.details.summary}</summary>
           <dl>
             {paper.details ? (
-              <>
+              <div className="pd-reading-part">
                 <dt>{copy.details.details}</dt>
                 <dd>{paper.details}</dd>
-              </>
+              </div>
             ) : null}
             {paper.limitations ? (
-              <>
+              <div className="pd-reading-part is-limits">
                 <dt>{copy.details.limitations}</dt>
                 <dd>{paper.limitations}</dd>
-              </>
+              </div>
             ) : null}
           </dl>
         </details>
+      ) : paper.noReading ? (
+        <p className="pd-no-ai">{copy.noAbstract}</p>
       ) : null}
     </li>
   );
