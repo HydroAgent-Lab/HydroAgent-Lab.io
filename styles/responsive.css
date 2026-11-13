@@ -73,7 +73,8 @@ dd {
 .agent-thinking-head h2,
 .human-agent-copy h2,
 .business-heading-line h2,
-.proof-statement h2 {
+.proof-statement h2,
+.pd-head h2 {
   font-size: clamp(1.4rem, 1.05rem + 1.6vw, 1.85rem);
 }
 

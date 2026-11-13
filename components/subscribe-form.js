@@ -88,18 +88,21 @@ export function SubscribeForm({ lang = "en", copy, endpoints = {} }) {
     <form className="subscribe-form" onSubmit={handleSubmit} noValidate>
       <fieldset className="subscribe-lang">
         <legend>{copy.languageLabel}</legend>
-        {order.map((value) => (
-          <label key={value} lang={value === "zh" ? "zh-CN" : "en"}>
-            <input
-              type="radio"
-              name="digest-language"
-              value={value}
-              checked={digestLang === value}
-              onChange={() => setDigestLang(value)}
-            />
-            {copy.languages[value]}
-          </label>
-        ))}
+        {/* One unit, so the two options never split across lines. */}
+        <span className="subscribe-lang-options">
+          {order.map((value) => (
+            <label key={value} lang={value === "zh" ? "zh-CN" : "en"}>
+              <input
+                type="radio"
+                name="digest-language"
+                value={value}
+                checked={digestLang === value}
+                onChange={() => setDigestLang(value)}
+              />
+              {copy.languages[value]}
+            </label>
+          ))}
+        </span>
       </fieldset>
       <label className="subscribe-label" htmlFor={inputId}>
         {copy.label}

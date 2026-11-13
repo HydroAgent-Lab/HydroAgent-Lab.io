@@ -1,55 +1,194 @@
 /* ==========================================================
-   Paper Digest — one page. The lead takes the sign-up (digest
-   language, email, privacy note); below it every public paper
-   is listed as a week-by-week ledger with filter, search and
-   "show earlier". Colour rationing as on Demo: solid --accent
-   only on Subscribe; the active filter gets an --accent outline
-   and wash; badges, radios and disclosures stay neutral.
+   Paper Digest — one page in three parts: the hero (what the
+   digest is, the latest edition, Explore and Subscribe), every
+   public paper as a week-by-week ledger with filter, search and
+   "show earlier", and the navy sign-up band (digest language,
+   email, privacy note). Colour rationing as on Demo: solid
+   --accent only on Subscribe; the active filter gets an
+   --accent outline and wash, and the reading row hovers to
+   the same wash; badges stay neutral. On the navy band, light
+   blue (--pd-on-navy-accent) marks the chosen radio and the
+   button's edge.
    ========================================================== */
 
-/* Keeps the zh title from ending on a two-character line ("邮箱。"). */
-.paper-digest-page .page-lead h1 {
+/* Page-only colours (DESIGN_SUMMARY §2.1, §2.4); everything else comes from
+   styles/tokens.css. Ratios are WCAG contrast on the ground named. */
+.paper-digest-page {
+  --pd-navy: #0E2A47;             /* sign-up band; white text 14.6:1 */
+  --pd-on-navy-muted: #D4D9DE;    /* secondary text on navy, 10.3:1 */
+  --pd-on-navy-accent: #9CC4F0;   /* success text and the button edge on navy, 8.0:1 */
+  --pd-on-navy-error: #FDA29B;    /* error text and invalid field edge on navy, 7.5:1 */
+  --pd-evidence-surface: #FFF8EA; /* Limits of the evidence; body text 9.8:1 */
+  --pd-evidence-border: #E3C989;  /* its top rule, decorative */
+  /* Running text. Measured in this face, 55ch holds 70-75 Latin characters
+     or about 40 Chinese ones: "ch" is the width of "0", wider than the
+     average letter, so 75ch would run to 90-100 characters. */
+  --pd-measure: 55ch;
+}
+
+/* --- Hero: what the digest is and the two actions on the left, the latest
+   edition on the right. It replaces the shared PageLead on this page only. --- */
+.pd-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: clamp(36px, 5.5vw, 76px);
+  align-items: center;
+  padding: 80px var(--gutter) 64px;
+  background: var(--surface-subtle);
+}
+
+/* Chinese in the hero breaks only at spaces and punctuation, so "水文学" and
+   "订阅者" stay whole and lines end at phrase boundaries. word-break inherits,
+   so this covers the title, the lede and the card. The longest run is the
+   lede's "通过邮件推送给订阅者。" (11 characters, about 165px), inside the 256px
+   column at 320px; a longer one would still wrap, because
+   styles/responsive.css sets overflow-wrap: break-word. (The English card
+   keeps "(Rome time)" together with a no-break space in the copy.) */
+.paper-digest-page:lang(zh) .pd-hero {
+  word-break: keep-all;
+}
+
+.pd-hero .eyebrow {
+  margin-bottom: 16px;
+}
+
+/* The Platform hero scale: 40px / 600, 28px at 900px and below. */
+.pd-hero h1 {
+  margin: 0 0 16px;
+  font-size: 2.5rem;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
   text-wrap: balance;
 }
 
-/* Chinese breaks only at the spaces and punctuation, so "文献" stays whole.
-   Not on phones: the column is too narrow for the longest run. */
-@media (min-width: 561px) {
-  .paper-digest-page:lang(zh) .page-lead h1 {
-    word-break: keep-all;
+/* Emphasis by colour, never italics: --accent is 5.6:1 on this ground. The
+   phrase never splits ("LLM × / 水文学"): about 215px (en) and 170px (zh) at
+   28px, inside the 256px column at 320px. Keep it that short. */
+.pd-hero-accent {
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.pd-hero-text {
+  max-width: var(--pd-measure);
+  margin: 0 0 24px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-muted);
+  /* English: no single word left alone on the last line. */
+  text-wrap: pretty;
+}
+
+.pd-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* The site pills one size up. Solid blue only on Subscribe. */
+.pd-hero-actions .primary-action,
+.pd-hero-actions .secondary-action {
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 22px;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+/* The shared outline pill blurs what is behind it; here that is a flat
+   ground, so there is nothing to blur. */
+.pd-hero-actions .secondary-action {
+  backdrop-filter: none;
+}
+
+/* Pressed: a 1px dip on every button and pill on the page (the hero actions,
+   the filter, "Show earlier", Subscribe), only when motion is welcome. */
+@media (prefers-reduced-motion: no-preference) {
+  .paper-digest-page :is(.primary-action, .secondary-action, .pd-filter-option):active {
+    transform: translateY(1px);
   }
 }
 
-/* Facts as ruled label/value rows, the same treatment as the other
-   secondary pages (events, research, white papers). */
-.paper-digest-page .page-lead-facts {
-  flex-direction: column;
-  gap: 0;
+.pd-edition {
+  padding: 24px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
 }
 
-.paper-digest-page .page-lead-fact {
+.pd-edition-label {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.pd-edition-day {
+  margin: 4px 0 0;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  color: var(--text);
+}
+
+.pd-edition-count {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.pd-edition-stats {
   display: grid;
-  grid-template-columns: 120px 1fr;
-  gap: 16px;
-  align-items: baseline;
-  padding: 14px 0;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  margin: 0;
+}
+
+/* A rule under the edition. With no papers there is no edition, and the
+   facts start at the top of the card. */
+.pd-edition-count + .pd-edition-stats {
+  margin-top: 16px;
   border-top: 1px solid var(--border);
 }
 
-.paper-digest-page .page-lead-fact:last-child {
+.pd-edition-stats > div {
+  padding: 14px 0;
   border-bottom: 1px solid var(--border);
 }
 
-.paper-digest-page .page-lead-fact strong {
+.pd-edition-stats > div:nth-child(odd) {
+  padding-right: 12px;
+  border-right: 1px solid var(--border);
+}
+
+.pd-edition-stats > div:nth-child(even) {
+  padding-left: 16px;
+}
+
+.pd-edition-stats dt {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.pd-edition-stats dd {
+  margin: 4px 0 0;
   font-size: 15px;
   font-weight: 500;
   line-height: 1.5;
+  color: var(--text);
 }
 
-/* --- Sign-up form --- */
+/* --- Sign-up form. It renders only in the navy sign-up band below, so its
+   colours are set for that ground, and text it does not colour inherits the
+   band's white. --- */
 .subscribe-form {
   max-width: 480px;
-  margin-top: 28px;
 }
 
 .subscribe-label {
@@ -57,7 +196,6 @@
   margin-bottom: 8px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--text-secondary);
 }
 
 .subscribe-row {
@@ -66,7 +204,8 @@
 }
 
 /* 44px tall: a comfortable touch target for both the field and the button.
-   16px, not 15: iOS Safari zooms the page into any field under 16px on focus. */
+   16px, not 15: iOS Safari zooms the page into any field under 16px on focus.
+   A white field on navy: its own edge is the boundary (14.6:1). */
 .subscribe-row input {
   flex: 1;
   min-width: 0;
@@ -76,7 +215,7 @@
   font-size: 16px;
   color: var(--text);
   background: var(--surface-elevated);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--text-on-dark);
   border-radius: var(--radius-pill);
   transition: border-color var(--transition);
 }
@@ -86,7 +225,8 @@
 }
 
 .subscribe-row input[aria-invalid="true"] {
-  border-color: #b42318;
+  border-color: var(--pd-on-navy-error);
+  box-shadow: 0 0 0 1px var(--pd-on-navy-error);
 }
 
 /* <button> does not inherit the page font; the pill itself is .primary-action. */
@@ -98,10 +238,6 @@
   font-size: 15px;
   white-space: nowrap;
   cursor: pointer;
-}
-
-.subscribe-submit:active {
-  transform: translateY(1px);
 }
 
 /* Dimmed only while a request is in flight. The button is also disabled until
@@ -128,30 +264,28 @@
 .subscribe-note {
   margin: 10px 0 0;
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--pd-on-navy-muted);
 }
 
-/* Live region: stays in the tree (an announcement can be missed when a region
-   is inserted), and takes no space until there is something to say. */
+/* Live region: it stays in the tree, because an announcement can be missed
+   when a region is inserted. One line is always kept for it, so a one-line
+   error does not move the band or the title beside it; a message that wraps
+   still adds lines (the English error below about 360px, the long
+   confirmation). The kept line also spaces the privacy note below. */
 .subscribe-message {
+  min-height: 1.5em; /* one line at this line-height */
   margin: 12px 0 0;
   font-size: 14px;
   line-height: 1.5;
-  color: var(--text-secondary);
-}
-
-.subscribe-message:empty {
-  margin: 0;
 }
 
 .subscribe-message.is-done {
-  color: var(--accent-hover);
+  color: var(--pd-on-navy-accent);
 }
 
-/* ~6:1 on the page-lead ground */
 .subscribe-message.is-invalid,
 .subscribe-message.is-error {
-  color: #b42318;
+  color: var(--pd-on-navy-error);
 }
 
 /* --- Digest language: a quiet radio pair above the address --- */
@@ -171,45 +305,65 @@
   padding: 0;
   font-size: 13px;
   font-weight: 500;
-  color: var(--text-secondary);
 }
 
+/* The two options are one unit: when they do not fit beside the legend, both
+   move below it together instead of splitting across two lines. */
+.subscribe-lang-options {
+  display: inline-flex;
+  gap: 18px;
+}
+
+/* 44px to the finger in a 32px row: the box is 44px tall and the negative
+   margin gives 12px back to the layout. The privacy summary does the same. */
 .subscribe-lang label {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 32px;
+  min-height: 44px;
+  margin-block: -6px;
   font-size: 14px;
-  color: var(--text);
   cursor: pointer;
 }
 
+/* On navy a dark dot made the chosen radio look emptier than the other, a
+   plain white disc; the light blue ring and dot read as "on". */
 .subscribe-lang input {
   width: 16px;
   height: 16px;
   margin: 0;
-  accent-color: var(--dark-1);
+  accent-color: var(--pd-on-navy-accent);
 }
 
-/* --- Privacy note: native disclosure under the form --- */
+/* --- Privacy note: a native disclosure under the form, on the navy band --- */
 .pd-privacy {
   max-width: 480px;
-  margin-top: 14px;
   font-size: 13px;
   line-height: 1.6;
-  color: var(--text-muted);
+  color: var(--pd-on-navy-muted);
 }
 
+/* The page's two disclosures share the chevron row; both rows are 44px tall
+   to the finger. */
 .pd-privacy summary,
 .pd-paper-more summary {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  min-height: 32px;
+  min-height: 44px;
   font-weight: 500;
-  color: var(--text-secondary);
   list-style: none;
   cursor: pointer;
+}
+
+/* The privacy row takes 32px of the layout: the negative margin gives back
+   the extra 12px of its hit area. */
+.pd-privacy summary {
+  margin-block: -6px;
+}
+
+.pd-privacy summary:hover {
+  color: var(--text-on-dark);
 }
 
 .pd-privacy summary::-webkit-details-marker,
@@ -234,14 +388,51 @@
   transform: rotate(45deg);
 }
 
-.pd-privacy summary:hover,
-.pd-paper-more summary:hover {
-  color: var(--text);
-}
-
 .pd-privacy ul {
   margin: 6px 0 0;
   padding-left: 18px;
+}
+
+/* --- Sign-up band: navy ground, the form sits on it directly (no white card).
+   The wrapper owns the gutter, the band owns the colour; no rule does both,
+   and neither sets a width cap (tests/test_platform_hero_width.py). --- */
+.pd-subscribe-wrap {
+  padding: 16px var(--gutter) 96px;
+}
+
+.pd-subscribe {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(24px, 5vw, 64px);
+  align-items: center;
+  padding: clamp(28px, 4.5vw, 52px);
+  color: var(--text-on-dark);
+  background: var(--pd-navy);
+  border-radius: var(--radius-lg);
+}
+
+/* The rules below beat site-wide ones: the heading colour (typography.css),
+   the pill's edge (hero.css, including its hover) and the focus ring
+   (base.css). */
+.pd-subscribe h2 {
+  max-width: 25ch;
+  /* 24px on phones and tablets, up to 26px on wide screens: never smaller
+     on a larger screen. */
+  font-size: clamp(24px, 2.2vw, 26px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--text-on-dark);
+}
+
+/* The blue fill is only 2.5:1 on navy; a light edge takes the button's
+   outline to 8:1. */
+.pd-subscribe .subscribe-submit {
+  border-color: var(--pd-on-navy-accent);
+}
+
+/* The site ring (--accent-hover) is 1.85:1 on navy; white is 14.6:1. */
+.pd-subscribe :focus-visible {
+  outline-color: var(--text-on-dark);
 }
 
 /* --- Confirmation banner (?subscribed=1). Empty, it takes no space. --- */
@@ -261,7 +452,7 @@
 }
 
 /* --- Paper list --- */
-/* Aligned with the lead above it (var(--gutter)), not the narrower
+/* Aligned with the hero above it (var(--gutter)), not the narrower
    .content-section column other pages use. Padding only: the width cap
    stays off this element (see tests/test_platform_hero_width.py). */
 .paper-digest-page .pd-section {
@@ -275,16 +466,21 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 8px 24px;
-  margin-bottom: 24px;
-}
-
-.pd-head h2 {
-  font-size: clamp(1.35rem, 1rem + 1.2vw, 1.75rem);
+  margin-bottom: 8px;
 }
 
 .pd-head p {
   margin: 0;
   font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* Said once above the list, not on every paper (DESIGN_SUMMARY §2.4). */
+.pd-ai-note {
+  max-width: var(--pd-measure);
+  margin: 0 0 24px;
+  font-size: 13px;
+  line-height: 1.55;
   color: var(--text-muted);
 }
 
@@ -305,7 +501,16 @@
   background: var(--surface-elevated);
 }
 
+/* The pill is 38px tall; its ::after stretches the hit area into the group's
+   padding, to 44px. */
+.pd-filter-option::after {
+  content: "";
+  position: absolute;
+  inset: -4px 0;
+}
+
 .pd-filter-option {
+  position: relative;
   touch-action: manipulation;
   min-height: 38px;
   padding: 0 16px;
@@ -334,10 +539,11 @@
   flex: 0 1 340px;
 }
 
-/* 16px text: iOS zooms into smaller fields on focus. */
+/* 16px text: iOS zooms into smaller fields on focus. 46px: the height of
+   the filter group beside it. */
 .pd-search input {
   width: 100%;
-  min-height: 44px;
+  min-height: 46px;
   padding: 0 16px 0 42px;
   font-family: var(--font);
   font-size: 16px;
@@ -402,7 +608,11 @@
   color: var(--text-muted);
 }
 
-/* Keep deep links, unavailable notices and focused controls below the sticky header. */
+/* Everything the page scrolls to stops below the fixed header: the two
+   sections the hero links to (#latest, #subscribe), deep-linked papers, the
+   unavailable notice and focused controls. */
+.paper-digest-page .pd-section,
+.pd-subscribe,
 .pd-results,
 .pd-paper,
 .pd-paper a,
@@ -493,7 +703,7 @@
 }
 
 .pd-paper-summary {
-  max-width: 68ch;
+  max-width: var(--pd-measure);
   margin: 8px 0 0;
   font-size: 15px;
   line-height: 1.65;
@@ -505,42 +715,96 @@
 }
 
 .pd-paper-byline {
-  max-width: 68ch;
+  max-width: var(--pd-measure);
   margin: 8px 0 0;
   font-size: 13px;
   line-height: 1.5;
   color: var(--text-muted);
 }
 
+/* The reading opens as a card: a summary row, then Summary and Limits of the
+   evidence as paragraphs. No side stripe; the Limits block alone gets the warm
+   ground, so that colour means only "edge of the evidence". */
 .pd-paper-more {
-  max-width: 68ch;
-  margin-top: 6px;
-  font-size: 13px;
+  max-width: var(--pd-measure);
+  margin-top: 12px;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.pd-paper-more summary {
+  display: flex;
+  padding: 10px 14px;
+  color: var(--text-secondary);
+  background: var(--surface-subtle);
+  transition: background-color var(--transition);
+}
+
+.pd-paper-more summary:hover {
+  color: var(--text);
+  background: var(--accent-wash);
+}
+
+/* The card clips its children to round the corners, and a focus ring sits
+   outside its element. Here the ring is drawn inside the row; otherwise
+   keyboard focus would be invisible. */
+.pd-paper-more summary:focus-visible {
+  outline-offset: -2px;
+  border-radius: calc(var(--radius-md) - 1px);
+}
+
+.pd-paper-more[open] summary:focus-visible {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .pd-paper-more dl {
-  margin: 6px 0 0;
-  padding: 14px 18px;
-  font-size: 14px;
-  line-height: 1.65;
-  background: var(--surface-subtle);
-  border-left: 2px solid var(--border-strong);
+  margin: 0;
+  border-top: 1px solid var(--border);
+}
+
+.pd-reading-part {
+  padding: 16px;
+}
+
+.pd-reading-part.is-limits {
+  background: var(--pd-evidence-surface);
+}
+
+/* A warm rule between Summary and Limits. Limits alone needs none: the
+   list's own top rule is enough. */
+.pd-reading-part + .is-limits {
+  border-top: 1px solid var(--pd-evidence-border);
 }
 
 .pd-paper-more dt {
-  margin: 0 0 2px;
-  font-size: 12px;
+  margin: 0 0 6px;
+  font-size: 11px;
   font-weight: 600;
-  color: var(--text-muted);
-}
-
-.pd-paper-more dd {
-  margin: 0 0 12px;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
   color: var(--text-secondary);
 }
 
-.pd-paper-more dd:last-child {
-  margin-bottom: 0;
+.pd-paper-more dd {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.68;
+  color: var(--text-secondary);
+}
+
+.pd-no-ai {
+  max-width: var(--pd-measure);
+  margin: 12px 0 0;
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
 }
 
 .pd-empty {
@@ -564,13 +828,14 @@
   touch-action: manipulation;
   grid-column: 2;
   justify-self: start;
+  min-height: 44px;
   font-family: var(--font);
   font-size: 14px;
   cursor: pointer;
 }
 
 .pd-footnote {
-  max-width: 80ch;
+  max-width: var(--pd-measure);
   margin: 40px 0 0;
   padding-top: 16px;
   font-size: 13px;
@@ -589,12 +854,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .subscribe-submit:active {
-    transform: none;
-  }
-
   .pd-paper-title a,
   .pd-privacy summary::before,
+  .pd-paper-more summary,
   .pd-paper-more summary::before {
     transition: none;
   }
@@ -618,12 +880,61 @@
   .pd-more {
     grid-column: 1;
   }
+
+  .pd-subscribe {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pd-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+
+  .pd-hero h1 {
+    font-size: 1.75rem;
+    line-height: 1.16;
+  }
 }
 
 @media (max-width: 560px) {
-  .paper-digest-page .page-lead-fact {
-    grid-template-columns: 1fr;
-    gap: 6px;
+  .pd-hero {
+    gap: 24px;
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  /* Both actions full width, one per row: no two-line buttons on 320px. */
+  .pd-hero-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .pd-hero-actions .primary-action,
+  .pd-hero-actions .secondary-action {
+    width: 100%;
+    min-height: 48px;
+  }
+
+  .pd-edition {
+    padding: 16px;
+    border-radius: var(--radius-md);
+  }
+
+  .pd-edition-day {
+    font-size: 24px;
+  }
+
+  /* Long values ("Daily at 07:00 (Rome time)") get a full row each. */
+  .pd-edition-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pd-edition-stats > div:nth-child(odd),
+  .pd-edition-stats > div:nth-child(even) {
+    padding-left: 0;
+    padding-right: 0;
+    border-right: 0;
   }
 
   /* Field and button stack, both full width — side by side, a 320px screen
@@ -648,5 +959,29 @@
 
   .pd-paper-title {
     font-size: 17px;
+  }
+
+  .pd-subscribe-wrap {
+    padding-top: 0;
+    padding-bottom: 64px;
+  }
+
+  .pd-subscribe {
+    padding: 24px 20px;
+    border-radius: var(--radius-md);
+  }
+
+  .pd-subscribe h2 {
+    line-height: 1.22;
+  }
+}
+
+/* The smallest phones: "AI summary and evidence limits" stays on one line
+   (a clickable label never wraps). */
+@media (max-width: 360px) {
+  .pd-paper-more summary {
+    padding-right: 12px;
+    padding-left: 12px;
+    font-size: 13px;
   }
 }

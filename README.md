@@ -22,7 +22,8 @@ python -m pytest tests   # CSS / layout guards
 [`HydroAgent-Lab/paper-digest-data`](https://github.com/HydroAgent-Lab/paper-digest-data). CI checks it out into
 `.digest-data/` (git-ignored) and builds with `PAPER_DIGEST_DATA=.digest-data/papers.json`. The Pages workflow also runs
 **daily at 07:47, 10:17 and 13:17 UTC** (after the server's 08:30 Rome publish) so the page picks up new papers without a
-push. The minutes are off the hour because GitHub delays top-of-hour schedules most; the later two runs are backups, and a
+push. In practice GitHub starts these runs about 8 hours late (2026-11-09 to 11-12: the first run began 15:37–16:18 UTC), so
+without a push the page shows the day's papers only in the late afternoon, Rome time. The minutes are off the hour because GitHub delays top-of-hour schedules most; the later two runs are backups, and a
 rerun on unchanged data redeploys the same site. Pushing to the data repo does not trigger a build; to publish at once,
 run the workflow by hand (`gh workflow run deploy-github-pages.yml -R HydroAgent-Lab/HydroAgent-Lab.io --ref main`). Until the
 data repo has its first `papers.json`, the workflow skips build and deploy with a notice, so the current site stays online;
@@ -83,7 +84,7 @@ components/
   cta-band.js, page-lead.js, section-header.js,
   breadcrumb.js, demo-chat.js, track-link.js
   subscribe-form.js       # Paper Digest sign-up — client; digest language + POST to the Brevo form for it
-  paper-digest-feed.js    # Paper Digest list — client; week groups, type filter, search, show earlier, details
+  paper-digest-feed.js    # Paper Digest list — client; week groups, type filter, search, show earlier, reading card
   subscribed-notice.js    # Paper Digest ?subscribed=1 banner after Brevo's confirmation link
 
 content/
@@ -105,7 +106,7 @@ public/assets/            # Static assets for the Next app — see ASSETS_GUIDE.
 archive/figures/          # Unreferenced source figures — kept in git, NOT deployed (30 MB)
 
 lib/
-  paper-digest.mjs        # Pure functions: validate papers.json, group by week, labels, search (server + client)
+  paper-digest.mjs        # Pure functions: validate papers.json, group by week, latest edition, labels, plurals, search (server + client)
   paper-digest.test.mjs   # node:test suite (npm test)
   load-paper-digest.js    # Build-time loader: PAPER_DIGEST_DATA / .digest-data / sample fallback (not in CI)
   paper-digest-rss.js     # RSS 2.0 for /paper-digest/feed.xml and /zh/paper-digest/feed.xml
@@ -146,13 +147,13 @@ styles/
 - White Papers 页首期 v1.0.0（2026-10-07，Zenodo DOI `10.5281/zenodo.23230110`，仅中文）。**有正式发布的语言（目前只有 zh）走出版物布局 `.wp-pub-*`**（2026-10-10 用 Hallmark 重做，CSS 顶部有标记与 slop-test 结果）：首屏左右分栏 —— 封面 | 标题、两个按钮、一行信息（版本 · 发布日 · 证据截至 · DOI）；下方"三项核心结论"与"关于这份白皮书"在首屏文字栏的左边线上排成单栏，宽 38rem（≈ 每行 36 个汉字）。没有卡片容器、没有眉标、全页一条分隔线；中文标题字距 0、正文行高 1.8；页面级间距/字号刻度挂在 `.white-papers-page` 上（`--wp-space-*` / `--wp-text-*`），不进全局 tokens。**完整版链 DOI，不链 Zenodo 文件直链**（发布两天后文件被改名，直链即 404）；速读版托管在 `public/assets/white-papers/`（2026-10-10 换成用户提供的新字体版，文件名不变）；英文版是"即将推出"占位（`links[].comingSoon`，有文件后换成 `href`）。**en 页是 coming soon + 一个"Read the Chinese edition ↗"按钮**（`papers: []` → PageLead + 空状态 + 更新频率；按钮来自 en `lead.action`，经 PageLead 的可选 `actions` 插槽渲染在标题下，链 DOI，和 zh 主按钮共用 `fullReportHref`）：英文版出来之前不发布任何非官方英文译文（用户决定）；英文版上线后 en 走出版物布局，按钮随兜底首屏一起消失。更新频率只保留"每季度白皮书 / 每年年度综述"，出版物布局里的"更新计划"由 `cadenceSection.items` 生成，一处维护。第 2 期需另设计归档列表（目前非 featured 条目不渲染）。`.hallmark/` 是 Hallmark 的运行记录（log + preflight），下次运行会读取
 - **Paper Digest 页**（2026-10-13 占位，2026-10-23 改为单页文献列表 + Brevo 订阅；Product 下第 4 项，`/paper-digest`）：收录范围是**水利 × 大模型**（与采集系统 HydroAgent_Collector 一致，不是泛 AI 论文）。
   - **名称**（2026-10-23 用户决定）：中文全称「水利大模型文献日报」，导航简写「文献日报」；英文全称「HydroAgent Paper Digest」，导航「Paper Digest」。网址保持 `/paper-digest` 不变。邮件发件人名为 `HydroAgent Paper Digest`。
-  - **数据**：服务器每天 08:30 把公开文献（外部组邮件同一批：已纳入的期刊论文与预印本）导出成白名单字段的 `papers.json`，推到公开仓库 `HydroAgent-Lab/paper-digest-data`；本站每天 07:47 UTC 定时构建时拉取，10:17、13:17 UTC 各补跑一次（见上方 "Paper Digest data"；原来的 `0 8` 整点任务实际晚 6–10 小时才跑，2026-11-03 改），不需要跨仓库令牌（用户决定）。注意 GitHub 会在仓库 60 天无提交后暂停定时任务。网站不调任何接口，访客看到的是构建时写进 HTML 的内容。字段约定见数据仓库 README；`lib/paper-digest.mjs` 校验：文件格式不对直接让构建失败，单条坏数据丢弃并计数；链接只放行 http(s)。
+  - **数据**：服务器每天 08:30 把公开文献（外部组邮件同一批：已纳入的期刊论文与预印本）导出成白名单字段的 `papers.json`，推到公开仓库 `HydroAgent-Lab/paper-digest-data`；本站每天 07:47 UTC 定时构建时拉取，10:17、13:17 UTC 各补跑一次（见上方 "Paper Digest data"；原来的 `0 8` 整点任务实际晚 6–10 小时才跑，2026-11-03 改；改后实测仍晚约 8 小时，见已知遗留 ⑦），不需要跨仓库令牌（用户决定）。注意 GitHub 会在仓库 60 天无提交后暂停定时任务。网站不调任何接口，访客看到的是构建时写进 HTML 的内容。字段约定见数据仓库 README；`lib/paper-digest.mjs` 校验：文件格式不对直接让构建失败，单条坏数据丢弃并计数；链接只放行 http(s)。
   - **双语**：每篇的 AI 摘要/内容摘要/证据局限都有 en、zh 两份（采集端翻译补齐）；页面只把当前语言传给浏览器，**某语言缺失就不显示，不拿另一种语言顶替**（用户决定）。论文标题保持原文，zh 页上标 `lang="en"`。
-  - **版式**：PageLead（左：标题 + 邮件语言单选 + 邮箱表单 + 可折叠隐私说明；右：说明 + 3 行事实，"已收录 N 篇"按数据计算）→ 白底列表区。列表是按周（周一起）分组的"目录账本"：桌面端日期在左栏 sticky，≤900px 变成组标题。每条：类型徽章（中性描边，预印本用**虚线**描边表示未经同行评审，不用颜色）、收录日期、标题（新标签页打开原文 ↗）、摘要、来源·作者·出版日期、`<details>` 就地展开"AI 解读与证据局限"。初始显示 4 周，"显示更早的文献"每次 +4 周；类型筛选或搜索时显示全部匹配并播报"找到 N 篇"。没有 JS 时列表照样完整渲染（前 4 周）。列表区左右用 `var(--gutter)` 与首屏对齐（不是其他页 `.content-section` 的 1080 列）。周标签和日期不用 `Intl`，避免服务端和浏览器的 ICU 差异导致水合不一致。
-  - **配色**：实心 `--accent` 只给"订阅"按钮；激活的筛选用 `--accent` 描边 + `--accent-wash`；单选框、徽章、展开块都是中性灰。zh 标题在 ≥561px 用 `word-break: keep-all`，只在空格和标点处断行（"文献"不被拆开）。
+  - **版式**（V2 外观，2026-11-13；设计依据 `design/paper-digest-v2/`）：三段 —— **首屏**（本页专用，不用共享 PageLead：标题 "Research intelligence for **LLM × Hydrology**" /「面向 **LLM × 水文学** 的研究情报」，40/28px、600；"浏览最新文献 ↓"描边 + "订阅文献日报"实心蓝，跳到 `#latest` / `#subscribe`；右侧白色"最新一期"信息卡）→ **列表区** → **底部深蓝订阅区**（`#subscribe`，现有 Brevo 表单直接放在深蓝底上）。首屏介绍文字就是 `meta.description`（一份文案三处用：首屏、页面描述、RSS）。"最新一期"＝最近一个 `included_on` 及当天篇数（`latestEdition()`），只在首屏卡片显示；卡片另两项是「邮件推送：每天 07:00（意大利时间）」和已收录篇数。**07:00 是邮件发出的时间**（2026-11-13 用户核对收件箱：07:00–07:20 到），页面自己不写更新钟点，也**不显示 `generated_at`**（每次导出都会变）。列表是按周（周一起）分组的"目录账本"：桌面端日期在左栏 sticky，≤900px 变成组标题。列表上方说明一次"AI 解读仅依据标题和摘要生成"。每条：类型徽章（中性描边，预印本用**虚线**描边，不用颜色）、收录日期、标题（新标签页打开原文 ↗）、摘要、来源·作者·出版日期、`<details>` 就地展开的**解读卡**（Summary 白底 + Limits 暖色底，无侧边色条）；三项解读在两种语言里都为空时（`noReading`）显示「暂无摘要，未生成 AI 解读」。初始显示 4 周，"显示更早的文献"每次 +4 周；类型筛选或搜索时显示全部匹配并播报"找到 N 篇"。没有 JS 时列表照样完整渲染（前 4 周）。列表区左右用 `var(--gutter)` 与首屏对齐。周标签和日期不用 `Intl`，避免服务端和浏览器的 ICU 差异导致水合不一致。
+  - **配色与尺寸**：颜色都取自 `styles/tokens.css`，另有 7 个本页专用变量写在 `styles/pages/paper-digest.css` 开头（`--pd-navy` 等订阅区用色、`--pd-evidence-*` 证据局限用色，注释里有对比度；`--pd-measure: 55ch` 是正文行长，实测约 70–75 个英文字符或 40 个汉字——`ch` 是数字 0 的宽度，75ch 实际会排到 90–100 个字符）。解读卡为了圆角设了 `overflow: hidden`，所以它的焦点框画在标题条**内侧**（`outline-offset: -2px`），否则会被裁掉。可点击元素的触控区都不小于 44px。实心 `--accent` 只给两个"订阅"按钮；激活的筛选用 `--accent` 描边 + `--accent-wash`；暖色底只用于"证据局限"；深蓝区里的焦点框是白色（站内默认的 `--accent-hover` 在深蓝上只有 1.85:1）。zh 首屏标题在所有宽度都用 `word-break: keep-all`，强调短语整体不换行（不出现"水文 / 学"或"LLM × / 水文学"），所以强调短语要保持在 256px 以内（320px 屏上的栏宽，28px 字号）。订阅表单（`components/subscribe-form.js`）只出现在深蓝订阅区，所以它的颜色直接按深蓝底写，没有浅色底的样式；以后要放到浅色底上，需要先补一套。单选框用浅蓝的 `accent-color`：默认的深色圆点在深蓝底上会让"选中"看起来比"未选中"更空。两个语言选项包在一个 `span` 里作为整体换行，不会被拆到两行。
   - **订阅**：Brevo 托管表单，每种邮件语言一个（`content/pages/paper-digest.js` 的 `paperDigestEndpoints`，公开地址；**为空时表单显示"订阅功能即将开放"**）。提交 `EMAIL` + 空的蜜罐字段 `email_address_check` + `locale`（字段名需按 Brevo 的 Simple HTML 嵌入代码核对）。成功判定沿用"必须有明确证据"：`ok` 的 Response 且 JSON 不是 `success:false`。成功文案是"请查收确认邮件"（双重确认，点链接前不在名单里）；GA4 记 `digest_subscribe`，参数只有 `site_language` 与 `digest_language`，从不记邮箱。Brevo 确认链接回跳 `/(zh/)paper-digest/?subscribed=1`，顶部 `role="status"` 横幅提示后用 `history.replaceState` 去掉参数（不用 `useSearchParams`，静态导出会要求 Suspense）。原有的水合前禁用、16px 输入框、`noValidate`、按钮宽度不跳等规则保留。
-  - **RSS**：`app/(zh/)paper-digest/feed.xml/route.js`（`force-static`，最近 50 篇）；页面 metadata 带 RSS alternate 和**本页自己的 canonical**（已知遗留 ① 在这一页已修）。
-  - **首页 NEWS 第一张**（2026-11-11 加）：日期 2026-10-31，即 `papers.json` 首次发布、页面带数据上线的那天；链 `/paper-digest`。文案删节自本页简介与订阅说明，**不写"07:00"**（与采集时间对不上，待确认）**也不写篇数**（每天在变）。缩略图是线上页面的手机宽度截图（400×565 CSS px，2×，隐藏回到顶部按钮），中英各一张，在 `public/assets/paper-digest/`。页面改版后要重截。
+  - **RSS 与分享**：`app/(zh/)paper-digest/feed.xml/route.js`（`force-static`，最近 50 篇）；页面 metadata 带 RSS alternate、**本页自己的 canonical**，以及本页自己的 `openGraph` / `twitter`（"HydroAgent Paper Digest — LLM × Hydrology" /「水利大模型文献日报 — LLM × 水文学」，本页网址，zh 页 `zh_CN`）。两条路由的 metadata 都由 `components/pages/paper-digest.js` 的 `paperDigestMetadata(lang)` 生成，标题文案在 `content/pages/paper-digest.js` 的 `meta`。页面级 `openGraph` 会整体替换 layout 的那一份，所以 siteName / type 在这个函数里重写了一遍；layout 以后加字段（如 og:image）时，改这一处即可。已知遗留 ① 在这一页已修。
+  - **首页 NEWS 第一张**（2026-11-11 加）：日期 2026-10-31，即 `papers.json` 首次发布、页面带数据上线的那天；链 `/paper-digest`。文案删节自本页简介与订阅说明，**不写"07:00"**（当时和采集时间对不上；2026-11-13 确认它是邮件发出的时间）**也不写篇数**（每天在变）。缩略图是线上页面的手机宽度截图（400×565 CSS px，2×，隐藏回到顶部按钮），中英各一张，在 `public/assets/paper-digest/`。页面改版后要重截。
 - **产品命名**（2026-10-13，用户决定）：
   - 首页板块标题、产品页大标题写全称：en 用 "HydroAgent for Flood Forecasting"，zh 用"洪水预报智能体"
   - 产品页正文第一次出现时，全称后括注简写：en 写 "HydroAgent for Flood Forecasting (HydroAgent-FF)"，zh 写"洪水预报智能体（HydroAgent-FF）"
@@ -161,4 +162,4 @@ styles/
   - 英文全称的断行：桌面和平板一行，手机两行，断成 "HydroAgent for / Flood Forecasting"（用户决定）
     - 产品页文字列 `.platform-hero-copy-inner` 宽 600px，因为 40px 字号下一行需要 578px，原来的 564px 放不下
     - 两处标题都加了 `text-wrap: balance`，保证 "Flood Forecasting" 不被拆开
-- 已知遗留：① 所有子页（Paper Digest 除外）`<link rel="canonical">` 与 `og:url` 都指向首页、OG 标题也是首页文案 —— 根源是 `app/layout.js` 的 `alternates.canonical: "/"` 与 `openGraph.url`，会妨碍子页被收录、分享卡片显示错误；② 22 个子页 `<title>` 后缀重复（如 "White Papers | HydroAgent-Lab | HydroAgent-Lab"）—— 页面 title 已含后缀，又叠加了 layout 的 `%s | HydroAgent-Lab` 模板；③ 根节点恒为 `<html lang="en">`，/zh 页也一样（`SiteShell` 只加 `lang-zh` 类），中文内容需在元素上自行标 `lang="zh-CN"`；④ `html` / `body` 没有 `overflow-x: clip`（Hallmark 的硬性要求，目前实测 320–1440px 无横向滚动）；⑤ `styles/pages/demo.css:119` 有 autoprefixer 警告（`start` 建议改 `flex-start`）。均待修
+- 已知遗留：① 所有子页（Paper Digest 除外）`<link rel="canonical">` 与 `og:url` 都指向首页、OG 标题也是首页文案 —— 根源是 `app/layout.js` 的 `alternates.canonical: "/"` 与 `openGraph.url`，会妨碍子页被收录、分享卡片显示错误；② 22 个子页 `<title>` 后缀重复（如 "White Papers | HydroAgent-Lab | HydroAgent-Lab"）—— 页面 title 已含后缀，又叠加了 layout 的 `%s | HydroAgent-Lab` 模板；③ 根节点恒为 `<html lang="en">`，/zh 页也一样（`SiteShell` 只加 `lang-zh` 类），中文内容需在元素上自行标 `lang="zh-CN"`；④ `html` / `body` 没有 `overflow-x: clip`（Hallmark 的硬性要求，目前实测 320–1440px 无横向滚动）；⑤ `styles/pages/demo.css:119` 有 autoprefixer 警告（`start` 建议改 `flex-start`）；⑥ 全站没有 `og:image`，分享卡片只有文字；⑦ 定时构建实际晚约 8 小时（见上方 "Paper Digest data"），Paper Digest 页面比邮件晚 9–10 小时才出现当天文献。均待修

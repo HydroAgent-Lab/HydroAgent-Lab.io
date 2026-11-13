@@ -1,14 +1,12 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { dayLabel, filterPapers, groupByWeek, planBriefLink, weekRange } from "@/lib/paper-digest.mjs";
+import { dayLabel, filterPapers, groupByWeek, planBriefLink, plural, weekRange } from "@/lib/paper-digest.mjs";
 
 const TYPES = ["all", "published", "preprint"];
 // Weeks shown before "show earlier"; each click adds as many again.
 const WEEKS_PER_STEP = 4;
 const CJK = /[㐀-鿿]/;
-
-const plural = (forms, n) => (n === 1 ? forms.one : forms.other).replace("{n}", String(n));
 
 // The week-grouped list. Papers arrive already localized (one language, no
 // fallback) and fully rendered on the server, so the page reads without JS;
@@ -161,19 +159,21 @@ function PaperRow({ paper, lang, copy }) {
           <summary>{copy.details.summary}</summary>
           <dl>
             {paper.details ? (
-              <>
+              <div className="pd-reading-part">
                 <dt>{copy.details.details}</dt>
                 <dd>{paper.details}</dd>
-              </>
+              </div>
             ) : null}
             {paper.limitations ? (
-              <>
+              <div className="pd-reading-part is-limits">
                 <dt>{copy.details.limitations}</dt>
                 <dd>{paper.limitations}</dd>
-              </>
+              </div>
             ) : null}
           </dl>
         </details>
+      ) : paper.noReading ? (
+        <p className="pd-no-ai">{copy.noAbstract}</p>
       ) : null}
     </li>
   );
