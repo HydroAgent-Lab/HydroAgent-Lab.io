@@ -99,7 +99,7 @@ export function PaperDigestFeed({ papers, aliases, lang, copy, currentYear }) {
           <section key={group.key} className="pd-week" aria-labelledby={`pd-week-${group.key}`}>
             <h3 className="pd-week-label" id={`pd-week-${group.key}`}>
               <span>{groupLabel(group.key, "week", lang, currentYear)}</span>
-              <span className="pd-week-count">{plural(copy.weekCount, group.papers.length)}</span>
+              <span className="pd-week-count">{plural(copy.count, group.papers.length)}</span>
             </h3>
             <ul className="pd-week-list">
               {group.papers.map((paper) => (

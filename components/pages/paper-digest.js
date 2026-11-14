@@ -79,7 +79,7 @@ export function PaperDigestPageContent({ lang = "en" }) {
                 <p className="pd-edition-day">
                   <time dateTime={edition.day}>{dayLabel(edition.day, lang)}</time>
                 </p>
-                <p className="pd-edition-count">{plural(c.feed.weekCount, edition.count)}</p>
+                <p className="pd-edition-count">{plural(c.feed.count, edition.count)}</p>
               </>
             ) : null}
             <dl className="pd-edition-stats">
