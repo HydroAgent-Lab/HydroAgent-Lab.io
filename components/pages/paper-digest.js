@@ -1,4 +1,5 @@
 import { PaperDigestFeed } from "@/components/paper-digest-feed";
+import { SavedPapersLink } from "@/components/saved-papers-link";
 import { SiteShell } from "@/components/shell";
 import { SubscribeForm } from "@/components/subscribe-form";
 import { SubscribedNotice } from "@/components/subscribed-notice";
@@ -47,7 +48,7 @@ export function PaperDigestPageContent({ lang = "en" }) {
   const facts = c.lead.facts.map((fact) => ({ ...fact, value: fact.value.replace("{count}", count) }));
 
   return (
-    <SiteShell lang={lang}>
+    <SiteShell lang={lang} headerAction={<SavedPapersLink label={c.saved.link} countLabel={c.saved.linkCount} lang={lang} />}>
       {/* The shell sets no lang and <html> is always "en", so /zh marks its copy here. */}
       <main className="main-content paper-digest-page" lang={lang === "zh" ? "zh-CN" : undefined}>
         <SubscribedNotice text={c.subscribed} />

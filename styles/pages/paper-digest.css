@@ -451,6 +451,59 @@
   border: 0;
 }
 
+/* --- Saved papers in the header: bottom right, level with the breadcrumb
+   (styles/breadcrumb.css places .header-action). The strip under the nav is
+   32px tall, so the pill is 28px and its ::after makes the hit area 32px.
+   The count keeps its place while the browser's list loads. --- */
+.pd-saved-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.pd-saved-link::after {
+  content: "";
+  position: absolute;
+  inset: -3px 0;
+}
+
+.pd-saved-link:hover {
+  color: var(--accent-hover);
+  border-color: var(--border-strong);
+}
+
+.pd-saved-link[aria-current="true"] {
+  color: var(--accent-hover);
+  border-color: var(--accent);
+}
+
+.pd-saved-count {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+  color: var(--text-secondary);
+  background: var(--surface);
+  border-radius: var(--radius-pill);
+}
+
+.pd-saved-count:empty {
+  visibility: hidden;
+}
+
 /* --- Paper list --- */
 /* Aligned with the hero above it (var(--gutter)), not the narrower
    .content-section column other pages use. Padding only: the width cap
@@ -854,6 +907,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .pd-saved-link,
   .pd-paper-title a,
   .pd-privacy summary::before,
   .pd-paper-more summary,
@@ -897,6 +951,11 @@
 }
 
 @media (max-width: 560px) {
+  /* The icon and the count; the name stays in the link's aria-label. */
+  .pd-saved-link-label {
+    display: none;
+  }
+
   .pd-hero {
     gap: 24px;
     padding-top: 40px;
