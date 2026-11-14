@@ -9,6 +9,16 @@
   z-index: 99;
 }
 
+/* A page's own control at the bottom right of the header, level with the
+   breadcrumb (Paper Digest: Saved papers). Only a page that passes
+   `headerAction` to SiteShell gets one. */
+.header-action {
+  position: absolute;
+  right: var(--gutter);
+  bottom: 4px;
+  z-index: 99;
+}
+
 .breadcrumb-list {
   display: flex;
   align-items: center;
@@ -57,6 +67,10 @@
   .breadcrumb {
     left: 20px;
     bottom: 8px;
+  }
+
+  .header-action {
+    right: 20px;
   }
 
   .breadcrumb-link,
