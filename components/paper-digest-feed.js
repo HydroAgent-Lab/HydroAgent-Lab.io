@@ -1,26 +1,25 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { dayLabel, filterPapers, groupByWeek, planBriefLink, plural, weekRange } from "@/lib/paper-digest.mjs";
+import { PAGE_SIZE, dayLabel, filterPapers, groupLabel, groupPapers, groupsToShow, planBriefLink, plural } from "@/lib/paper-digest.mjs";
 
 const TYPES = ["all", "published", "preprint"];
-// Weeks shown before "show earlier"; each click adds as many again.
-const WEEKS_PER_STEP = 4;
 const CJK = /[㐀-鿿]/;
 
-// The week-grouped list. Papers arrive already localized (one language, no
-// fallback) and fully rendered on the server, so the page reads without JS;
-// filtering, search and "show earlier" need it.
+// The list, grouped by the week each paper was added. Papers arrive already
+// localized (one language, no fallback) and fully rendered on the server, so
+// the page reads without JS; filtering, search and "show earlier" need it.
+// "Show earlier" adds whole groups, PAGE_SIZE papers at a time.
 export function PaperDigestFeed({ papers, aliases, lang, copy, currentYear }) {
   const searchId = useId();
   const [type, setType] = useState("all");
   const [query, setQuery] = useState("");
-  const [visibleWeeks, setVisibleWeeks] = useState(WEEKS_PER_STEP);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const [linkTarget, setLinkTarget] = useState(null);
   const statusRef = useRef(null);
-  const view = useRef({ type, query, visibleWeeks });
-  view.current = { type, query, visibleWeeks };
+  const view = useRef({ type, query, visibleCount });
+  view.current = { type, query, visibleCount };
 
   useEffect(() => {
     const followHash = () => {
@@ -29,7 +28,7 @@ export function PaperDigestFeed({ papers, aliases, lang, copy, currentYear }) {
       if (!plan || plan.unavailable) return;
       setType(plan.type);
       setQuery(plan.query);
-      setVisibleWeeks(plan.visibleWeeks);
+      setVisibleCount(plan.visibleCount);
     };
     followHash();
     window.addEventListener("hashchange", followHash);
@@ -50,10 +49,10 @@ export function PaperDigestFeed({ papers, aliases, lang, copy, currentYear }) {
   }, [linkTarget]);
 
   const matches = useMemo(() => filterPapers(papers, { type, query }), [papers, type, query]);
-  const weeks = useMemo(() => groupByWeek(matches), [matches]);
+  const groups = useMemo(() => groupPapers(matches, "week"), [matches]);
   const filtering = type !== "all" || query.trim() !== "";
   // A filter or search shows every match; paging only applies to the full list.
-  const shown = filtering ? weeks : weeks.slice(0, visibleWeeks);
+  const shown = filtering ? groups : groups.slice(0, groupsToShow(groups, visibleCount));
 
   return (
     <div className="pd-feed">
@@ -96,14 +95,14 @@ export function PaperDigestFeed({ papers, aliases, lang, copy, currentYear }) {
       </p>
 
       {shown.length ? (
-        shown.map((week) => (
-          <section key={week.start} className="pd-week" aria-labelledby={`pd-week-${week.start}`}>
-            <h3 className="pd-week-label" id={`pd-week-${week.start}`}>
-              <span>{weekRange(week.start, week.end, lang, currentYear)}</span>
-              <span className="pd-week-count">{plural(copy.weekCount, week.papers.length)}</span>
+        shown.map((group) => (
+          <section key={group.key} className="pd-week" aria-labelledby={`pd-week-${group.key}`}>
+            <h3 className="pd-week-label" id={`pd-week-${group.key}`}>
+              <span>{groupLabel(group.key, "week", lang, currentYear)}</span>
+              <span className="pd-week-count">{plural(copy.weekCount, group.papers.length)}</span>
             </h3>
             <ul className="pd-week-list">
-              {week.papers.map((paper) => (
+              {group.papers.map((paper) => (
                 <PaperRow key={paper.id} paper={paper} lang={lang} copy={copy} />
               ))}
             </ul>
@@ -113,9 +112,9 @@ export function PaperDigestFeed({ papers, aliases, lang, copy, currentYear }) {
         <p className="pd-empty">{copy.empty}</p>
       )}
 
-      {!filtering && weeks.length > visibleWeeks ? (
+      {!filtering && shown.length < groups.length ? (
         <div className="pd-more-row">
-          <button type="button" className="secondary-action pd-more" onClick={() => setVisibleWeeks((n) => n + WEEKS_PER_STEP)}>
+          <button type="button" className="secondary-action pd-more" onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}>
             {copy.more}
           </button>
         </div>
