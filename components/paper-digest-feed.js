@@ -2,15 +2,17 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { PAGE_SIZE, dayLabel, filterPapers, groupLabel, groupPapers, groupsToShow, planBriefLink, plural } from "@/lib/paper-digest.mjs";
+import { usePaperDigest } from "./paper-digest-views";
 
 const TYPES = ["all", "published", "preprint"];
 const CJK = /[㐀-鿿]/;
 
-// The list, grouped by the week each paper was added. Papers arrive already
-// localized (one language, no fallback) and fully rendered on the server, so
-// the page reads without JS; filtering, search and "show earlier" need it.
-// "Show earlier" adds whole groups, PAGE_SIZE papers at a time.
-export function PaperDigestFeed({ papers, aliases, lang, copy, currentYear }) {
+// The list, grouped by the week each paper was added. Papers arrive localized
+// (one language, no fallback) through PaperDigestViews and are fully rendered
+// on the server, so the page reads without JS; filtering, search and "show
+// earlier" need it. "Show earlier" adds whole groups, PAGE_SIZE papers at a time.
+export function PaperDigestFeed() {
+  const { papers, aliases, lang, copy, currentYear, hash } = usePaperDigest();
   const searchId = useId();
   const [type, setType] = useState("all");
   const [query, setQuery] = useState("");
@@ -21,19 +23,17 @@ export function PaperDigestFeed({ papers, aliases, lang, copy, currentYear }) {
   const view = useRef({ type, query, visibleCount });
   view.current = { type, query, visibleCount };
 
+  // A shared link (#brief-<id>). The hash comes from PaperDigestViews, which
+  // shows the home view in the same render, so the paper is on screen when
+  // the next effect looks for it.
   useEffect(() => {
-    const followHash = () => {
-      const plan = planBriefLink(window.location.hash, papers, aliases, view.current);
-      setLinkTarget(plan);
-      if (!plan || plan.unavailable) return;
-      setType(plan.type);
-      setQuery(plan.query);
-      setVisibleCount(plan.visibleCount);
-    };
-    followHash();
-    window.addEventListener("hashchange", followHash);
-    return () => window.removeEventListener("hashchange", followHash);
-  }, [papers, aliases]);
+    const plan = planBriefLink(hash, papers, aliases, view.current);
+    setLinkTarget(plan);
+    if (!plan || plan.unavailable) return;
+    setType(plan.type);
+    setQuery(plan.query);
+    setVisibleCount(plan.visibleCount);
+  }, [hash, papers, aliases]);
 
   useEffect(() => {
     if (!linkTarget) return;
