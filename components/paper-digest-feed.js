@@ -1,18 +1,20 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { PAGE_SIZE, dayLabel, filterPapers, groupLabel, groupPapers, groupsToShow, planBriefLink, plural } from "@/lib/paper-digest.mjs";
+import { PAGE_SIZE, filterPapers, groupLabel, groupPapers, groupsToShow, planBriefLink, plural } from "@/lib/paper-digest.mjs";
 import { usePaperDigest } from "./paper-digest-views";
+import { PaperRow } from "./paper-row";
+import { useSavedPapers } from "./saved-papers-store";
 
 const TYPES = ["all", "published", "preprint"];
-const CJK = /[㐀-鿿]/;
 
 // The list, grouped by the week each paper was added. Papers arrive localized
 // (one language, no fallback) through PaperDigestViews and are fully rendered
 // on the server, so the page reads without JS; filtering, search and "show
 // earlier" need it. "Show earlier" adds whole groups, PAGE_SIZE papers at a time.
 export function PaperDigestFeed() {
-  const { papers, aliases, lang, copy, currentYear, hash } = usePaperDigest();
+  const { papers, aliases, lang, copy, currentYear, hash, save, share } = usePaperDigest();
+  const { ids } = useSavedPapers();
   const searchId = useId();
   const [type, setType] = useState("all");
   const [query, setQuery] = useState("");
@@ -103,7 +105,15 @@ export function PaperDigestFeed() {
             </h3>
             <ul className="pd-week-list">
               {group.papers.map((paper) => (
-                <PaperRow key={paper.id} paper={paper} lang={lang} copy={copy} />
+                <PaperRow
+                  key={paper.id}
+                  paper={paper}
+                  lang={lang}
+                  copy={copy}
+                  saved={ids.has(paper.id)}
+                  onToggleSave={() => save(paper)}
+                  onShare={() => share(paper.id)}
+                />
               ))}
             </ul>
           </section>
@@ -120,60 +130,5 @@ export function PaperDigestFeed() {
         </div>
       ) : null}
     </div>
-  );
-}
-
-function PaperRow({ paper, lang, copy }) {
-  const authors =
-    paper.authors.join(", ") +
-    (paper.authorsTotal > paper.authors.length ? copy.moreAuthors.replace("{n}", String(paper.authorsTotal)) : "");
-  // The date never splits across lines ("2026-08-" / "01").
-  const byline = [paper.venue, authors, paper.date && <span className="pd-nowrap">{paper.date}</span>]
-    .filter(Boolean)
-    .flatMap((part, i) => (i ? [" · ", part] : [part]));
-  // Titles stay in their original language; mark English ones on the zh page.
-  const titleLang = lang === "zh" && !CJK.test(paper.title) ? "en" : undefined;
-
-  return (
-    <li className="pd-paper" id={`brief-${paper.id}`}>
-      <div className="pd-paper-meta">
-        <span className={`pd-badge is-${paper.type}`}>{copy.badges[paper.type]}</span>
-        <time dateTime={paper.includedOn}>{copy.addedOn.replace("{date}", dayLabel(paper.includedOn, lang))}</time>
-      </div>
-      <h4 className="pd-paper-title" lang={titleLang}>
-        {paper.url ? (
-          <a href={paper.url} target="_blank" rel="noopener noreferrer">
-            {paper.title}
-            <span className="pd-ext" aria-hidden="true">↗</span>
-            <span className="pd-sr">{copy.newTab}</span>
-          </a>
-        ) : (
-          paper.title
-        )}
-      </h4>
-      {paper.summary ? <p className="pd-paper-summary">{paper.summary}</p> : null}
-      {byline.length ? <p className="pd-paper-byline">{byline}</p> : null}
-      {paper.details || paper.limitations ? (
-        <details className="pd-paper-more">
-          <summary>{copy.details.summary}</summary>
-          <dl>
-            {paper.details ? (
-              <div className="pd-reading-part">
-                <dt>{copy.details.details}</dt>
-                <dd>{paper.details}</dd>
-              </div>
-            ) : null}
-            {paper.limitations ? (
-              <div className="pd-reading-part is-limits">
-                <dt>{copy.details.limitations}</dt>
-                <dd>{paper.limitations}</dd>
-              </div>
-            ) : null}
-          </dl>
-        </details>
-      ) : paper.noReading ? (
-        <p className="pd-no-ai">{copy.noAbstract}</p>
-      ) : null}
-    </li>
   );
 }

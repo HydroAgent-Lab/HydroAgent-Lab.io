@@ -103,9 +103,10 @@
 }
 
 /* Pressed: a 1px dip on every button and pill on the page (the hero actions,
-   the filter, "Show earlier", Subscribe), only when motion is welcome. */
+   the filter, "Show earlier", Subscribe, Save and Copy link), only when
+   motion is welcome. */
 @media (prefers-reduced-motion: no-preference) {
-  .paper-digest-page :is(.primary-action, .secondary-action, .pd-filter-option):active {
+  .paper-digest-page :is(.primary-action, .secondary-action, .pd-filter-option, .pd-icon-button):active {
     transform: translateY(1px);
   }
 }
@@ -688,14 +689,70 @@
   border-top: 1px solid color-mix(in oklch, var(--border) 55%, #FFFFFF);
 }
 
+/* Type and dates on the left, Save and Copy link on the right. The line
+   stops where the title can reach (62ch of its 18px type, written in this
+   12px line's ch), so the buttons sit by the text, not across the column.
+   A ch is the width of "0", wider in bold: the line takes the title's weight
+   (600) so the two measures match, and its text goes back to 400. */
 .pd-paper-meta {
   display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: calc(62ch * 1.5);
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.pd-paper-tags {
+  display: flex;
+  flex: 1 1 auto;
   flex-wrap: wrap;
   align-items: center;
   gap: 6px 12px;
-  margin-bottom: 8px;
-  font-size: 12px;
+  min-width: 0;
+  min-height: 28px;
+  font-weight: 400;
+}
+
+/* 20px icons in 44px targets. The negative margins keep the targets out of
+   the line's 28px height and put the icons on the line's right edge. */
+.pd-paper-actions {
+  display: flex;
+  flex: none;
+  margin: -8px -12px -8px 0;
+}
+
+.pd-icon-button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
   color: var(--text-muted);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: color var(--transition), background-color var(--transition);
+}
+
+.pd-icon-button:hover {
+  color: var(--accent-hover);
+  background: var(--accent-wash);
+}
+
+/* Saved: a filled bookmark in the brand blue. The name stays "Save";
+   aria-pressed carries the state. */
+.pd-save[aria-pressed="true"] {
+  color: var(--accent);
+}
+
+.pd-save[aria-pressed="true"] svg {
+  fill: currentColor;
 }
 
 /* Same neutral outline as the Research page badge. A preprint's outline is
@@ -906,8 +963,48 @@
   color: var(--accent-hover);
 }
 
+/* --- Toast: a copied link, a failed copy or a failed save. It stays in the
+   page as a live region (an inserted one can go unannounced); empty, it has
+   no size. --- */
+.pd-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  z-index: 110;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  margin: 0;
+  padding: 12px 18px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--text-on-dark);
+  background: var(--dark-2);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-card);
+  transform: translateX(-50%);
+}
+
+.pd-toast:empty {
+  padding: 0;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pd-toast:not(:empty) {
+    animation: pd-toast-in 200ms var(--ease-out);
+  }
+}
+
+@keyframes pd-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .pd-saved-link,
+  .pd-icon-button,
   .pd-paper-title a,
   .pd-privacy summary::before,
   .pd-paper-more summary,
@@ -947,6 +1044,13 @@
   .pd-hero h1 {
     font-size: 1.75rem;
     line-height: 1.16;
+  }
+
+  /* Above Back to top (fixed 24px from the bottom, 40px tall; styles/
+     footer.css), 12px clear of it: the longest message, 460px wide in
+     English, would cover the button on screens up to about 590px wide. */
+  .pd-toast {
+    bottom: calc(76px + env(safe-area-inset-bottom, 0px));
   }
 }
 
