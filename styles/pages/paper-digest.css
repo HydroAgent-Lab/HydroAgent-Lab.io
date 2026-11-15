@@ -837,13 +837,13 @@ html:has(.pd-panel:modal) {
 
 /* Everything the page scrolls to stops below the fixed header: the two
    sections the hero links to (#latest, #subscribe), deep-linked papers, the
-   unavailable notice and focused controls. */
+   unavailable notice, and every control, which the browser scrolls into view
+   when the keyboard reaches it (it does not know the header is there). */
 .paper-digest-page .pd-section,
 .pd-subscribe,
 .pd-results,
 .pd-paper,
-.pd-paper a,
-.pd-paper summary {
+.paper-digest-page :is(a, button, input, select, summary) {
   scroll-margin-top: calc(var(--header-height) + 16px);
 }
 
