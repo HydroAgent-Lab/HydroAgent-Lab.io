@@ -103,10 +103,10 @@
 }
 
 /* Pressed: a 1px dip on every button and pill on the page (the hero actions,
-   the filter, "Show earlier", Subscribe, Save and Copy link), only when
-   motion is welcome. */
+   Time and edition and the pills in its panel, "Show earlier", Subscribe,
+   Save and Copy link), only when motion is welcome. */
 @media (prefers-reduced-motion: no-preference) {
-  .paper-digest-page :is(.primary-action, .secondary-action, .pd-filter-option, .pd-icon-button):active {
+  .paper-digest-page :is(.primary-action, .secondary-action, .pd-time-button, .pd-filter-option, .pd-icon-button):active {
     transform: translateY(1px);
   }
 }
@@ -543,16 +543,129 @@
   color: var(--text-muted);
 }
 
+/* Search takes the row; Time and edition sits at its end and names every
+   setting in force. */
 .pd-toolbar {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px 24px;
+  gap: 12px;
 }
 
+.pd-search {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+/* 16px text: iOS zooms into smaller fields on focus. 46px: the height of
+   the Time and edition button beside it. */
+.pd-search input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 16px 0 42px;
+  font-family: var(--font);
+  font-size: 16px;
+  color: var(--text);
+  background: var(--surface-elevated) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%235f6773' stroke-width='1.6' stroke-linecap='round'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='M11 11l3.5 3.5'/%3E%3C/svg%3E") no-repeat 16px 50%;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  transition: border-color var(--transition);
+}
+
+.pd-search input::placeholder {
+  color: var(--text-muted);
+}
+
+.pd-search input:hover {
+  border-color: var(--text-muted);
+}
+
+.pd-time {
+  position: relative;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.pd-time-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  min-height: 46px;
+  padding: 0 16px;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: color var(--transition), background-color var(--transition), border-color var(--transition);
+}
+
+.pd-time-button:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+
+.pd-time-button[aria-expanded="true"] {
+  color: var(--accent-hover);
+  background: var(--accent-wash);
+  border-color: var(--accent);
+}
+
+.pd-time-icon,
+.pd-time-chevron {
+  flex: none;
+}
+
+/* One line; what does not fit ends in an ellipsis. */
+.pd-time-summary {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- The panel: below its button on wider screens (not modal), a bottom
+   sheet at 560px and below (modal, over a backdrop). --- */
+.pd-panel {
+  position: absolute;
+  inset: calc(100% + 8px) 0 auto auto;
+  z-index: 20;
+  width: min(380px, calc(100vw - 2 * var(--gutter)));
+  margin: 0;
+  padding: 0;
+  color: var(--text);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.pd-panel-body {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+}
+
+.pd-panel-title {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+/* Below its button the panel needs no Done: a click outside, or Esc, closes
+   it. (Its title is then read, not shown: see .pd-sr.) */
+.pd-panel:not(:modal) .pd-panel-done {
+  display: none;
+}
+
+/* The grouping: three pills in one track, as the type filter used to be.
+   The track is 46px; each pill's ::after stretches its hit area to 44px. */
 .pd-filter {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 4px;
   padding: 3px;
   border: 1px solid var(--border);
@@ -560,8 +673,6 @@
   background: var(--surface-elevated);
 }
 
-/* The pill is 38px tall; its ::after stretches the hit area into the group's
-   padding, to 44px. */
 .pd-filter-option::after {
   content: "";
   position: absolute;
@@ -594,31 +705,86 @@
   border-color: var(--accent);
 }
 
-.pd-search {
-  flex: 0 1 340px;
+.pd-field {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
 }
 
-/* 16px text: iOS zooms into smaller fields on focus. 46px: the height of
-   the filter group beside it. */
-.pd-search input {
-  width: 100%;
-  min-height: 46px;
-  padding: 0 16px 0 42px;
+/* 16px text: iOS zooms into smaller fields. */
+.pd-field select {
+  min-height: 44px;
+  padding: 0 12px;
   font-family: var(--font);
   font-size: 16px;
   color: var(--text);
-  background: var(--surface-elevated) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%235f6773' stroke-width='1.6' stroke-linecap='round'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='M11 11l3.5 3.5'/%3E%3C/svg%3E") no-repeat 16px 50%;
+  background: var(--surface-elevated);
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius-pill);
-  transition: border-color var(--transition);
+  border-radius: var(--radius-sm);
 }
 
-.pd-search input::placeholder {
+.pd-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-size: 15px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.pd-check input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.pd-panel-count {
+  margin: 0;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
-.pd-search input:hover {
-  border-color: var(--text-muted);
+.pd-panel:modal {
+  position: fixed;
+  inset: auto 0 0;
+  width: 100%;
+  max-width: none;
+  max-height: 85dvh;
+  overflow: auto;
+  border: 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.pd-panel:modal .pd-panel-body {
+  padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+/* --text (#111827) at 45%. Written out: ::backdrop does not inherit custom
+   properties in every browser yet. */
+.pd-panel::backdrop {
+  background: rgb(17 24 39 / 0.45);
+}
+
+/* The page behind the sheet does not scroll. */
+html:has(.pd-panel:modal) {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pd-panel:modal {
+    animation: pd-sheet-in 200ms var(--ease-out);
+  }
+}
+
+@keyframes pd-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
 }
 
 .pd-results {
@@ -808,7 +974,8 @@
   color: var(--text-muted);
 }
 
-.pd-sr {
+.pd-sr,
+.pd-panel:not(:modal) .pd-panel-title {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -923,11 +1090,18 @@
 }
 
 .pd-empty {
-  margin: 0;
   padding: 36px 0;
   font-size: 15px;
   color: var(--text-muted);
   border-top: 1px solid var(--border);
+}
+
+.pd-empty p {
+  margin: 0;
+}
+
+.pd-empty .pd-button {
+  margin-top: 16px;
 }
 
 /* "Show earlier" lines up with the papers, not with the date column. */
@@ -1120,6 +1294,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .pd-saved-link,
+  .pd-time-button,
   .pd-icon-button,
   .pd-paper-title a,
   .pd-privacy summary::before,
@@ -1223,18 +1398,23 @@
     flex-direction: column;
   }
 
+  /* Search on its own row; Time and edition full width under it. */
   .pd-toolbar {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .pd-filter {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-  }
-
   .pd-search {
     flex-basis: auto;
+  }
+
+  .pd-time-button {
+    width: 100%;
+  }
+
+  .pd-time-summary {
+    flex: 1;
+    text-align: start;
   }
 
   .pd-paper-title {
