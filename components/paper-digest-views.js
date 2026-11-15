@@ -48,6 +48,7 @@ export function PaperDigestViews({ papers, aliases, lang, copy, savedCopy, curre
   const { toggle, normalize } = useSavedPapers();
   const [hash, setHash] = useState("");
   const [toast, setToast] = useState("");
+  const [announcement, setAnnouncement] = useState("");
   const toastTimer = useRef(0);
   const viewRef = useRef("home");
   const homeScroll = useRef(null);
@@ -110,37 +111,47 @@ export function PaperDigestViews({ papers, aliases, lang, copy, savedCopy, curre
     if (focus?.isConnected && focus !== document.body && document.activeElement === document.body) focus.focus({ preventScroll: true });
   }, [view]);
 
-  // Success shows for 3 s, a failure for 6 s; a new message replaces the old.
-  const notify = useCallback((text, failure = false) => {
+  // The notice is only for what went wrong (what works shows where it
+  // happened): it stays 6 s, and a new one replaces the old.
+  const notify = useCallback((text) => {
     window.clearTimeout(toastTimer.current);
     setToast(text);
-    toastTimer.current = window.setTimeout(() => setToast(""), failure ? 6000 : 3000);
+    toastTimer.current = window.setTimeout(() => setToast(""), 6000);
   }, []);
   useEffect(() => () => window.clearTimeout(toastTimer.current), []);
+
+  // Read out, not shown: what a control has just done where it stands (Copy
+  // link shows its check). Emptied first, so the same words are read again.
+  const announce = useCallback((text) => {
+    setAnnouncement("");
+    window.requestAnimationFrame(() => setAnnouncement(text));
+  }, []);
 
   // A save that works says nothing; one the browser refuses says so, and the
   // bookmark stays as it was.
   const save = useCallback(
     (paper) => {
-      if (!toggle(paper)) notify(savedCopy.toast.saveFailed, true);
+      if (!toggle(paper)) notify(savedCopy.toast.saveFailed);
     },
     [toggle, notify, savedCopy]
   );
 
-  // Copies the paper's link on this page, in this language. If the browser
-  // will not copy, the link goes into the address bar (no hashchange, so the
-  // page does not move).
+  // Copies the paper's link on this page, in this language, and says whether
+  // that worked: the button then shows its check. If the browser will not
+  // copy, the link goes into the address bar (no hashchange, so the page does
+  // not move) and the notice says so.
   const share = useCallback(
     async (id) => {
       const fragment = briefHash(id);
       if (await copyText(digestPageUrl(lang) + fragment)) {
-        notify(savedCopy.toast.copied);
-      } else {
-        window.history.replaceState(window.history.state, "", fragment);
-        notify(savedCopy.toast.copyFailed, true);
+        announce(copy.copied);
+        return true;
       }
+      window.history.replaceState(window.history.state, "", fragment);
+      notify(savedCopy.toast.copyFailed);
+      return false;
     },
-    [lang, notify, savedCopy]
+    [lang, announce, notify, copy, savedCopy]
   );
 
   // Only a shared paper's link matters to the list. Other hash changes
@@ -161,11 +172,15 @@ export function PaperDigestViews({ papers, aliases, lang, copy, savedCopy, curre
         {view === "saved" ? (
           <SavedPapersView papers={papers} resolve={resolve} lang={lang} copy={copy} savedCopy={savedCopy} save={save} share={share} notify={notify} />
         ) : null}
-        {/* Always in the page, so what appears in it is announced; a div, so
-            while empty it takes no space (a p brings its own margins). */}
+        {/* Always in the page, so what appears in them is announced. The
+            toast is a div, so while empty it takes no space (a p brings its
+            own margins); the other region is for screen readers only. */}
         <div className="pd-toast" role="status">
           {toast}
         </div>
+        <p className="pd-sr" role="status">
+          {announcement}
+        </p>
       </main>
     </PaperDigestContext>
   );

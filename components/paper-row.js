@@ -1,7 +1,8 @@
 "use client";
 
-import { memo, useId } from "react";
+import { memo, useEffect, useId, useState } from "react";
 import { dayLabel } from "@/lib/paper-digest.mjs";
+import { BookmarkIcon, CheckIcon, LinkIcon } from "./icons";
 
 const CJK = /[㐀-鿿]/;
 
@@ -24,9 +25,21 @@ function localDay(stamp) {
 // - highlighted: the brief wash after a shared link lands here.
 // - onToggleSave(paper), onShare(id): the list passes the page's own Save and
 //   Copy link, which never change, so a row re-renders only when its own
-//   props do (memo): saving one paper does not redraw the others.
+//   props do (memo): saving one paper does not redraw the others. onShare
+//   resolves to whether the link was copied.
 export const PaperRow = memo(function PaperRow({ paper, lang, copy, saved, onToggleSave, onShare, savedAt, anchor = true, note, highlighted = false }) {
   const titleId = useId();
+  // A copied link: the button shows a check and says so for 2.5 s; copying
+  // again starts the 2.5 s over.
+  const [copied, setCopied] = useState(0);
+  useEffect(() => {
+    if (!copied) return undefined;
+    const timer = window.setTimeout(() => setCopied(0), 2500);
+    return () => window.clearTimeout(timer);
+  }, [copied]);
+  const copyLink = async () => {
+    if (await onShare(paper.id)) setCopied((n) => n + 1);
+  };
   const authors =
     paper.authors.join(", ") +
     (paper.authorsTotal > paper.authors.length ? copy.moreAuthors.replace("{n}", String(paper.authorsTotal)) : "");
@@ -49,17 +62,20 @@ export const PaperRow = memo(function PaperRow({ paper, lang, copy, saved, onTog
         </div>
         <div className="pd-paper-actions">
           <button type="button" className="pd-icon-button pd-save" aria-pressed={saved} aria-describedby={titleId} title={copy.save} onClick={() => onToggleSave(paper)}>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden="true" focusable="false">
-              <path d="M5 3h10v14l-5-3.5L5 17z" />
-            </svg>
+            <BookmarkIcon />
             <span className="pd-sr">{copy.save}</span>
           </button>
           {onShare ? (
-            <button type="button" className="pd-icon-button" aria-describedby={titleId} title={copy.share} onClick={() => onShare(paper.id)}>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
-                <path d="M10 12.5V3M6.5 6.5L10 3l3.5 3.5M4 10.5v5.5h12v-5.5" />
-              </svg>
-              <span className="pd-sr">{copy.share}</span>
+            <button
+              type="button"
+              className="pd-icon-button pd-copy"
+              data-copied={copied ? "" : undefined}
+              aria-describedby={titleId}
+              title={copied ? copy.copied : copy.share}
+              onClick={copyLink}
+            >
+              {copied ? <CheckIcon /> : <LinkIcon />}
+              <span className="pd-sr">{copied ? copy.copied : copy.share}</span>
             </button>
           ) : null}
         </div>

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { plural } from "@/lib/paper-digest.mjs";
 import { MAX_BACKUP_BYTES, backupFileName, buildBackup, mergeBackup, sortBySaved } from "@/lib/saved-papers.mjs";
+import { BookmarkIcon } from "./icons";
 import { PaperRow } from "./paper-row";
 import { useSavedPapers } from "./saved-papers-store";
 
@@ -76,7 +77,7 @@ export function SavedPapersView({ papers, resolve, lang, copy, savedCopy, save, 
       return;
     }
     if (!replace(result.items)) {
-      notify(savedCopy.toast.saveFailed, true);
+      notify(savedCopy.toast.saveFailed);
       return;
     }
     setShown(sortBySaved(result.items));
@@ -141,9 +142,12 @@ export function SavedPapersView({ papers, resolve, lang, copy, savedCopy, save, 
           })}
         </ul>
       ) : ready ? (
-        <div className="pd-saved-empty">
+        // The page's own empty state; the sentence shows the bookmark it names.
+        <div className="pd-empty">
           <h2>{savedCopy.emptyTitle}</h2>
-          <p>{savedCopy.emptyText}</p>
+          <p>
+            {savedCopy.emptyText.split("{icon}").flatMap((part, i) => (i ? [<BookmarkIcon key={i}size={16} className="pd-inline-icon" />, part] : [part]))}
+          </p>
           <a className="secondary-action pd-button" href="#latest">
             {savedCopy.emptyAction}
           </a>

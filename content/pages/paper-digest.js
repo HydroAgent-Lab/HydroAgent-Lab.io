@@ -96,10 +96,12 @@ export const paperDigestContent = {
       more: "Show earlier papers",
       addedOn: "Added {date}",
       savedOn: "Saved {date}",
-      // The two icon buttons on each paper. Their names stay the same when
-      // pressed; a saved paper's bookmark is aria-pressed.
+      // The two icon buttons on each paper. Save keeps its name when pressed
+      // (a saved paper's bookmark is aria-pressed); Copy link says "copied"
+      // for a moment once the link is on the clipboard.
       save: "Save",
       share: "Copy link",
+      copied: "Link copied",
       badges: { published: "Published", preprint: "Preprint" },
       moreAuthors: " et al.",
       details: { summary: "AI summary and evidence limits", details: "Summary", limitations: "Limits of the evidence" },
@@ -136,10 +138,10 @@ export const paperDigestContent = {
       },
       missing: "No longer in the public digest",
       emptyTitle: "No saved papers yet",
-      emptyText: "Use the bookmark on any paper to keep it here.",
+      // {icon}: the bookmark itself, drawn in the sentence.
+      emptyText: "Use the bookmark {icon} on any paper to keep it here.",
       emptyAction: "Browse latest papers",
       toast: {
-        copied: "Link copied",
         copyFailed: "Couldn’t copy the link automatically; it is now in the address bar.",
         saveFailed: "Couldn’t save in this browser. Storage may be full or turned off."
       }
@@ -216,6 +218,7 @@ export const paperDigestContent = {
       savedOn: "{date}收藏",
       save: "收藏",
       share: "复制链接",
+      copied: "链接已复制",
       badges: { published: "已发表", preprint: "预印本" },
       moreAuthors: " 等 {n} 人",
       details: { summary: "AI 解读与证据局限", details: "内容摘要", limitations: "证据局限" },
@@ -249,10 +252,9 @@ export const paperDigestContent = {
       },
       missing: "已不在公开文献库中",
       emptyTitle: "还没有收藏",
-      emptyText: "点任意文献上的书签图标，就能把它收藏到这里。",
+      emptyText: "点任意文献上的书签图标{icon}，就能把它收藏到这里。",
       emptyAction: "浏览最新文献",
       toast: {
-        copied: "链接已复制",
         copyFailed: "无法自动复制，链接已放在地址栏中。",
         saveFailed: "无法在此浏览器中保存，可能是存储空间已满或已被禁用。"
       }

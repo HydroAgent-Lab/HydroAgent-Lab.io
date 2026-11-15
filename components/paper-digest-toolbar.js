@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { GRANULARITIES, TYPES, groupLabel, plural } from "@/lib/paper-digest.mjs";
+import { CalendarIcon, ChevronIcon } from "./icons";
 
 const TYPE_OPTIONS = ["all", ...TYPES];
 // At 560px and below (the site's phone breakpoint) the panel is a bottom
@@ -90,14 +91,9 @@ export function PaperDigestToolbar({ copy, lang, currentYear, filters, editions,
           aria-label={`${copy.timeLabel}: ${summary}`}
           onClick={toggle}
         >
-          <svg className="pd-time-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true" focusable="false">
-            <rect x="3" y="4" width="14" height="13" rx="2" />
-            <path d="M3 8h14M7 2v4M13 2v4" />
-          </svg>
+          <CalendarIcon className="pd-time-icon" />
           <span className="pd-time-summary">{summary}</span>
-          <svg className="pd-time-chevron" width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true" focusable="false">
-            <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          <ChevronIcon className="pd-time-chevron" />
         </button>
         <dialog
           ref={panelRef}
@@ -160,9 +156,11 @@ export function PaperDigestToolbar({ copy, lang, currentYear, filters, editions,
               {copy.savedOnly}
             </label>
             <p className="pd-panel-count">{plural(copy.count, count)}</p>
-            <button type="button" className="secondary-action pd-button pd-panel-done" onClick={() => close(true)}>
-              {copy.done}
-            </button>
+            <div className="pd-panel-foot">
+              <button type="button" className="secondary-action pd-button pd-panel-done" onClick={() => close(true)}>
+                {copy.done}
+              </button>
+            </div>
           </div>
         </dialog>
       </div>

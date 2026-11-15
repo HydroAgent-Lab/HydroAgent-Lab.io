@@ -656,7 +656,7 @@
 
 /* Below its button the panel needs no Done: a click outside, or Esc, closes
    it. (Its title is then read, not shown: see .pd-sr.) */
-.pd-panel:not(:modal) .pd-panel-done {
+.pd-panel:not(:modal) .pd-panel-foot {
   display: none;
 }
 
@@ -762,7 +762,36 @@
 }
 
 .pd-panel:modal .pd-panel-body {
-  padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  padding: 20px 20px 0;
+}
+
+/* A short screen scrolls the sheet; Done stays in view on a full-width solid
+   bar at its foot, so the list scrolls away under a straight edge rather
+   than the pill's curve. The bar carries the sheet's bottom padding. */
+.pd-panel:modal .pd-panel-foot {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  margin: -12px -20px 0;
+  padding: 12px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  background: var(--surface-elevated);
+}
+
+.pd-panel:modal .pd-panel-done {
+  justify-content: center;
+  backdrop-filter: none;
+}
+
+/* The bar covers the sheet's last 76px (12 + Done's 44 + 20, plus the safe
+   area): the sheet counts that strip as hidden, so a control reached with Tab
+   scrolls up out from under it. Inside the sheet's own scroll box there is no
+   site header, so the page's header-sized scroll-margin does not apply. */
+.pd-panel:modal {
+  scroll-padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+}
+
+.pd-panel:modal :is(a, button, input, select, summary) {
+  scroll-margin-top: 0;
 }
 
 /* --text (#111827) at 45%. Written out: ::backdrop does not inherit custom
@@ -875,25 +904,39 @@ html:has(.pd-paper:target) {
   outline: none;
 }
 
-/* A shared link's paper: a wash that fades over 1.5 s; with reduced motion
-   it holds still for 2 s (the list removes the class). It reaches 12px past
-   the row, so the text never touches its edge. */
+/* A shared link's paper: a wash behind its reading column, from 12px left
+   of the row to the edge of the Save and Copy link buttons (past them the
+   row is empty), fading over 1.5 s; with reduced motion it holds still for
+   2 s (the list removes the class). Drawn behind the row's content;
+   isolation keeps it above the page. */
 .pd-paper.is-target {
+  position: relative;
+  isolation: isolate;
+}
+
+/* As wide as the meta line plus 12px each side: the same 62ch of 12px,
+   weight-600 type, times 1.5 (see .pd-paper-meta), so both use one ch. */
+.pd-paper.is-target::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -12px auto -12px -12px;
+  width: calc(min(100%, 62ch * 1.5) + 24px);
+  font-size: 12px;
+  font-weight: 600;
   background: var(--accent-wash);
   border-radius: var(--radius-sm);
-  box-shadow: 0 0 0 12px var(--accent-wash);
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .pd-paper.is-target {
+  .pd-paper.is-target::before {
     animation: pd-target 1500ms var(--ease-in-out) forwards;
   }
 }
 
 @keyframes pd-target {
   to {
-    background-color: transparent;
-    box-shadow: 0 0 0 12px transparent;
+    opacity: 0;
   }
 }
 
@@ -961,6 +1004,11 @@ html:has(.pd-paper:target) {
 
 .pd-save[aria-pressed="true"] svg {
   fill: currentColor;
+}
+
+/* Copied: the check, in the brand blue, for a moment. */
+.pd-copy[data-copied] {
+  color: var(--accent);
 }
 
 /* Same neutral outline as the Research page badge. A preprint's outline is
@@ -1137,6 +1185,25 @@ html:has(.pd-paper:target) {
   margin: 0;
 }
 
+/* Saved papers' empty state has a heading over its sentence. */
+.pd-empty h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.pd-empty h2 + p {
+  max-width: var(--pd-measure);
+  margin-top: 8px;
+}
+
+/* An icon inside a sentence (the bookmark in "Use the bookmark on any
+   paper"), sitting on the text's baseline. */
+.pd-inline-icon {
+  display: inline-block;
+  margin: 0 0.15em;
+  vertical-align: -0.2em;
+}
+
 .pd-empty .pd-button {
   margin-top: 16px;
 }
@@ -1183,8 +1250,18 @@ html:has(.pd-paper:target) {
 /* --- Saved papers (#saved): the same page with its home sections hidden.
    They stay mounted, so the list keeps its filters, search and open
    readings. --- */
-.paper-digest-page[data-view="saved"] > :not(.pd-saved, .pd-toast) {
+.paper-digest-page[data-view="saved"] > :not(.pd-saved, .pd-toast, .pd-sr) {
   display: none;
+}
+
+/* On desktop the view starts where a shared link lands, 16px under the
+   header, not under the 80px every section gets (home.css): alone at the
+   top, that left the page looking empty above it. Tablets and phones keep
+   their smaller padding. */
+@media (min-width: 901px) {
+  main.main-content > .pd-saved {
+    padding-top: 16px;
+  }
 }
 
 .pd-back {
@@ -1262,27 +1339,9 @@ html:has(.pd-paper:target) {
   border-top: 1px solid var(--text);
 }
 
-.pd-saved-empty {
-  margin-top: 20px;
-  padding: 36px 0;
-  border-top: 1px solid var(--border);
-}
-
-.pd-saved-empty h2 {
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.pd-saved-empty p {
-  max-width: var(--pd-measure);
-  margin: 8px 0 20px;
-  font-size: 15px;
-  color: var(--text-muted);
-}
-
-/* --- Toast: a copied link, a failed copy or a failed save. It stays in the
-   page as a live region (an inserted one can go unannounced); empty, it has
-   no size. --- */
+/* --- Toast: a failed copy or a failed save (what works shows where it
+   happened). It stays in the page as a live region (an inserted one can go
+   unannounced); empty, it has no size. --- */
 .pd-toast {
   position: fixed;
   left: 50%;

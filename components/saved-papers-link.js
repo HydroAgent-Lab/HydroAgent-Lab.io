@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BookmarkIcon } from "./icons";
 import { useSavedPapers } from "./saved-papers-store";
 
 // The header's way into Saved papers (#saved, on this page). The count fills
@@ -27,9 +28,7 @@ export function SavedPapersLink({ label, countLabel, lang }) {
       aria-current={current ? "true" : undefined}
       aria-label={ready ? countLabel.replace("{n}", String(items.length)) : label}
     >
-      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden="true" focusable="false">
-        <path d="M5 3h10v14l-5-3.5L5 17z" />
-      </svg>
+      <BookmarkIcon size={16} />
       <span className="pd-saved-link-label">{label}</span>
       <span className="pd-saved-count" aria-hidden="true">
         {ready ? items.length : ""}
