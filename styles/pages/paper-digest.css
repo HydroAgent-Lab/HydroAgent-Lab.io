@@ -860,6 +860,41 @@ html:has(.pd-panel:modal) {
   border-top: 1px solid color-mix(in oklch, var(--border) 55%, #FFFFFF);
 }
 
+/* A link to a paper (#brief-<id>) lands at once, whoever scrolls: the list
+   jumps there itself, and the browser's own glide to the same place, still
+   running under that jump, left the page about 10px off. */
+html:has(.pd-paper:target) {
+  scroll-behavior: auto;
+}
+
+/* A shared link's paper takes the focus, so keyboard and screen reader users
+   start there. It is not a control, so no ring: the wash below marks it. */
+.pd-paper:focus {
+  outline: none;
+}
+
+/* A shared link's paper: a wash that fades over 1.5 s; with reduced motion
+   it holds still for 2 s (the list removes the class). It reaches 12px past
+   the row, so the text never touches its edge. */
+.pd-paper.is-target {
+  background: var(--accent-wash);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 12px var(--accent-wash);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pd-paper.is-target {
+    animation: pd-target 1500ms var(--ease-in-out) forwards;
+  }
+}
+
+@keyframes pd-target {
+  to {
+    background-color: transparent;
+    box-shadow: 0 0 0 12px transparent;
+  }
+}
+
 /* Type and dates on the left, Save and Copy link on the right. The line
    stops where the title can reach (62ch of its 18px type, written in this
    12px line's ch), so the buttons sit by the text, not across the column.

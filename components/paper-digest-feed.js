@@ -21,6 +21,7 @@ export function PaperDigestFeed() {
   const [filters, setFilters] = useState({ granularity: "week", ...NO_FILTERS });
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [linkTarget, setLinkTarget] = useState(null);
+  const [highlightId, setHighlightId] = useState(null);
   const statusRef = useRef(null);
   const view = useRef(null);
   view.current = { ...filters, savedIds: ids, visibleCount };
@@ -37,18 +38,32 @@ export function PaperDigestFeed() {
     setVisibleCount(count);
   }, [hash, papers, aliases]);
 
+  // Then go to it, at once: a glide down a long list ends after the mark has
+  // faded. Its reading opens; the focus goes to the paper itself (keyboard
+  // and screen reader users start there; no ring, the mark is the cue); the
+  // mark shows for a moment.
   useEffect(() => {
     if (!linkTarget) return;
     if (linkTarget.unavailable) {
-      statusRef.current?.scrollIntoView({ block: "start" });
+      statusRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
       return;
     }
     const row = document.getElementById(`brief-${linkTarget.id}`);
     if (!row) return;
     const reading = row.querySelector("details");
     if (reading) reading.open = true;
-    row.scrollIntoView({ block: "start" });
+    row.scrollIntoView({ block: "start", behavior: "instant" });
+    row.focus({ preventScroll: true });
+    setHighlightId(linkTarget.id);
   }, [linkTarget]);
+
+  // 1.5 s of a fading wash; with reduced motion, 2 s of a still one.
+  useEffect(() => {
+    if (!highlightId) return;
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const timer = window.setTimeout(() => setHighlightId(null), still ? 2000 : 1500);
+    return () => window.clearTimeout(timer);
+  }, [highlightId]);
 
   // Any change the reader makes ends a shared link's hold on the view, and
   // its "no longer available" note.
@@ -96,6 +111,7 @@ export function PaperDigestFeed() {
                   saved={ids.has(paper.id)}
                   onToggleSave={() => save(paper)}
                   onShare={() => share(paper.id)}
+                  highlighted={highlightId === paper.id}
                 />
               ))}
             </ul>
