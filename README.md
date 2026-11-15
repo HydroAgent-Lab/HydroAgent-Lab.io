@@ -75,7 +75,7 @@ app/                      # Next.js App Router pages (en + zh, 24 pages total)
 
 components/
   hero.js                 # Hero section — split layout (left text/CTA, right autoplay video)
-  shell.js                # Site shell (dropdown nav + hamburger menu + footer)
+  shell.js                # Site shell (dropdown nav + hamburger menu + footer); optional headerAction slot; header background follows scroll, read on load too
   pages/                  # Per-page content components
     home.js, platform.js, capabilities.js, demo.js,
     research.js, team.js, careers.js, contact.js,
@@ -84,7 +84,14 @@ components/
   cta-band.js, page-lead.js, section-header.js,
   breadcrumb.js, demo-chat.js, track-link.js
   subscribe-form.js       # Paper Digest sign-up — client; digest language + POST to the Brevo form for it
-  paper-digest-feed.js    # Paper Digest list — client; week groups, type filter, search, show earlier, reading card
+  paper-digest-views.js   # Paper Digest <main> — client; home ⇄ Saved papers (#saved), the page's one hash listener, toast, live region, Save and Copy link; papers reach the list through context
+  paper-digest-feed.js    # Paper Digest list — client; filters, day/week/month groups, 30 papers per page, empty states, deep-link focus and highlight
+  paper-digest-toolbar.js # Search and the Time and edition panel (<dialog>; a bottom sheet with a sticky Done bar at ≤560px)
+  paper-row.js            # One paper (list and Saved papers): badge, dates, Save, Copy link (check in place), title, summary, reading
+  saved-papers-view.js    # Saved papers view: newest save first, JSON backup export and import
+  saved-papers-link.js    # Header entry to Saved papers with the count (SiteShell headerAction)
+  saved-papers-store.js   # The only localStorage reader and writer (useSyncExternalStore); follows other tabs
+  icons.js                # Paper Digest line icons (bookmark, calendar, chevron, link, check), one 1.6px stroke at every size
   subscribed-notice.js    # Paper Digest ?subscribed=1 banner after Brevo's confirmation link
 
 content/
@@ -106,8 +113,9 @@ public/assets/            # Static assets for the Next app — see ASSETS_GUIDE.
 archive/figures/          # Unreferenced source figures — kept in git, NOT deployed (30 MB)
 
 lib/
-  paper-digest.mjs        # Pure functions: validate papers.json, group by week, latest edition, labels, plurals, search (server + client)
+  paper-digest.mjs        # Pure functions: validate and clean papers.json, day/week/month groups, editions, filters, paging, deep-link plan, labels, plurals, search (server + client)
   paper-digest.test.mjs   # node:test suite (npm test)
+  saved-papers.mjs        # Saved papers, pure: checks, snapshot, toggle, backup build and merge (+ .test.mjs)
   load-paper-digest.js    # Build-time loader: PAPER_DIGEST_DATA / .digest-data / sample fallback (not in CI)
   paper-digest-rss.js     # RSS 2.0 for /paper-digest/feed.xml and /zh/paper-digest/feed.xml
 
@@ -149,7 +157,14 @@ styles/
   - **名称**（2026-10-23 用户决定）：中文全称「水利大模型文献日报」，导航简写「文献日报」；英文全称「HydroAgent Paper Digest」，导航「Paper Digest」。网址保持 `/paper-digest` 不变。邮件发件人名为 `HydroAgent Paper Digest`。
   - **数据**：服务器每天 08:30 把公开文献（外部组邮件同一批：已纳入的期刊论文与预印本）导出成白名单字段的 `papers.json`，推到公开仓库 `HydroAgent-Lab/paper-digest-data`；本站每天 07:47 UTC 定时构建时拉取，10:17、13:17 UTC 各补跑一次（见上方 "Paper Digest data"；原来的 `0 8` 整点任务实际晚 6–10 小时才跑，2026-11-03 改；改后实测仍晚约 8 小时，见已知遗留 ⑦），不需要跨仓库令牌（用户决定）。注意 GitHub 会在仓库 60 天无提交后暂停定时任务。网站不调任何接口，访客看到的是构建时写进 HTML 的内容。字段约定见数据仓库 README；`lib/paper-digest.mjs` 校验：文件格式不对直接让构建失败，单条坏数据丢弃并计数；链接只放行 http(s)。
   - **双语**：每篇的 AI 摘要/内容摘要/证据局限都有 en、zh 两份（采集端翻译补齐）；页面只把当前语言传给浏览器，**某语言缺失就不显示，不拿另一种语言顶替**（用户决定）。论文标题保持原文，zh 页上标 `lang="en"`。
-  - **版式**（V2 外观，2026-11-13；设计依据 `design/paper-digest-v2/`）：三段 —— **首屏**（本页专用，不用共享 PageLead：标题 "Research intelligence for **LLM × Hydrology**" /「面向 **LLM × 水文学** 的研究情报」，40/28px、600；"浏览最新文献 ↓"描边 + "订阅文献日报"实心蓝，跳到 `#latest` / `#subscribe`；右侧白色"最新一期"信息卡）→ **列表区** → **底部深蓝订阅区**（`#subscribe`，现有 Brevo 表单直接放在深蓝底上）。首屏介绍文字就是 `meta.description`（一份文案三处用：首屏、页面描述、RSS）。"最新一期"＝最近一个 `included_on` 及当天篇数（`latestEdition()`），只在首屏卡片显示；卡片另两项是「邮件推送：每天 07:00（意大利时间）」和已收录篇数。**07:00 是邮件发出的时间**（2026-11-13 用户核对收件箱：07:00–07:20 到），页面自己不写更新钟点，也**不显示 `generated_at`**（每次导出都会变）。列表是按周（周一起）分组的"目录账本"：桌面端日期在左栏 sticky，≤900px 变成组标题。列表上方说明一次"AI 解读仅依据标题和摘要生成"。每条：类型徽章（中性描边，预印本用**虚线**描边，不用颜色）、收录日期、标题（新标签页打开原文 ↗）、摘要、来源·作者·出版日期、`<details>` 就地展开的**解读卡**（Summary 白底 + Limits 暖色底，无侧边色条）；三项解读在两种语言里都为空时（`noReading`）显示「暂无摘要，未生成 AI 解读」。初始显示 4 周，"显示更早的文献"每次 +4 周；类型筛选或搜索时显示全部匹配并播报"找到 N 篇"。没有 JS 时列表照样完整渲染（前 4 周）。列表区左右用 `var(--gutter)` 与首屏对齐。周标签和日期不用 `Intl`，避免服务端和浏览器的 ICU 差异导致水合不一致。
+  - **版式**（V2 外观，2026-11-13；设计依据 `design/paper-digest-v2/`）：三段 —— **首屏**（本页专用，不用共享 PageLead：标题 "Research intelligence for **LLM × Hydrology**" /「面向 **LLM × 水文学** 的研究情报」，40/28px、600；"浏览最新文献 ↓"描边 + "订阅文献日报"实心蓝，跳到 `#latest` / `#subscribe`；右侧白色"最新一期"信息卡）→ **列表区** → **底部深蓝订阅区**（`#subscribe`，现有 Brevo 表单直接放在深蓝底上）。首屏介绍文字就是 `meta.description`（一份文案三处用：首屏、页面描述、RSS）。"最新一期"＝最近一个 `included_on` 及当天篇数（`latestEdition()`），只在首屏卡片显示；卡片另两项是「邮件推送：每天 07:00（意大利时间）」和已收录篇数。**07:00 是邮件发出的时间**（2026-11-13 用户核对收件箱：07:00–07:20 到），页面自己不写更新钟点，也**不显示 `generated_at`**（每次导出都会变）。列表是按周（周一起）分组的"目录账本"：桌面端日期在左栏 sticky，≤900px 变成组标题。列表上方说明一次"AI 解读仅依据标题和摘要生成"。每条：类型徽章（中性描边，预印本用**虚线**描边，不用颜色）、收录日期、标题（新标签页打开原文 ↗）、摘要、来源·作者·出版日期、`<details>` 就地展开的**解读卡**（Summary 白底 + Limits 暖色底，无侧边色条）；三项解读在两种语言里都为空时（`noReading`）显示「暂无摘要，未生成 AI 解读」。列表按收录时间分组：默认每周（周一起），"时间与期次"面板里可以改成每日或每月，也可以选期次、文献类型、仅显示收藏（≤560px 时面板是底部抽屉，Done 在固定的白色底栏上）。默认显示 30 篇，按整组显示，所以按周时是 4 周 32 篇；"显示更早的文献"每次再加 30 篇。有任何筛选或搜索时显示全部匹配，并播报"找到 N 篇"。没有 JS 时，列表照样渲染默认那一页。列表区左右用 `var(--gutter)` 与首屏对齐。周标签和日期不用 `Intl`，避免服务端和浏览器的 ICU 差异导致水合不一致。
+  - **收藏与分享**（第二阶段，2026-11）：
+    - 收藏只存在本浏览器的 localStorage（键 `hydroagent.saved.v1`）。每条存 ID、收藏时间和书目快照，快照不含 AI 文字。
+    - 页头右下角有入口和数量；收藏页是同一页面的 `#saved`，主页区块只隐藏、不卸载。
+    - 可以导出、导入 JSON 备份：schema 为 `hydroagent-saved-papers`，版本 1，上限 1 MB。导入的内容逐字段校验。
+    - "复制链接"复制的是 `https://hydroagentlab.com/(zh/)paper-digest/#brief-<ID>`；成功时按钮就地变成对勾 2.5 秒，并由页面里常驻的 `role="status"` 区域播报，不再弹提示条；复制失败时把链接放进地址栏。
+    - 打开这类链接时，只清除和这篇冲突的筛选，然后定位、展开解读、移动焦点，并短暂高亮阅读栏（淡蓝底 1.5 秒渐隐；减少动态效果时静态 2 秒）。本页所有控件获得焦点时都会避开固定页头。
+    - 期刊名、标题、作者名里的 HTML 编码和多余空白，在 `normalizePapers` 里用 `cleanText` 清理。
   - **配色与尺寸**：颜色都取自 `styles/tokens.css`，另有 7 个本页专用变量写在 `styles/pages/paper-digest.css` 开头（`--pd-navy` 等订阅区用色、`--pd-evidence-*` 证据局限用色，注释里有对比度；`--pd-measure: 55ch` 是正文行长，实测约 70–75 个英文字符或 40 个汉字——`ch` 是数字 0 的宽度，75ch 实际会排到 90–100 个字符）。解读卡为了圆角设了 `overflow: hidden`，所以它的焦点框画在标题条**内侧**（`outline-offset: -2px`），否则会被裁掉。可点击元素的触控区都不小于 44px。实心 `--accent` 只给两个"订阅"按钮；激活的筛选用 `--accent` 描边 + `--accent-wash`；暖色底只用于"证据局限"；深蓝区里的焦点框是白色（站内默认的 `--accent-hover` 在深蓝上只有 1.85:1）。zh 首屏标题在所有宽度都用 `word-break: keep-all`，强调短语整体不换行（不出现"水文 / 学"或"LLM × / 水文学"），所以强调短语要保持在 256px 以内（320px 屏上的栏宽，28px 字号）。订阅表单（`components/subscribe-form.js`）只出现在深蓝订阅区，所以它的颜色直接按深蓝底写，没有浅色底的样式；以后要放到浅色底上，需要先补一套。单选框用浅蓝的 `accent-color`：默认的深色圆点在深蓝底上会让"选中"看起来比"未选中"更空。两个语言选项包在一个 `span` 里作为整体换行，不会被拆到两行。
   - **订阅**：Brevo 托管表单，每种邮件语言一个（`content/pages/paper-digest.js` 的 `paperDigestEndpoints`，公开地址；**为空时表单显示"订阅功能即将开放"**）。提交 `EMAIL` + 空的蜜罐字段 `email_address_check` + `locale`（字段名需按 Brevo 的 Simple HTML 嵌入代码核对）。成功判定沿用"必须有明确证据"：`ok` 的 Response 且 JSON 不是 `success:false`。成功文案是"请查收确认邮件"（双重确认，点链接前不在名单里）；GA4 记 `digest_subscribe`，参数只有 `site_language` 与 `digest_language`，从不记邮箱。Brevo 确认链接回跳 `/(zh/)paper-digest/?subscribed=1`，顶部 `role="status"` 横幅提示后用 `history.replaceState` 去掉参数（不用 `useSearchParams`，静态导出会要求 Suspense）。原有的水合前禁用、16px 输入框、`noValidate`、按钮宽度不跳等规则保留。
   - **RSS 与分享**：`app/(zh/)paper-digest/feed.xml/route.js`（`force-static`，最近 50 篇）；页面 metadata 带 RSS alternate、**本页自己的 canonical**，以及本页自己的 `openGraph` / `twitter`（"HydroAgent Paper Digest — LLM × Hydrology" /「水利大模型文献日报 — LLM × 水文学」，本页网址，zh 页 `zh_CN`）。两条路由的 metadata 都由 `components/pages/paper-digest.js` 的 `paperDigestMetadata(lang)` 生成，标题文案在 `content/pages/paper-digest.js` 的 `meta`。页面级 `openGraph` 会整体替换 layout 的那一份，所以 siteName / type 在这个函数里重写了一遍；layout 以后加字段（如 og:image）时，改这一处即可。已知遗留 ① 在这一页已修。
