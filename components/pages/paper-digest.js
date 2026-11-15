@@ -1,11 +1,13 @@
 import { PaperDigestFeed } from "@/components/paper-digest-feed";
+import { PaperDigestViews } from "@/components/paper-digest-views";
+import { SavedPapersLink } from "@/components/saved-papers-link";
 import { SiteShell } from "@/components/shell";
 import { SubscribeForm } from "@/components/subscribe-form";
 import { SubscribedNotice } from "@/components/subscribed-notice";
 import { paperDigestContent, paperDigestEndpoints } from "@/content/pages/paper-digest";
 import { localizeHref } from "@/content/helpers";
 import { loadPaperDigest } from "@/lib/load-paper-digest";
-import { dayLabel, latestEdition, localizeDigest, plural } from "@/lib/paper-digest.mjs";
+import { dayLabel, digestPagePath, latestEdition, localizeDigest, plural } from "@/lib/paper-digest.mjs";
 
 // Metadata for both routes (app/paper-digest, app/zh/paper-digest): its own
 // canonical, because the layout's "/" would point search engines at the home
@@ -14,7 +16,7 @@ import { dayLabel, latestEdition, localizeDigest, plural } from "@/lib/paper-dig
 // shared fields are repeated here.
 export function paperDigestMetadata(lang) {
   const { title, shareTitle, description } = paperDigestContent[lang].meta;
-  const path = lang === "zh" ? "/zh/paper-digest/" : "/paper-digest/";
+  const path = digestPagePath(lang);
   return {
     title,
     alternates: { canonical: path, types: { "application/rss+xml": `${path}feed.xml` } },
@@ -33,8 +35,9 @@ export function paperDigestMetadata(lang) {
 
 // One page in three parts: the hero (what the digest is, the latest edition
 // and the two actions), every public paper read from papers.json at build
-// time, and the navy sign-up band. Only the page language's text is passed
-// to the client feed.
+// time, and the navy sign-up band. Only the page language's text goes to the
+// client, and the papers only once: PaperDigestViews renders <main>, switches
+// to Saved papers (#saved) and hands the papers to the list.
 export function PaperDigestPageContent({ lang = "en" }) {
   const c = paperDigestContent[lang] || paperDigestContent.en;
   const data = localizeDigest(loadPaperDigest(), lang);
@@ -47,9 +50,15 @@ export function PaperDigestPageContent({ lang = "en" }) {
   const facts = c.lead.facts.map((fact) => ({ ...fact, value: fact.value.replace("{count}", count) }));
 
   return (
-    <SiteShell lang={lang}>
-      {/* The shell sets no lang and <html> is always "en", so /zh marks its copy here. */}
-      <main className="main-content paper-digest-page" lang={lang === "zh" ? "zh-CN" : undefined}>
+    <SiteShell lang={lang} headerAction={<SavedPapersLink label={c.saved.link} countLabel={c.saved.linkCount} lang={lang} />}>
+      <PaperDigestViews
+        papers={papers}
+        aliases={data.aliases}
+        lang={lang}
+        copy={c.feed}
+        savedCopy={c.saved}
+        currentYear={currentYear}
+      >
         <SubscribedNotice text={c.subscribed} />
         <section className="pd-hero" aria-labelledby="pd-hero-title">
           <div className="pd-hero-copy">
@@ -79,7 +88,7 @@ export function PaperDigestPageContent({ lang = "en" }) {
                 <p className="pd-edition-day">
                   <time dateTime={edition.day}>{dayLabel(edition.day, lang)}</time>
                 </p>
-                <p className="pd-edition-count">{plural(c.feed.weekCount, edition.count)}</p>
+                <p className="pd-edition-count">{plural(c.feed.count, edition.count)}</p>
               </>
             ) : null}
             <dl className="pd-edition-stats">
@@ -98,7 +107,7 @@ export function PaperDigestPageContent({ lang = "en" }) {
             <p>{c.feed.intro}</p>
           </div>
           <p className="pd-ai-note">{c.feed.aiNote}</p>
-          <PaperDigestFeed papers={papers} aliases={data.aliases} lang={lang} copy={c.feed} currentYear={currentYear} />
+          <PaperDigestFeed />
           <p className="pd-footnote">
             {c.feed.footnote}{" "}
             <a href={localizeHref(lang, "/paper-digest/feed.xml")}>{c.feed.rss}</a>
@@ -120,7 +129,7 @@ export function PaperDigestPageContent({ lang = "en" }) {
             </div>
           </section>
         </div>
-      </main>
+      </PaperDigestViews>
     </SiteShell>
   );
 }

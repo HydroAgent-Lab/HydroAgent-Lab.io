@@ -1,5 +1,61 @@
 # Work Log
 
+## 2026-11-15
+
+### Paper Digest V2 第二阶段：文本清理、收藏与分享、工具栏（分支 `feat/paper-digest-v2-interactions`）
+
+- **补记**：PR #19（外观第一阶段）11-13 13:53 UTC 以 Squash 合并（`1c9e795`），13:54 部署成功；`feat/paper-digest-v2-appearance` 已在本地和远端删除。
+- **设计**：用 brainstorming 流程，四部分设计逐段经用户通过。设计文档和实施计划只放在本地 `.claude/plans/`，不提交。用户的决定：
+  - 收藏页用同一页面的 `#saved`；
+  - 文献类型放进"时间与期次"面板；
+  - ④ Highlights 和分类等 WP#5 的数据。
+- **实现**（任务 1–11，每个任务一次提交，`ebd62aa` … `ba4d785`）：
+  - ① `cleanText`：期刊名、标题、作者名的解码和空白合并；RSS 和页面共用一个页面网址函数；
+  - 按日、周、月分组；期次；组合筛选；按篇数分页（30 篇，按整组）；深链接规划；
+  - 收藏的纯函数（`lib/saved-papers.mjs`）和浏览器端仓库（`useSyncExternalStore`，跟随其他标签页）；
+  - 页头入口、`PaperDigestViews`、`PaperRow`、收藏页（导出、导入）、工具栏和"时间与期次"面板（≤560px 为底部抽屉）、空状态；
+  - 深链接的定位、焦点和短暂高亮。
+- **与设计文档的调整**：见实施计划开头的表（11 条），用户已确认。
+- **验证（任务 12，main `1c9e795` 对分支 `ba4d785`）**
+  - `npm test` 29 条、pytest 30 条通过；两边构建都成功，警告相同（demo.css 那条旧的）。首屏 JS：144 → 150 kB
+  - 页面体积：英文页 360,900 → 394,100 B（+9.2%），中文页 335,256 → 369,030 B（+10.1%），约等于 32 篇 × 两个按钮；论文数据没有多出一份
+  - 中英文 `feed.xml` 两边完全相同
+  - 浏览器实测（开着动画、真实时间）：任务 6 是 103/103，任务 8 是 32/32，任务 9 是 25/25，任务 10 是 44/44，任务 11 是 23/23；`check_task12` 14/14（三种故障注入；5 种宽度无控制台报错、无横向滚动；存 120 篇时入口和汉堡按钮不重叠；只用键盘完成收藏、复制、导出、导入、返回）
+  - 回归对比：其他 9 个页面 × 2 种宽度，标记和元素位置与 main 相同；本页只有已列出的允许差异
+- **任务 12 之后（同一天，开 PR 之前）**
+  - `/simplify` 精简 6 批，不改行为（`619e589`、`1ea695b`）：筛选默认值、链接格式集中到库里；条目加 `memo`，点收藏 10.5 → 2.3 ms；精简前后 46 个"元素×状态"的计算样式 0 差异，截图逐像素相同
+  - 键盘焦点不再停在固定页头底下（`dcf5bfc`）：改前 11 个控件被挡，改后 13/13
+  - Hallmark 设计 7 项（`911ee43`）：
+    - 复制链接改为按钮就地变对勾 2.5 秒，加常驻读屏播报区，不再弹提示条；
+    - 高亮只覆盖阅读栏；
+    - 手机抽屉的 Done 固定在白色整宽底栏上，文字居中；
+    - 收藏页空状态的句子里嵌入书签图标；
+    - 空状态复用 `.pd-empty`；
+    - 桌面收藏页上移 64px；
+    - 统一图标线宽（新文件 `components/icons.js`，1.6px）。
+  - `/code-review`（只查全面核查之后的改动）9 条，逐条核实：
+    - 修了 5 条，合并成 3 处：
+      - 底栏会挡住用 Tab 移到的控件（320×400、360×360 复现）：抽屉加 `scroll-padding-bottom`，抽屉内控件取消页头避让；
+      - 筛选值为 `undefined` 时不再取默认值：新增 `withDefaults`，替换三处重复（`90836f2`）；
+      - 图标的 React key 写死。
+    - 1 条误报：读屏播报的时序。
+    - 其余 3 条不改：收藏页每行仍会重绘（列表很短，改要动 save 的接口）；测试里的 30 有第 326 行专门断言；文档按约定在这一步更新。
+  - **全站页头修复**（`8a9536a`）：页面打开时已经在中间（分享链接、刷新），页头没有背景，正文透出来。原因是 `components/shell.js` 只在滚动事件里设置状态；现在加载时先读一次当前位置。先写 `check_header_scrolled`，改前 2/3 失败，改后 3/3。
+  - 最终代码：`npm test` 32/32；设计 10/10、焦点 13/13、抽屉焦点 4 种尺寸、`check_task12` 14/14 通过。
+- **改动的文件**（相对 main，19 个）：
+  - `lib/`：`paper-digest.mjs`、`paper-digest.test.mjs`、`saved-papers.mjs`、`saved-papers.test.mjs`、`paper-digest-rss.js`
+  - `components/`：
+    - `paper-digest-views.js`、`paper-digest-feed.js`、`paper-digest-toolbar.js`、`paper-row.js`；
+    - `saved-papers-view.js`、`saved-papers-link.js`、`saved-papers-store.js`；
+    - `icons.js`、`pages/paper-digest.js`、`shell.js`。
+  - 其他：`content/pages/paper-digest.js`、`styles/pages/paper-digest.css`、`styles/breadcrumb.css`、`styles/responsive.css`
+  - 文档：`README.md`、本文件、`design/paper-digest-v2/DESIGN_SUMMARY.md`
+- **下一步**
+  - 用户推送并开 PR（Squash），请同事审阅；合并后确认 Actions 的部署步骤真的执行了，再到线上试分享链接和收藏页
+  - 真机测试：iPhone Safari 的抽屉（滚动锁定、底部安全区）、读屏软件、非远程桌面电脑上的动画
+  - ④ 等 `papers.json` 里真的有 domains、methods、highlights 再做；请 WP#5 在上游解码 venue 里的 `&amp;`，否则白名单匹配会失败
+  - 以后单独做（全站）：图片瘦身（首页约 11.6 MB、联系页两张 4 MB 图标、Unsplash 外链）；/zh 的 `<html lang>`；`.secondary-action` 用在按钮上的字体和光标；`html { scroll-padding-top }`；`--header-height` 与页头实际高度不一致
+
 ## 2026-11-13
 
 ### Paper Digest V2：PR #6 合并、整理 main 历史、外观第一阶段（分支 `feat/paper-digest-v2-appearance`）

@@ -103,9 +103,10 @@
 }
 
 /* Pressed: a 1px dip on every button and pill on the page (the hero actions,
-   the filter, "Show earlier", Subscribe), only when motion is welcome. */
+   Time and edition and the pills in its panel, "Show earlier", Subscribe,
+   Save and Copy link), only when motion is welcome. */
 @media (prefers-reduced-motion: no-preference) {
-  .paper-digest-page :is(.primary-action, .secondary-action, .pd-filter-option):active {
+  .paper-digest-page :is(.primary-action, .secondary-action, .pd-time-button, .pd-filter-option, .pd-icon-button):active {
     transform: translateY(1px);
   }
 }
@@ -343,10 +344,11 @@
   color: var(--pd-on-navy-muted);
 }
 
-/* The page's two disclosures share the chevron row; both rows are 44px tall
-   to the finger. */
+/* The page's disclosures share the chevron row; every row is 44px tall to
+   the finger. */
 .pd-privacy summary,
-.pd-paper-more summary {
+.pd-paper-more summary,
+.pd-howto summary {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -367,13 +369,15 @@
 }
 
 .pd-privacy summary::-webkit-details-marker,
-.pd-paper-more summary::-webkit-details-marker {
+.pd-paper-more summary::-webkit-details-marker,
+.pd-howto summary::-webkit-details-marker {
   display: none;
 }
 
 /* A small chevron that turns down when open. */
 .pd-privacy summary::before,
-.pd-paper-more summary::before {
+.pd-paper-more summary::before,
+.pd-howto summary::before {
   content: "";
   width: 6px;
   height: 6px;
@@ -384,7 +388,8 @@
 }
 
 .pd-privacy[open] summary::before,
-.pd-paper-more[open] summary::before {
+.pd-paper-more[open] summary::before,
+.pd-howto[open] summary::before {
   transform: rotate(45deg);
 }
 
@@ -451,11 +456,65 @@
   border: 0;
 }
 
+/* --- Saved papers in the header: bottom right, level with the breadcrumb
+   (styles/breadcrumb.css places .header-action). The strip under the nav is
+   32px tall, so the pill is 28px and its ::after makes the hit area 32px.
+   The count keeps its place while the browser's list loads. --- */
+.pd-saved-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.pd-saved-link::after {
+  content: "";
+  position: absolute;
+  inset: -3px 0;
+}
+
+.pd-saved-link:hover {
+  color: var(--accent-hover);
+  border-color: var(--border-strong);
+}
+
+.pd-saved-link[aria-current="true"] {
+  color: var(--accent-hover);
+  border-color: var(--accent);
+}
+
+.pd-saved-count {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+  color: var(--text-secondary);
+  background: var(--surface);
+  border-radius: var(--radius-pill);
+}
+
+.pd-saved-count:empty {
+  visibility: hidden;
+}
+
 /* --- Paper list --- */
 /* Aligned with the hero above it (var(--gutter)), not the narrower
    .content-section column other pages use. Padding only: the width cap
    stays off this element (see tests/test_platform_hero_width.py). */
-.paper-digest-page .pd-section {
+.paper-digest-page .pd-section,
+.paper-digest-page .pd-saved {
   padding-left: var(--gutter);
   padding-right: var(--gutter);
 }
@@ -475,25 +534,137 @@
   color: var(--text-muted);
 }
 
-/* Said once above the list, not on every paper (DESIGN_SUMMARY §2.4). */
-.pd-ai-note {
+/* Said once above the list, not on every paper (DESIGN_SUMMARY §2.4). Saved
+   papers' "saved in this browser only" is set the same way. */
+.pd-ai-note,
+.pd-saved-note {
   max-width: var(--pd-measure);
-  margin: 0 0 24px;
   font-size: 13px;
   line-height: 1.55;
   color: var(--text-muted);
 }
 
-.pd-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px 24px;
+.pd-ai-note {
+  margin: 0 0 24px;
 }
 
+/* Search takes the row; Time and edition sits at its end and names every
+   setting in force. */
+.pd-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pd-search {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+/* 16px text: iOS zooms into smaller fields on focus. 46px: the height of
+   the Time and edition button beside it. */
+.pd-search input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 16px 0 42px;
+  font-family: var(--font);
+  font-size: 16px;
+  color: var(--text);
+  background: var(--surface-elevated) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%235f6773' stroke-width='1.6' stroke-linecap='round'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='M11 11l3.5 3.5'/%3E%3C/svg%3E") no-repeat 16px 50%;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  transition: border-color var(--transition);
+}
+
+.pd-search input::placeholder {
+  color: var(--text-muted);
+}
+
+.pd-search input:hover {
+  border-color: var(--text-muted);
+}
+
+.pd-time {
+  position: relative;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.pd-time-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  min-height: 46px;
+  padding: 0 16px;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: color var(--transition), background-color var(--transition), border-color var(--transition);
+}
+
+.pd-time-button:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+
+.pd-time-icon,
+.pd-time-chevron {
+  flex: none;
+}
+
+/* One line; what does not fit ends in an ellipsis. */
+.pd-time-summary {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- The panel: below its button on wider screens (not modal), a bottom
+   sheet at 560px and below (modal, over a backdrop). --- */
+.pd-panel {
+  position: absolute;
+  inset: calc(100% + 8px) 0 auto auto;
+  z-index: 20;
+  width: min(380px, calc(100vw - 2 * var(--gutter)));
+  margin: 0;
+  padding: 0;
+  color: var(--text);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.pd-panel-body {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+}
+
+.pd-panel-title {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+/* Below its button the panel needs no Done: a click outside, or Esc, closes
+   it. (Its title is then read, not shown: see .pd-sr.) */
+.pd-panel:not(:modal) .pd-panel-foot {
+  display: none;
+}
+
+/* The grouping: three pills in one track, as the type filter used to be.
+   The track is 46px; each pill's ::after stretches its hit area to 44px. */
 .pd-filter {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 4px;
   padding: 3px;
   border: 1px solid var(--border);
@@ -501,8 +672,6 @@
   background: var(--surface-elevated);
 }
 
-/* The pill is 38px tall; its ::after stretches the hit area into the group's
-   padding, to 44px. */
 .pd-filter-option::after {
   content: "";
   position: absolute;
@@ -529,37 +698,124 @@
   color: var(--text);
 }
 
-.pd-filter-option[aria-pressed="true"] {
+/* Selected: the grouping in use, and Time and edition while its panel is
+   open. After both :hover rules, so it wins over them. */
+.pd-filter-option[aria-pressed="true"],
+.pd-time-button[aria-expanded="true"] {
   color: var(--accent-hover);
   background: var(--accent-wash);
   border-color: var(--accent);
 }
 
-.pd-search {
-  flex: 0 1 340px;
+.pd-field {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
 }
 
-/* 16px text: iOS zooms into smaller fields on focus. 46px: the height of
-   the filter group beside it. */
-.pd-search input {
-  width: 100%;
-  min-height: 46px;
-  padding: 0 16px 0 42px;
+/* 16px text: iOS zooms into smaller fields. */
+.pd-field select {
+  min-height: 44px;
+  padding: 0 12px;
   font-family: var(--font);
   font-size: 16px;
   color: var(--text);
-  background: var(--surface-elevated) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%235f6773' stroke-width='1.6' stroke-linecap='round'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='M11 11l3.5 3.5'/%3E%3C/svg%3E") no-repeat 16px 50%;
+  background: var(--surface-elevated);
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius-pill);
-  transition: border-color var(--transition);
+  border-radius: var(--radius-sm);
 }
 
-.pd-search input::placeholder {
+.pd-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-size: 15px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.pd-check input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.pd-panel-count {
+  margin: 0;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
-.pd-search input:hover {
-  border-color: var(--text-muted);
+.pd-panel:modal {
+  position: fixed;
+  inset: auto 0 0;
+  width: 100%;
+  max-width: none;
+  max-height: 85dvh;
+  overflow: auto;
+  border: 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.pd-panel:modal .pd-panel-body {
+  padding: 20px 20px 0;
+}
+
+/* A short screen scrolls the sheet; Done stays in view on a full-width solid
+   bar at its foot, so the list scrolls away under a straight edge rather
+   than the pill's curve. The bar carries the sheet's bottom padding. */
+.pd-panel:modal .pd-panel-foot {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  margin: -12px -20px 0;
+  padding: 12px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  background: var(--surface-elevated);
+}
+
+.pd-panel:modal .pd-panel-done {
+  justify-content: center;
+  backdrop-filter: none;
+}
+
+/* The bar covers the sheet's last 76px (12 + Done's 44 + 20, plus the safe
+   area): the sheet counts that strip as hidden, so a control reached with Tab
+   scrolls up out from under it. Inside the sheet's own scroll box there is no
+   site header, so the page's header-sized scroll-margin does not apply. */
+.pd-panel:modal {
+  scroll-padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+}
+
+.pd-panel:modal :is(a, button, input, select, summary) {
+  scroll-margin-top: 0;
+}
+
+/* --text (#111827) at 45%. Written out: ::backdrop does not inherit custom
+   properties in every browser yet. */
+.pd-panel::backdrop {
+  background: rgb(17 24 39 / 0.45);
+}
+
+/* The page behind the sheet does not scroll. */
+html:has(.pd-panel:modal) {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pd-panel:modal {
+    animation: pd-sheet-in 200ms var(--ease-out);
+  }
+}
+
+@keyframes pd-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
 }
 
 .pd-results {
@@ -610,13 +866,13 @@
 
 /* Everything the page scrolls to stops below the fixed header: the two
    sections the hero links to (#latest, #subscribe), deep-linked papers, the
-   unavailable notice and focused controls. */
+   unavailable notice, and every control, which the browser scrolls into view
+   when the keyboard reaches it (it does not know the header is there). */
 .paper-digest-page .pd-section,
 .pd-subscribe,
 .pd-results,
 .pd-paper,
-.pd-paper a,
-.pd-paper summary {
+.paper-digest-page :is(a, button, input, select, summary) {
   scroll-margin-top: calc(var(--header-height) + 16px);
 }
 
@@ -635,14 +891,124 @@
   border-top: 1px solid color-mix(in oklch, var(--border) 55%, #FFFFFF);
 }
 
+/* A link to a paper (#brief-<id>) lands at once, whoever scrolls: the list
+   jumps there itself, and the browser's own glide to the same place, still
+   running under that jump, left the page about 10px off. */
+html:has(.pd-paper:target) {
+  scroll-behavior: auto;
+}
+
+/* A shared link's paper takes the focus, so keyboard and screen reader users
+   start there. It is not a control, so no ring: the wash below marks it. */
+.pd-paper:focus {
+  outline: none;
+}
+
+/* A shared link's paper: a wash behind its reading column, from 12px left
+   of the row to the edge of the Save and Copy link buttons (past them the
+   row is empty), fading over 1.5 s; with reduced motion it holds still for
+   2 s (the list removes the class). Drawn behind the row's content;
+   isolation keeps it above the page. */
+.pd-paper.is-target {
+  position: relative;
+  isolation: isolate;
+}
+
+/* As wide as the meta line plus 12px each side: the same 62ch of 12px,
+   weight-600 type, times 1.5 (see .pd-paper-meta), so both use one ch. */
+.pd-paper.is-target::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -12px auto -12px -12px;
+  width: calc(min(100%, 62ch * 1.5) + 24px);
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--accent-wash);
+  border-radius: var(--radius-sm);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pd-paper.is-target::before {
+    animation: pd-target 1500ms var(--ease-in-out) forwards;
+  }
+}
+
+@keyframes pd-target {
+  to {
+    opacity: 0;
+  }
+}
+
+/* Type and dates on the left, Save and Copy link on the right. The line
+   stops where the title can reach (62ch of its 18px type, written in this
+   12px line's ch), so the buttons sit by the text, not across the column.
+   A ch is the width of "0", wider in bold: the line takes the title's weight
+   (600) so the two measures match, and its text goes back to 400. */
 .pd-paper-meta {
   display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: calc(62ch * 1.5);
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.pd-paper-tags {
+  display: flex;
+  flex: 1 1 auto;
   flex-wrap: wrap;
   align-items: center;
   gap: 6px 12px;
-  margin-bottom: 8px;
-  font-size: 12px;
+  min-width: 0;
+  min-height: 28px;
+  font-weight: 400;
+}
+
+/* 20px icons in 44px targets. The negative margins keep the targets out of
+   the line's 28px height and put the icons on the line's right edge. */
+.pd-paper-actions {
+  display: flex;
+  flex: none;
+  margin: -8px -12px -8px 0;
+}
+
+.pd-icon-button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
   color: var(--text-muted);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: color var(--transition), background-color var(--transition);
+}
+
+.pd-icon-button:hover {
+  color: var(--accent-hover);
+  background: var(--accent-wash);
+}
+
+/* Saved: a filled bookmark in the brand blue. The name stays "Save";
+   aria-pressed carries the state. */
+.pd-save[aria-pressed="true"] {
+  color: var(--accent);
+}
+
+.pd-save[aria-pressed="true"] svg {
+  fill: currentColor;
+}
+
+/* Copied: the check, in the brand blue, for a moment. */
+.pd-copy[data-copied] {
+  color: var(--accent);
 }
 
 /* Same neutral outline as the Research page badge. A preprint's outline is
@@ -693,7 +1059,8 @@
   color: var(--text-muted);
 }
 
-.pd-sr {
+.pd-sr,
+.pd-panel:not(:modal) .pd-panel-title {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -808,11 +1175,37 @@
 }
 
 .pd-empty {
-  margin: 0;
   padding: 36px 0;
   font-size: 15px;
   color: var(--text-muted);
   border-top: 1px solid var(--border);
+}
+
+.pd-empty p {
+  margin: 0;
+}
+
+/* Saved papers' empty state has a heading over its sentence. */
+.pd-empty h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.pd-empty h2 + p {
+  max-width: var(--pd-measure);
+  margin-top: 8px;
+}
+
+/* An icon inside a sentence (the bookmark in "Use the bookmark on any
+   paper"), sitting on the text's baseline. */
+.pd-inline-icon {
+  display: inline-block;
+  margin: 0 0.15em;
+  vertical-align: -0.2em;
+}
+
+.pd-empty .pd-button {
+  margin-top: 16px;
 }
 
 /* "Show earlier" lines up with the papers, not with the date column. */
@@ -824,23 +1217,24 @@
   border-top: 1px solid var(--border);
 }
 
+/* A .pd-button (below); here only its place in the grid. */
 .pd-more {
-  touch-action: manipulation;
   grid-column: 2;
   justify-self: start;
-  min-height: 44px;
-  font-family: var(--font);
-  font-size: 14px;
-  cursor: pointer;
 }
 
-.pd-footnote {
+/* The small print under the list, and Saved papers' "How saving works". */
+.pd-footnote,
+.pd-howto {
   max-width: var(--pd-measure);
-  margin: 40px 0 0;
-  padding-top: 16px;
   font-size: 13px;
   line-height: 1.6;
   color: var(--text-muted);
+}
+
+.pd-footnote {
+  margin: 40px 0 0;
+  padding-top: 16px;
   border-top: 1px solid var(--border);
 }
 
@@ -853,11 +1247,146 @@
   color: var(--accent-hover);
 }
 
+/* --- Saved papers (#saved): the same page with its home sections hidden.
+   They stay mounted, so the list keeps its filters, search and open
+   readings. --- */
+.paper-digest-page[data-view="saved"] > :not(.pd-saved, .pd-toast, .pd-sr) {
+  display: none;
+}
+
+/* On desktop the view starts where a shared link lands, 16px under the
+   header, not under the 80px every section gets (home.css): alone at the
+   top, that left the page looking empty above it. Tablets and phones keep
+   their smaller padding. */
+@media (min-width: 901px) {
+  main.main-content > .pd-saved {
+    padding-top: 16px;
+  }
+}
+
+.pd-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: color var(--transition);
+}
+
+.pd-back:hover {
+  color: var(--accent-hover);
+}
+
+/* Its size is the site's section-heading size (styles/responsive.css). */
+.pd-saved h1 {
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+/* The heading takes the focus when Saved papers opens, so screen readers
+   announce it and Tab goes on from here. It is not a control, so no ring:
+   the header's Saved papers link already marks where the reader is. */
+.pd-saved h1:focus {
+  outline: none;
+}
+
+.pd-saved-total {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.pd-saved-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* The page's plain buttons (Show earlier, Export, Import, Clear all filters,
+   Done): 44px to the finger, in the site's face. */
+.pd-button {
+  touch-action: manipulation;
+  min-height: 44px;
+  font-family: var(--font);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.pd-saved-note {
+  margin: 16px 0 0;
+}
+
+.pd-howto summary {
+  color: var(--text-secondary);
+}
+
+.pd-howto summary:hover {
+  color: var(--text);
+}
+
+.pd-howto p {
+  margin: 0 0 4px;
+}
+
+/* The list opens under a full-strength rule, like the first group of the
+   home list. */
+.pd-saved-list {
+  margin-top: 20px;
+  padding-top: 28px;
+  border-top: 1px solid var(--text);
+}
+
+/* --- Toast: a failed copy or a failed save (what works shows where it
+   happened). It stays in the page as a live region (an inserted one can go
+   unannounced); empty, it has no size. --- */
+.pd-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  z-index: 110;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  margin: 0;
+  padding: 12px 18px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--text-on-dark);
+  background: var(--dark-2);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-card);
+  transform: translateX(-50%);
+}
+
+.pd-toast:empty {
+  padding: 0;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pd-toast:not(:empty) {
+    animation: pd-toast-in 200ms var(--ease-out);
+  }
+}
+
+@keyframes pd-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .pd-saved-link,
+  .pd-time-button,
+  .pd-icon-button,
   .pd-paper-title a,
   .pd-privacy summary::before,
   .pd-paper-more summary,
-  .pd-paper-more summary::before {
+  .pd-paper-more summary::before,
+  .pd-howto summary::before {
     transition: none;
   }
 }
@@ -894,9 +1423,21 @@
     font-size: 1.75rem;
     line-height: 1.16;
   }
+
+  /* Above Back to top (fixed 24px from the bottom, 40px tall; styles/
+     footer.css), 12px clear of it: the longest message, 460px wide in
+     English, would cover the button on screens up to about 590px wide. */
+  .pd-toast {
+    bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 @media (max-width: 560px) {
+  /* The icon and the count; the name stays in the link's aria-label. */
+  .pd-saved-link-label {
+    display: none;
+  }
+
   .pd-hero {
     gap: 24px;
     padding-top: 40px;
@@ -943,18 +1484,23 @@
     flex-direction: column;
   }
 
+  /* Search on its own row; Time and edition full width under it. */
   .pd-toolbar {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .pd-filter {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-  }
-
   .pd-search {
     flex-basis: auto;
+  }
+
+  .pd-time-button {
+    width: 100%;
+  }
+
+  .pd-time-summary {
+    flex: 1;
+    text-align: start;
   }
 
   .pd-paper-title {

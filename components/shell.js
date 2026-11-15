@@ -11,7 +11,7 @@ import {
 } from "@/content/site";
 import { Breadcrumb } from "./breadcrumb";
 
-export function SiteShell({ children, lang = "en" }) {
+export function SiteShell({ children, lang = "en", headerAction = null }) {
   const pathname = usePathname();
   const content = getSiteContent(lang);
   const switchHref = getLanguageSwitchHref(pathname || "/", lang);
@@ -26,6 +26,9 @@ export function SiteShell({ children, lang = "en" }) {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
+    // A page can open already scrolled (a shared link, a reload halfway down)
+    // with no scroll event to follow: read where it is now, then listen.
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -160,6 +163,7 @@ export function SiteShell({ children, lang = "en" }) {
           <span />
         </button>
         <Breadcrumb lang={lang} />
+        {headerAction ? <div className="header-action">{headerAction}</div> : null}
       </header>
 
       {/* Mobile drawer */}
