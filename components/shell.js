@@ -26,6 +26,9 @@ export function SiteShell({ children, lang = "en", headerAction = null }) {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
+    // A page can open already scrolled (a shared link, a reload halfway down)
+    // with no scroll event to follow: read where it is now, then listen.
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
