@@ -344,10 +344,11 @@
   color: var(--pd-on-navy-muted);
 }
 
-/* The page's two disclosures share the chevron row; both rows are 44px tall
-   to the finger. */
+/* The page's disclosures share the chevron row; every row is 44px tall to
+   the finger. */
 .pd-privacy summary,
-.pd-paper-more summary {
+.pd-paper-more summary,
+.pd-howto summary {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -368,13 +369,15 @@
 }
 
 .pd-privacy summary::-webkit-details-marker,
-.pd-paper-more summary::-webkit-details-marker {
+.pd-paper-more summary::-webkit-details-marker,
+.pd-howto summary::-webkit-details-marker {
   display: none;
 }
 
 /* A small chevron that turns down when open. */
 .pd-privacy summary::before,
-.pd-paper-more summary::before {
+.pd-paper-more summary::before,
+.pd-howto summary::before {
   content: "";
   width: 6px;
   height: 6px;
@@ -385,7 +388,8 @@
 }
 
 .pd-privacy[open] summary::before,
-.pd-paper-more[open] summary::before {
+.pd-paper-more[open] summary::before,
+.pd-howto[open] summary::before {
   transform: rotate(45deg);
 }
 
@@ -509,7 +513,8 @@
 /* Aligned with the hero above it (var(--gutter)), not the narrower
    .content-section column other pages use. Padding only: the width cap
    stays off this element (see tests/test_platform_hero_width.py). */
-.paper-digest-page .pd-section {
+.paper-digest-page .pd-section,
+.paper-digest-page .pd-saved {
   padding-left: var(--gutter);
   padding-right: var(--gutter);
 }
@@ -963,6 +968,117 @@
   color: var(--accent-hover);
 }
 
+/* --- Saved papers (#saved): the same page with its home sections hidden.
+   They stay mounted, so the list keeps its filters, search and open
+   readings. --- */
+.paper-digest-page[data-view="saved"] > :not(.pd-saved, .pd-toast) {
+  display: none;
+}
+
+.pd-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: color var(--transition);
+}
+
+.pd-back:hover {
+  color: var(--accent-hover);
+}
+
+.pd-saved h1 {
+  margin-top: 4px;
+  font-size: clamp(1.4rem, 1.05rem + 1.6vw, 1.85rem);
+  font-weight: 600;
+}
+
+/* The heading takes the focus when Saved papers opens, so screen readers
+   announce it and Tab goes on from here. It is not a control, so no ring:
+   the header's Saved papers link already marks where the reader is. */
+.pd-saved h1:focus {
+  outline: none;
+}
+
+.pd-saved-total {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.pd-saved-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* The page's plain buttons (Export, Import, Clear all filters, Done): 44px
+   to the finger, in the site's face. */
+.pd-button {
+  touch-action: manipulation;
+  min-height: 44px;
+  font-family: var(--font);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.pd-saved-note {
+  max-width: var(--pd-measure);
+  margin: 16px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.pd-howto {
+  max-width: var(--pd-measure);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.pd-howto summary {
+  color: var(--text-secondary);
+}
+
+.pd-howto summary:hover {
+  color: var(--text);
+}
+
+.pd-howto p {
+  margin: 0 0 4px;
+}
+
+/* The list opens under a full-strength rule, like the first group of the
+   home list. */
+.pd-saved-list {
+  margin-top: 20px;
+  padding-top: 28px;
+  border-top: 1px solid var(--text);
+}
+
+.pd-saved-empty {
+  margin-top: 20px;
+  padding: 36px 0;
+  border-top: 1px solid var(--border);
+}
+
+.pd-saved-empty h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.pd-saved-empty p {
+  max-width: var(--pd-measure);
+  margin: 8px 0 20px;
+  font-size: 15px;
+  color: var(--text-muted);
+}
+
 /* --- Toast: a copied link, a failed copy or a failed save. It stays in the
    page as a live region (an inserted one can go unannounced); empty, it has
    no size. --- */
@@ -1008,7 +1124,8 @@
   .pd-paper-title a,
   .pd-privacy summary::before,
   .pd-paper-more summary,
-  .pd-paper-more summary::before {
+  .pd-paper-more summary::before,
+  .pd-howto summary::before {
     transition: none;
   }
 }

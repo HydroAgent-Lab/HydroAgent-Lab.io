@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { digestPageUrl, resolvePaperId } from "@/lib/paper-digest.mjs";
+import { SavedPapersView } from "./saved-papers-view";
 import { useSavedPapers } from "./saved-papers-store";
 
 const PaperDigestContext = createContext(null);
@@ -50,6 +51,7 @@ export function PaperDigestViews({ papers, aliases, lang, mainLang, copy, savedC
   const toastTimer = useRef(0);
   const viewRef = useRef("home");
   const homeScroll = useRef(null);
+  const homeFocus = useRef(null);
   const view = hash === "#saved" ? "saved" : "home";
 
   const resolve = useCallback((id) => resolvePaperId(id, papers, aliases) ?? id, [papers, aliases]);
@@ -65,8 +67,12 @@ export function PaperDigestViews({ papers, aliases, lang, mainLang, copy, savedC
     const update = (event) => {
       const next = window.location.hash;
       const nextView = next === "#saved" ? "saved" : "home";
-      // Where the reader was, to bring them back (not after a direct visit).
-      if (event && nextView === "saved" && viewRef.current === "home") homeScroll.current = window.scrollY;
+      // Where the reader was and what had the focus (usually the header's
+      // Saved papers link), to bring them back; not after a direct visit.
+      if (event && nextView === "saved" && viewRef.current === "home") {
+        homeScroll.current = window.scrollY;
+        homeFocus.current = document.activeElement;
+      }
       viewRef.current = nextView;
       setHash(next);
     };
@@ -78,17 +84,29 @@ export function PaperDigestViews({ papers, aliases, lang, mainLang, copy, savedC
   // Saved papers opens at the top. Back on the home view, a shared paper's
   // link is placed by the list; otherwise the reader returns to where they
   // were or, after a direct visit to #saved, to the section the link names.
-  // It runs when the view changes and reads the hash as it is then.
+  // Leaving Saved papers removes whatever had the focus there, so the focus
+  // goes back to what had it before (keyboard users keep their place). It
+  // runs when the view changes and reads the hash as it is then.
   useLayoutEffect(() => {
     if (view === "saved") {
       window.scrollTo({ top: 0, behavior: "instant" });
       return;
     }
     const top = homeScroll.current;
+    const focus = homeFocus.current;
     homeScroll.current = null;
+    homeFocus.current = null;
     if (hash.startsWith("#brief-")) return;
-    if (top !== null) window.scrollTo({ top, behavior: "instant" });
-    else if (hash.length > 1) document.getElementById(hash.slice(1))?.scrollIntoView();
+    if (top !== null) {
+      window.scrollTo({ top, behavior: "instant" });
+      // On the browser's Back, the browser then restores its own record of
+      // the place, a few px off; set it once more in the next frame, before
+      // anything is painted.
+      window.requestAnimationFrame(() => {
+        if (Math.abs(window.scrollY - top) >= 1) window.scrollTo({ top, behavior: "instant" });
+      });
+    } else if (hash.length > 1) document.getElementById(hash.slice(1))?.scrollIntoView();
+    if (focus?.isConnected && focus !== document.body && document.activeElement === document.body) focus.focus({ preventScroll: true });
   }, [view]);
 
   // Success shows for 3 s, a failure for 6 s; a new message replaces the old.
@@ -133,6 +151,9 @@ export function PaperDigestViews({ papers, aliases, lang, mainLang, copy, savedC
     <PaperDigestContext value={value}>
       <main className="main-content paper-digest-page" lang={mainLang} data-view={view}>
         {children}
+        {view === "saved" ? (
+          <SavedPapersView papers={papers} resolve={resolve} lang={lang} copy={copy} savedCopy={savedCopy} save={save} share={share} notify={notify} />
+        ) : null}
         {/* Always in the page, so what appears in it is announced; a div, so
             while empty it takes no space (a p brings its own margins). */}
         <div className="pd-toast" role="status">
