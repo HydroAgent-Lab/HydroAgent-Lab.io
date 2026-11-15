@@ -1,13 +1,13 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { digestPageUrl, resolvePaperId } from "@/lib/paper-digest.mjs";
+import { briefHash, digestPageUrl, isBriefHash, resolvePaperId } from "@/lib/paper-digest.mjs";
 import { SavedPapersView } from "./saved-papers-view";
 import { useSavedPapers } from "./saved-papers-store";
 
 const PaperDigestContext = createContext(null);
 
-// The papers, the list's copy, the location hash, and Save and Copy link.
+// The papers, the list's copy, a shared paper's link, and Save and Copy link.
 export const usePaperDigest = () => useContext(PaperDigestContext);
 
 // The Clipboard API first; where it is missing or refused, the older copy
@@ -32,7 +32,7 @@ async function copyText(text) {
   try {
     copied = document.execCommand("copy");
   } catch {
-    copied = false;
+    // the command threw: not copied
   }
   field.remove();
   active?.focus?.({ preventScroll: true });
@@ -44,7 +44,7 @@ async function copyText(text) {
 // #saved shows Saved papers and hides the home sections, which stay mounted:
 // the list keeps its filters, search and open readings. The papers arrive
 // here once and reach the list through context.
-export function PaperDigestViews({ papers, aliases, lang, mainLang, copy, savedCopy, currentYear, children }) {
+export function PaperDigestViews({ papers, aliases, lang, copy, savedCopy, currentYear, children }) {
   const { toggle, normalize } = useSavedPapers();
   const [hash, setHash] = useState("");
   const [toast, setToast] = useState("");
@@ -61,8 +61,9 @@ export function PaperDigestViews({ papers, aliases, lang, mainLang, copy, savedC
     normalize(resolve);
   }, [normalize, resolve]);
 
-  // The page's one hash listener: the view and the list both follow `hash`,
-  // so a shared link opened from Saved papers lands on a visible paper.
+  // The page's hash listener (the header's Saved papers link keeps its own,
+  // for aria-current): the view and the list both follow it, so a shared link
+  // opened from Saved papers lands on a visible paper.
   useEffect(() => {
     const update = (event) => {
       const next = window.location.hash;
@@ -96,7 +97,7 @@ export function PaperDigestViews({ papers, aliases, lang, mainLang, copy, savedC
     const focus = homeFocus.current;
     homeScroll.current = null;
     homeFocus.current = null;
-    if (hash.startsWith("#brief-")) return;
+    if (isBriefHash(hash)) return;
     if (top !== null) {
       window.scrollTo({ top, behavior: "instant" });
       // On the browser's Back, the browser then restores its own record of
@@ -131,7 +132,7 @@ export function PaperDigestViews({ papers, aliases, lang, mainLang, copy, savedC
   // page does not move).
   const share = useCallback(
     async (id) => {
-      const fragment = `#brief-${encodeURIComponent(id)}`;
+      const fragment = briefHash(id);
       if (await copyText(digestPageUrl(lang) + fragment)) {
         notify(savedCopy.toast.copied);
       } else {
@@ -142,14 +143,20 @@ export function PaperDigestViews({ papers, aliases, lang, mainLang, copy, savedC
     [lang, notify, savedCopy]
   );
 
+  // Only a shared paper's link matters to the list. Other hash changes
+  // (#saved, #latest, #subscribe) leave the context as it was, so the list
+  // and its rows do not re-render for them.
+  const linkHash = isBriefHash(hash) ? hash : "";
   const value = useMemo(
-    () => ({ papers, aliases, lang, copy, currentYear, hash, save, share }),
-    [papers, aliases, lang, copy, currentYear, hash, save, share]
+    () => ({ papers, aliases, lang, copy, currentYear, linkHash, save, share }),
+    [papers, aliases, lang, copy, currentYear, linkHash, save, share]
   );
 
   return (
     <PaperDigestContext value={value}>
-      <main className="main-content paper-digest-page" lang={mainLang} data-view={view}>
+      {/* The shell sets no lang and <html> is always "en", so /zh marks its
+          copy here. */}
+      <main className="main-content paper-digest-page" lang={lang === "zh" ? "zh-CN" : undefined} data-view={view}>
         {children}
         {view === "saved" ? (
           <SavedPapersView papers={papers} resolve={resolve} lang={lang} copy={copy} savedCopy={savedCopy} save={save} share={share} notify={notify} />

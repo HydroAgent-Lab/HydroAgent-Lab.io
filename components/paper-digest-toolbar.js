@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { GRANULARITIES, groupLabel, plural } from "@/lib/paper-digest.mjs";
+import { GRANULARITIES, TYPES, groupLabel, plural } from "@/lib/paper-digest.mjs";
 
-const TYPES = ["all", "published", "preprint"];
+const TYPE_OPTIONS = ["all", ...TYPES];
 // At 560px and below (the site's phone breakpoint) the panel is a bottom
 // sheet: a modal dialog over a backdrop. Wider, it drops below its button and
 // is not modal.
@@ -148,7 +148,7 @@ export function PaperDigestToolbar({ copy, lang, currentYear, filters, editions,
             <label className="pd-field">
               <span>{copy.filterLabel}</span>
               <select value={filters.type} onChange={(event) => onChange({ type: event.target.value })}>
-                {TYPES.map((value) => (
+                {TYPE_OPTIONS.map((value) => (
                   <option key={value} value={value}>
                     {copy.filters[value]}
                   </option>

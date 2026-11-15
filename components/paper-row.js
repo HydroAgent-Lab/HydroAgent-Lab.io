@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { memo, useId } from "react";
 import { dayLabel } from "@/lib/paper-digest.mjs";
 
 const CJK = /[㐀-鿿]/;
@@ -22,7 +22,10 @@ function localDay(stamp) {
 // - note: shown instead of the reading (Saved papers: "No longer in the
 //   public digest").
 // - highlighted: the brief wash after a shared link lands here.
-export function PaperRow({ paper, lang, copy, saved, onToggleSave, onShare, savedAt, anchor = true, note, highlighted = false }) {
+// - onToggleSave(paper), onShare(id): the list passes the page's own Save and
+//   Copy link, which never change, so a row re-renders only when its own
+//   props do (memo): saving one paper does not redraw the others.
+export const PaperRow = memo(function PaperRow({ paper, lang, copy, saved, onToggleSave, onShare, savedAt, anchor = true, note, highlighted = false }) {
   const titleId = useId();
   const authors =
     paper.authors.join(", ") +
@@ -45,14 +48,14 @@ export function PaperRow({ paper, lang, copy, saved, onToggleSave, onShare, save
           {savedAt ? <time dateTime={savedAt}>{copy.savedOn.replace("{date}", dayLabel(localDay(savedAt), lang))}</time> : null}
         </div>
         <div className="pd-paper-actions">
-          <button type="button" className="pd-icon-button pd-save" aria-pressed={saved} aria-describedby={titleId} title={copy.save} onClick={onToggleSave}>
+          <button type="button" className="pd-icon-button pd-save" aria-pressed={saved} aria-describedby={titleId} title={copy.save} onClick={() => onToggleSave(paper)}>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden="true" focusable="false">
               <path d="M5 3h10v14l-5-3.5L5 17z" />
             </svg>
             <span className="pd-sr">{copy.save}</span>
           </button>
           {onShare ? (
-            <button type="button" className="pd-icon-button" aria-describedby={titleId} title={copy.share} onClick={onShare}>
+            <button type="button" className="pd-icon-button" aria-describedby={titleId} title={copy.share} onClick={() => onShare(paper.id)}>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
                 <path d="M10 12.5V3M6.5 6.5L10 3l3.5 3.5M4 10.5v5.5h12v-5.5" />
               </svg>
@@ -99,4 +102,4 @@ export function PaperRow({ paper, lang, copy, saved, onToggleSave, onShare, save
       ) : null}
     </li>
   );
-}
+});

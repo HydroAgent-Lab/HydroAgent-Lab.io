@@ -1,14 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { PAGE_SIZE, editionKeys, filterPapers, groupLabel, groupPapers, groupsToShow, planBriefLink, plural } from "@/lib/paper-digest.mjs";
+import { DEFAULT_GRANULARITY, NO_FILTERS, PAGE_SIZE, editionKeys, filterPapers, groupLabel, groupPapers, groupsToShow, isFiltered, planBriefLink, plural } from "@/lib/paper-digest.mjs";
 import { PaperDigestToolbar } from "./paper-digest-toolbar";
 import { usePaperDigest } from "./paper-digest-views";
 import { PaperRow } from "./paper-row";
 import { useSavedPapers } from "./saved-papers-store";
-
-// What "Clear all filters" resets; the grouping stays.
-const NO_FILTERS = { query: "", edition: "", type: "all", savedOnly: false };
 
 // The list under "Latest papers". Papers arrive localized (one language, no
 // fallback) through PaperDigestViews and are fully rendered on the server, so
@@ -16,9 +13,9 @@ const NO_FILTERS = { query: "", edition: "", type: "all", savedOnly: false };
 // need it. Groups are days, weeks or months. "Show earlier" adds whole
 // groups, PAGE_SIZE papers at a time, while nothing is filtered.
 export function PaperDigestFeed() {
-  const { papers, aliases, lang, copy, currentYear, hash, save, share } = usePaperDigest();
+  const { papers, aliases, lang, copy, currentYear, linkHash, save, share } = usePaperDigest();
   const { ids } = useSavedPapers();
-  const [filters, setFilters] = useState({ granularity: "week", ...NO_FILTERS });
+  const [filters, setFilters] = useState({ granularity: DEFAULT_GRANULARITY, ...NO_FILTERS });
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [linkTarget, setLinkTarget] = useState(null);
   const [highlightId, setHighlightId] = useState(null);
@@ -27,16 +24,17 @@ export function PaperDigestFeed() {
   view.current = { ...filters, savedIds: ids, visibleCount };
 
   // A shared link (#brief-<id>) clears only what would hide its paper. The
-  // hash comes from PaperDigestViews, which shows the home view in the same
+  // link comes from PaperDigestViews, which shows the home view in the same
   // render, so the paper is on screen when the next effect looks for it.
+  // Leaving the link (to #saved, #latest…) empties `linkHash`, which ends it.
   useEffect(() => {
-    const plan = planBriefLink(hash, papers, aliases, view.current);
+    const plan = planBriefLink(linkHash, papers, aliases, view.current);
     setLinkTarget(plan);
     if (!plan || plan.unavailable) return;
     const { edition, type, query, savedOnly, visibleCount: count } = plan;
     setFilters((value) => ({ ...value, edition, type, query, savedOnly }));
     setVisibleCount(count);
-  }, [hash, papers, aliases]);
+  }, [linkHash, papers, aliases]);
 
   // Then go to it, at once: a glide down a long list ends after the mark has
   // faded. Its reading opens; the focus goes to the paper itself (keyboard
@@ -75,7 +73,7 @@ export function PaperDigestFeed() {
   const matches = useMemo(() => filterPapers(papers, { ...filters, savedIds: ids }), [papers, filters, ids]);
   const groups = useMemo(() => groupPapers(matches, filters.granularity), [matches, filters.granularity]);
   const editions = useMemo(() => editionKeys(papers, filters.granularity), [papers, filters.granularity]);
-  const filtering = filters.query.trim() !== "" || filters.type !== "all" || filters.edition !== "" || filters.savedOnly;
+  const filtering = isFiltered(filters);
   // A filter or search shows every match; paging applies to the full list only.
   const shown = filtering ? groups : groups.slice(0, groupsToShow(groups, visibleCount));
 
@@ -109,8 +107,8 @@ export function PaperDigestFeed() {
                   lang={lang}
                   copy={copy}
                   saved={ids.has(paper.id)}
-                  onToggleSave={() => save(paper)}
-                  onShare={() => share(paper.id)}
+                  onToggleSave={save}
+                  onShare={share}
                   highlighted={highlightId === paper.id}
                 />
               ))}
@@ -130,7 +128,7 @@ export function PaperDigestFeed() {
 
       {!filtering && shown.length < groups.length ? (
         <div className="pd-more-row">
-          <button type="button" className="secondary-action pd-more" onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}>
+          <button type="button" className="secondary-action pd-button pd-more" onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}>
             {copy.more}
           </button>
         </div>

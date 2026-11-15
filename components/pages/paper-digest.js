@@ -7,7 +7,7 @@ import { SubscribedNotice } from "@/components/subscribed-notice";
 import { paperDigestContent, paperDigestEndpoints } from "@/content/pages/paper-digest";
 import { localizeHref } from "@/content/helpers";
 import { loadPaperDigest } from "@/lib/load-paper-digest";
-import { dayLabel, latestEdition, localizeDigest, plural } from "@/lib/paper-digest.mjs";
+import { dayLabel, digestPagePath, latestEdition, localizeDigest, plural } from "@/lib/paper-digest.mjs";
 
 // Metadata for both routes (app/paper-digest, app/zh/paper-digest): its own
 // canonical, because the layout's "/" would point search engines at the home
@@ -16,7 +16,7 @@ import { dayLabel, latestEdition, localizeDigest, plural } from "@/lib/paper-dig
 // shared fields are repeated here.
 export function paperDigestMetadata(lang) {
   const { title, shareTitle, description } = paperDigestContent[lang].meta;
-  const path = lang === "zh" ? "/zh/paper-digest/" : "/paper-digest/";
+  const path = digestPagePath(lang);
   return {
     title,
     alternates: { canonical: path, types: { "application/rss+xml": `${path}feed.xml` } },
@@ -51,12 +51,10 @@ export function PaperDigestPageContent({ lang = "en" }) {
 
   return (
     <SiteShell lang={lang} headerAction={<SavedPapersLink label={c.saved.link} countLabel={c.saved.linkCount} lang={lang} />}>
-      {/* The shell sets no lang and <html> is always "en", so /zh marks its copy on <main>. */}
       <PaperDigestViews
         papers={papers}
         aliases={data.aliases}
         lang={lang}
-        mainLang={lang === "zh" ? "zh-CN" : undefined}
         copy={c.feed}
         savedCopy={c.saved}
         currentYear={currentYear}

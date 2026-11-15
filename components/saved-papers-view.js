@@ -12,8 +12,7 @@ const fromSnapshot = ({ id, meta = {} }) => ({
   ...meta,
   id,
   title: meta.title || id,
-  authors: meta.authors || [],
-  authorsTotal: meta.authorsTotal || 0
+  authors: meta.authors || []
 });
 
 // Saved papers (#saved): newest save first, Export and Import, and how saving

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import { STORAGE_KEY, cleanSaved, readStored, serializeStored, toggleSaved } from "@/lib/saved-papers.mjs";
 
 // The only place that touches localStorage. Every reader shares one cached
@@ -58,18 +58,20 @@ function write(items) {
   return true;
 }
 
+// Module-level, so every reader gets the same functions on every render.
+const toggle = (paper) => write(toggleSaved(getSnapshot(), paper));
+
+// Moves entries saved under an ID that has since changed to the current ID,
+// and writes only when that changed something.
+function normalize(resolve) {
+  const current = getSnapshot();
+  const next = cleanSaved(current, resolve).items;
+  if (serializeStored(next) !== serializeStored(current)) write(next);
+}
+
 export function useSavedPapers() {
   const items = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const ready = items !== SERVER_ITEMS;
   const ids = useMemo(() => new Set(items.map((item) => item.id)), [items]);
-  const toggle = useCallback((paper) => write(toggleSaved(getSnapshot(), paper)), []);
-  const replace = useCallback((next) => write(next), []);
-  // Moves entries saved under an ID that has since changed to the current ID,
-  // and writes only when that changed something.
-  const normalize = useCallback((resolve) => {
-    const current = getSnapshot();
-    const next = cleanSaved(current, resolve).items;
-    if (serializeStored(next) !== serializeStored(current)) write(next);
-  }, []);
-  return { ready, items, ids, toggle, replace, normalize };
+  return { ready, items, ids, toggle, replace: write, normalize };
 }

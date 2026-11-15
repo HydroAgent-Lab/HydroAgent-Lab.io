@@ -534,13 +534,18 @@
   color: var(--text-muted);
 }
 
-/* Said once above the list, not on every paper (DESIGN_SUMMARY §2.4). */
-.pd-ai-note {
+/* Said once above the list, not on every paper (DESIGN_SUMMARY §2.4). Saved
+   papers' "saved in this browser only" is set the same way. */
+.pd-ai-note,
+.pd-saved-note {
   max-width: var(--pd-measure);
-  margin: 0 0 24px;
   font-size: 13px;
   line-height: 1.55;
   color: var(--text-muted);
+}
+
+.pd-ai-note {
+  margin: 0 0 24px;
 }
 
 /* Search takes the row; Time and edition sits at its end and names every
@@ -607,12 +612,6 @@
 .pd-time-button:hover {
   color: var(--text);
   border-color: var(--text-muted);
-}
-
-.pd-time-button[aria-expanded="true"] {
-  color: var(--accent-hover);
-  background: var(--accent-wash);
-  border-color: var(--accent);
 }
 
 .pd-time-icon,
@@ -699,7 +698,10 @@
   color: var(--text);
 }
 
-.pd-filter-option[aria-pressed="true"] {
+/* Selected: the grouping in use, and Time and edition while its panel is
+   open. After both :hover rules, so it wins over them. */
+.pd-filter-option[aria-pressed="true"],
+.pd-time-button[aria-expanded="true"] {
   color: var(--accent-hover);
   background: var(--accent-wash);
   border-color: var(--accent);
@@ -1148,23 +1150,24 @@ html:has(.pd-paper:target) {
   border-top: 1px solid var(--border);
 }
 
+/* A .pd-button (below); here only its place in the grid. */
 .pd-more {
-  touch-action: manipulation;
   grid-column: 2;
   justify-self: start;
-  min-height: 44px;
-  font-family: var(--font);
-  font-size: 14px;
-  cursor: pointer;
 }
 
-.pd-footnote {
+/* The small print under the list, and Saved papers' "How saving works". */
+.pd-footnote,
+.pd-howto {
   max-width: var(--pd-measure);
-  margin: 40px 0 0;
-  padding-top: 16px;
   font-size: 13px;
   line-height: 1.6;
   color: var(--text-muted);
+}
+
+.pd-footnote {
+  margin: 40px 0 0;
+  padding-top: 16px;
   border-top: 1px solid var(--border);
 }
 
@@ -1199,9 +1202,9 @@ html:has(.pd-paper:target) {
   color: var(--accent-hover);
 }
 
+/* Its size is the site's section-heading size (styles/responsive.css). */
 .pd-saved h1 {
   margin-top: 4px;
-  font-size: clamp(1.4rem, 1.05rem + 1.6vw, 1.85rem);
   font-weight: 600;
 }
 
@@ -1225,8 +1228,8 @@ html:has(.pd-paper:target) {
   margin-top: 20px;
 }
 
-/* The page's plain buttons (Export, Import, Clear all filters, Done): 44px
-   to the finger, in the site's face. */
+/* The page's plain buttons (Show earlier, Export, Import, Clear all filters,
+   Done): 44px to the finger, in the site's face. */
 .pd-button {
   touch-action: manipulation;
   min-height: 44px;
@@ -1236,18 +1239,7 @@ html:has(.pd-paper:target) {
 }
 
 .pd-saved-note {
-  max-width: var(--pd-measure);
   margin: 16px 0 0;
-  font-size: 13px;
-  line-height: 1.55;
-  color: var(--text-muted);
-}
-
-.pd-howto {
-  max-width: var(--pd-measure);
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--text-muted);
 }
 
 .pd-howto summary {
