@@ -492,7 +492,10 @@
   border-color: var(--accent);
 }
 
-.pd-saved-count {
+/* The count pills: the header's saved count (below) and the Filters count
+   (.pd-time-badge, with the toolbar), on the surface and the accent wash. */
+.pd-saved-count,
+.pd-time-badge {
   min-width: 18px;
   height: 18px;
   padding: 0 5px;
@@ -500,9 +503,12 @@
   font-weight: 600;
   line-height: 18px;
   text-align: center;
+  border-radius: var(--radius-pill);
+}
+
+.pd-saved-count {
   color: var(--text-secondary);
   background: var(--surface);
-  border-radius: var(--radius-pill);
 }
 
 .pd-saved-count:empty {
@@ -548,8 +554,117 @@
   margin: 0 0 24px;
 }
 
-/* Search takes the row; Time and edition sits at its end and names every
-   setting in force. */
+/* --- Highlights: the week's AI-selected papers, between the hero and the
+   list. One layer of containment, the card's hairline: Why it matters runs
+   on from its label at the list's measure, and nothing inside is a box. No
+   hover on the card: only the title, View AI summary and the buttons act.
+   The note ("AI-selected") follows the heading, close to the card. --- */
+main.main-content > .pd-highlights.content-section {
+  padding-bottom: 0;
+}
+
+.pd-highlights .pd-head {
+  justify-content: flex-start;
+}
+
+.pd-highlight-list {
+  display: grid;
+  gap: 16px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* As wide as a list title can run: 62ch of the titles' 18px semibold type,
+   written in this 12px semibold ch (as .pd-paper-meta does); the padding and
+   the border add themselves (content-box). The card's own text goes back to
+   400. */
+.pd-highlight {
+  box-sizing: content-box;
+  max-width: calc(62ch * 1.5);
+  padding: 20px 24px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.pd-highlight-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+/* The title is the list's (.pd-paper-title, as an h3). */
+.pd-highlight-why {
+  max-width: var(--pd-measure);
+  margin: 10px 0 0;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* Run-in; set as the reading's labels are (with .pd-paper-more dt, below). */
+.pd-highlight-why-label {
+  margin-right: 0.5em;
+}
+
+.pd-highlight-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+  margin-top: 16px;
+}
+
+.pd-highlight-source {
+  min-width: 0;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.pd-highlight-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+/* Secondary text, underlined, so the title stays the card's first action. A
+   44px target like the icon buttons beside it, never on two lines; the
+   negative margins keep the row from growing. */
+.pd-highlight-view {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-block: -6px;
+  padding: 0 8px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.pd-highlight-view:hover {
+  color: var(--accent-hover);
+}
+
+/* Search takes the row; Time and edition, then Filters, sit at its end, each
+   naming what it has in force. */
 .pd-toolbar {
   display: flex;
   align-items: center;
@@ -584,10 +699,31 @@
   border-color: var(--text-muted);
 }
 
+/* Time and edition takes what is left of the row and gives way first (its
+   summary ends in an ellipsis). */
 .pd-time {
-  position: relative;
-  flex: 0 1 auto;
+  flex: 1 1 0;
   min-width: 0;
+}
+
+/* Time and edition, and Filters: side by side at the end of the search row;
+   on phones, one row each under it. Both panels hang from this row, right
+   edge to right edge, so neither runs off the screen however wide Filters
+   grows. */
+.pd-toolbar-buttons {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* Filters (a .pd-time as well; this rule wins) never shrinks, so its label
+   stays whole. A long Filters summary stops at 16rem, or earlier so that
+   Time and edition keeps 8.5rem, and ends in an ellipsis itself; neither
+   button runs past the row. */
+.pd-topics {
+  flex: none;
+  max-width: min(16rem, calc(100% - 8.5rem - 12px));
 }
 
 .pd-time-button {
@@ -625,6 +761,15 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* How many filters are on, beside the summary while any is (the button's
+   name says which). The pill is the header's saved count's (.pd-saved-count),
+   on the accent wash. */
+.pd-time-badge {
+  flex: none;
+  color: var(--accent-hover);
+  background: var(--accent-wash);
 }
 
 /* --- The panel: below its button on wider screens (not modal), a bottom
@@ -1012,10 +1157,13 @@ html:has(.pd-paper:target) {
 }
 
 /* Same neutral outline as the Research page badge. A preprint's outline is
-   dashed: not yet settled by peer review, said without colour. */
+   dashed: not yet settled by peer review, said without colour. Its own
+   line-height, so it keeps its height wherever it sits (a Highlights card's
+   meta line is set at 1.5 for the Domains beside it). */
 .pd-badge {
   font-size: 11px;
   font-weight: 600;
+  line-height: normal;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 2px 9px;
@@ -1028,12 +1176,17 @@ html:has(.pd-paper:target) {
   border-style: dashed;
 }
 
+/* A paper's title: the list's h4s and a Highlights card's h3 (PaperTitle).
+   The face and spacing are said here because the site's h1–h3 have their
+   own display face. */
 .pd-paper-title {
   max-width: 62ch;
   margin: 0;
+  font-family: var(--font);
   font-size: 18px;
   font-weight: 600;
   line-height: 1.38;
+  letter-spacing: normal;
   text-wrap: pretty;
 }
 
@@ -1087,6 +1240,16 @@ html:has(.pd-paper:target) {
   font-size: 13px;
   line-height: 1.5;
   color: var(--text-muted);
+}
+
+/* Domains, then Methods: quiet text under the byline, not chips, since they
+   are not controls (the ④ spec §6 explains the change from grey badges). */
+.pd-paper-topics {
+  max-width: var(--pd-measure);
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
 }
 
 /* The reading opens as a card: a summary row, then Summary and Limits of the
@@ -1146,13 +1309,26 @@ html:has(.pd-paper:target) {
   border-top: 1px solid var(--pd-evidence-border);
 }
 
-.pd-paper-more dt {
-  margin: 0 0 6px;
+/* The reading's labels, and the card's Why it matters label (run-in, with
+   the Highlights). Chinese has no capitals to carry an 11px label: it gets
+   13px and no tracking. */
+.pd-paper-more dt,
+.pd-highlight-why-label {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.075em;
   text-transform: uppercase;
   color: var(--text-secondary);
+}
+
+.pd-paper-more dt {
+  margin: 0 0 6px;
+}
+
+.pd-paper-more dt:lang(zh),
+.pd-highlight-why-label:lang(zh) {
+  font-size: 13px;
+  letter-spacing: 0;
 }
 
 .pd-paper-more dd {
@@ -1484,7 +1660,7 @@ html:has(.pd-paper:target) {
     flex-direction: column;
   }
 
-  /* Search on its own row; Time and edition full width under it. */
+  /* Search on its own row; Time and edition and Filters under it, one row each. */
   .pd-toolbar {
     flex-direction: column;
     align-items: stretch;
@@ -1503,8 +1679,28 @@ html:has(.pd-paper:target) {
     text-align: start;
   }
 
+  /* One full row per button: each shows everything it has in force. */
+  .pd-toolbar-buttons {
+    flex-direction: column;
+  }
+
+  .pd-time {
+    flex: none;
+    max-width: none;
+  }
+
   .pd-paper-title {
     font-size: 17px;
+  }
+
+  .pd-highlight {
+    padding: 16px;
+  }
+
+  /* The source over the actions; the actions keep to the right. */
+  .pd-highlight-foot {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .pd-subscribe-wrap {

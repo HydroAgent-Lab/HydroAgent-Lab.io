@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { DEFAULT_GRANULARITY, NO_FILTERS, PAGE_SIZE, editionKeys, filterPapers, groupLabel, groupPapers, groupsToShow, isFiltered, planBriefLink, plural } from "@/lib/paper-digest.mjs";
+import { DEFAULT_GRANULARITY, NO_FILTERS, PAGE_SIZE, editionKeys, filterPapers, groupLabel, groupPapers, groupsToShow, isFiltered, planBriefLink, plural, taxonomyOptions } from "@/lib/paper-digest.mjs";
 import { PaperDigestToolbar } from "./paper-digest-toolbar";
 import { usePaperDigest } from "./paper-digest-views";
 import { PaperRow } from "./paper-row";
@@ -13,7 +13,7 @@ import { useSavedPapers } from "./saved-papers-store";
 // need it. Groups are days, weeks or months. "Show earlier" adds whole
 // groups, PAGE_SIZE papers at a time, while nothing is filtered.
 export function PaperDigestFeed() {
-  const { papers, aliases, lang, copy, currentYear, linkHash, save, share } = usePaperDigest();
+  const { papers, aliases, lang, copy, currentYear, linkHash, linkSeq, save, share } = usePaperDigest();
   const { ids } = useSavedPapers();
   const [filters, setFilters] = useState({ granularity: DEFAULT_GRANULARITY, ...NO_FILTERS });
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -26,15 +26,16 @@ export function PaperDigestFeed() {
   // A shared link (#brief-<id>) clears only what would hide its paper. The
   // link comes from PaperDigestViews, which shows the home view in the same
   // render, so the paper is on screen when the next effect looks for it.
-  // Leaving the link (to #saved, #latest…) empties `linkHash`, which ends it.
+  // Leaving the link (to #saved, #latest…) empties `linkHash`, which ends it;
+  // a new `linkSeq` asks for the same link again (PaperDigestViews' revisit).
   useEffect(() => {
     const plan = planBriefLink(linkHash, papers, aliases, view.current);
     setLinkTarget(plan);
     if (!plan || plan.unavailable) return;
-    const { edition, type, query, savedOnly, visibleCount: count } = plan;
-    setFilters((value) => ({ ...value, edition, type, query, savedOnly }));
+    const { id, visibleCount: count, ...cleared } = plan;
+    setFilters((value) => ({ ...value, ...cleared }));
     setVisibleCount(count);
-  }, [linkHash, papers, aliases]);
+  }, [linkHash, linkSeq, papers, aliases]);
 
   // Then go to it, at once: a glide down a long list ends after the mark has
   // faded. Its reading opens; the focus goes to the paper itself (keyboard
@@ -73,6 +74,8 @@ export function PaperDigestFeed() {
   const matches = useMemo(() => filterPapers(papers, { ...filters, savedIds: ids }), [papers, filters, ids]);
   const groups = useMemo(() => groupPapers(matches, filters.granularity), [matches, filters.granularity]);
   const editions = useMemo(() => editionKeys(papers, filters.granularity), [papers, filters.granularity]);
+  // The Domains and Methods in use: the Filters panel's options.
+  const taxonomy = useMemo(() => taxonomyOptions(papers), [papers]);
   const filtering = isFiltered(filters);
   // A filter or search shows every match; paging applies to the full list only.
   const shown = filtering ? groups : groups.slice(0, groupsToShow(groups, visibleCount));
@@ -85,6 +88,7 @@ export function PaperDigestFeed() {
         currentYear={currentYear}
         filters={filters}
         editions={editions}
+        taxonomy={taxonomy}
         count={matches.length}
         onChange={change}
       />

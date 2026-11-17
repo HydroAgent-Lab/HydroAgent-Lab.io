@@ -108,7 +108,33 @@ export const paperDigestContent = {
       noAbstract: "No abstract available; no AI summary was generated.",
       newTab: "(opens in a new tab)",
       footnote: "AI summaries may contain errors, so please check the original papers. Preprints have not been peer-reviewed.",
-      rss: "RSS feed"
+      rss: "RSS feed",
+      // Highlights: the week's AI-selected papers above the list.
+      highlights: { title: "Highlights", note: "AI-selected", why: "Why it matters", view: "View AI summary" },
+      // Filters: the Domain and Method panel. prefix is read before a paper's
+      // topics by screen readers, not shown.
+      topics: { label: "Filters", domain: "Domain", method: "Method", allDomains: "All domains", allMethods: "All methods", prefix: "Topics: " },
+      // Display names for the collector's Domain and Method IDs
+      // (DESIGN_SUMMARY §2.3, in sentence case).
+      taxonomy: {
+        domains: {
+          catchment_hydrology: "Catchment hydrology",
+          floods: "Floods",
+          water_resources_reservoirs: "Water resources & reservoirs",
+          urban_water: "Urban water",
+          water_quality_ecology: "Water quality & ecology",
+          groundwater: "Groundwater"
+        },
+        methods: {
+          prompting: "Prompting",
+          rag_knowledge_graphs: "RAG & knowledge graphs",
+          fine_tuning_domain_models: "Fine-tuning & domain models",
+          agents_tool_use: "Agents & tool use",
+          multi_agent: "Multi-agent",
+          multimodal: "Multimodal",
+          benchmarks: "Benchmarks"
+        }
+      }
     },
     // Saved papers: kept in this browser only (localStorage), shown at #saved.
     saved: {
@@ -225,7 +251,28 @@ export const paperDigestContent = {
       noAbstract: "暂无摘要，未生成 AI 解读。",
       newTab: "（在新标签页打开）",
       footnote: "AI 解读可能有误，请以原文为准。预印本尚未经过同行评审。",
-      rss: "RSS 订阅"
+      rss: "RSS 订阅",
+      highlights: { title: "精选文献", note: "AI 精选", why: "推荐理由", view: "查看 AI 解读" },
+      topics: { label: "筛选", domain: "研究领域", method: "AI 方法", allDomains: "全部领域", allMethods: "全部方法", prefix: "分类：" },
+      taxonomy: {
+        domains: {
+          catchment_hydrology: "流域水文",
+          floods: "洪涝",
+          water_resources_reservoirs: "水资源与水库",
+          urban_water: "城市水务",
+          water_quality_ecology: "水质与水生态",
+          groundwater: "地下水"
+        },
+        methods: {
+          prompting: "提示工程",
+          rag_knowledge_graphs: "检索增强与知识图谱",
+          fine_tuning_domain_models: "微调与领域模型",
+          agents_tool_use: "智能体与工具调用",
+          multi_agent: "多智能体",
+          multimodal: "多模态",
+          benchmarks: "评测与基准"
+        }
+      }
     },
     saved: {
       link: "我的收藏",
