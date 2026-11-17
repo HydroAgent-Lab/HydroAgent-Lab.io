@@ -575,16 +575,14 @@ main.main-content > .pd-highlights.content-section {
   list-style: none;
 }
 
-/* As wide as a list title can run: 62ch of the titles' 18px semibold type,
-   written in this 12px semibold ch (as .pd-paper-meta does); the padding and
-   the border add themselves (content-box). The card's own text goes back to
-   400. */
+/* 40rem of content (2026-11-17): Why it matters keeps the list's measure
+   inside it, and the source and the actions share a row at the usual
+   journal-name length (a longer one wraps the actions under it). The padding
+   and the border add themselves (content-box). */
 .pd-highlight {
   box-sizing: content-box;
-  max-width: calc(62ch * 1.5);
+  max-width: 40rem;
   padding: 20px 24px;
-  font-size: 12px;
-  font-weight: 600;
   background: var(--surface-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -616,6 +614,58 @@ main.main-content > .pd-highlights.content-section {
 /* Run-in; set as the reading's labels are (with .pd-paper-more dt, below). */
 .pd-highlight-why-label {
   margin-right: 0.5em;
+}
+
+/* Two lines, then Show more (2026-11-17). Only drawn shorter: the whole text
+   stays in the page, for screen readers and search. */
+.pd-highlight-why:not(.is-open) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+/* The quietest text on the card: 12px in the source line's grey. A 44px
+   target like the buttons below, pulled back 11px above and below so the
+   card grows by its 22px only; the 13px of padding at each side is pulled
+   back too, so the label starts where the text does. */
+.pd-highlight-more {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  width: fit-content;
+  min-height: 44px;
+  margin: -11px -13px;
+  padding: 0 13px;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--text-muted);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.pd-highlight-more:hover {
+  color: var(--accent-hover);
+}
+
+/* The site's ring, drawn 11px inside the 44px box: close around the label
+   (2px at its sides), its top edge clear of the text above. */
+.pd-highlight-more:focus-visible {
+  outline-offset: -11px;
+}
+
+.pd-highlight-more[aria-expanded="true"] .pd-highlight-more-chevron {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pd-highlight-more-chevron {
+    transition: transform var(--transition);
+  }
 }
 
 .pd-highlight-foot {
@@ -1164,7 +1214,7 @@ html:has(.pd-paper:target) {
   font-size: 11px;
   font-weight: 600;
   line-height: normal;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 2px 9px;
   color: var(--text-secondary);
@@ -1174,6 +1224,12 @@ html:has(.pd-paper:target) {
 
 .pd-badge.is-preprint {
   border-style: dashed;
+}
+
+/* Small capitals are tracked 0.08em, here and in the labels (2026-11-17);
+   Chinese has no capitals to track. */
+.pd-badge:lang(zh) {
+  letter-spacing: 0;
 }
 
 /* A paper's title: the list's h4s and a Highlights card's h3 (PaperTitle).
@@ -1316,7 +1372,7 @@ html:has(.pd-paper:target) {
 .pd-highlight-why-label {
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.075em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-secondary);
 }

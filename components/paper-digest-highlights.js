@@ -1,7 +1,8 @@
 "use client";
 
-import { useId } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { briefHash } from "@/lib/paper-digest.mjs";
+import { ChevronIcon } from "./icons";
 import { PaperActions } from "./paper-actions";
 import { NameList, PaperTitle, byline, etAl, topicNames } from "./paper-row";
 import { usePaperDigest } from "./paper-digest-views";
@@ -47,11 +48,37 @@ export function PaperDigestHighlights({ highlights }) {
 }
 
 // One pick: type and Domains; the title (opens the paper); why it matters,
-// run on from its label; the source; then View AI summary (the paper in the
-// list, its reading open), Save and Copy link. Only the title, the link and
-// the buttons act: the card itself is not a control.
+// run on from its label, two lines then Show more; the source; then View AI
+// summary (the paper in the list, its reading open), Save and Copy link.
+// Only the title, Show more, the link and the buttons act: the card itself
+// is not a control.
 function HighlightCard({ paper, why, lang, copy, saved, onToggleSave, onShare, onRevisit }) {
   const titleId = useId();
+  const whyId = useId();
+  const whyRef = useRef(null);
+  const [open, setOpen] = useState(false);
+  // Whether the whole text fits the two lines shown: then there is nothing
+  // to open, and no button. The exported page has the button (the usual
+  // case, so nothing moves on load); the text is measured once the fonts
+  // are in and whenever its box changes size (the first time on observe),
+  // never while open. The clamp itself is CSS: the whole text stays in the
+  // page for screen readers and search.
+  const [fits, setFits] = useState(false);
+  useEffect(() => {
+    const text = whyRef.current;
+    if (open || !text) return undefined;
+    const measure = () => setFits(text.scrollHeight <= text.clientHeight + 1);
+    const observer = new ResizeObserver(measure);
+    observer.observe(text);
+    let live = true;
+    document.fonts.ready.then(() => {
+      if (live) measure();
+    });
+    return () => {
+      live = false;
+      observer.disconnect();
+    };
+  }, [open]);
   const domains = topicNames(paper, copy.taxonomy, ["domains"]);
   // Journal · first author (et al. when there are more) · date; what is
   // missing is left out. Neither the name nor the date splits across lines.
@@ -74,10 +101,22 @@ function HighlightCard({ paper, why, lang, copy, saved, onToggleSave, onShare, o
           ) : null}
         </p>
         <PaperTitle as="h3" id={titleId} paper={paper} lang={lang} copy={copy} />
-        <p className="pd-highlight-why">
+        <p id={whyId} ref={whyRef} className={open ? "pd-highlight-why is-open" : "pd-highlight-why"}>
           <span className="pd-highlight-why-label">{copy.highlights.why}</span>
           {why}
         </p>
+        {fits ? null : (
+          <button
+            type="button"
+            className="pd-highlight-more"
+            aria-expanded={open}
+            aria-controls={whyId}
+            onClick={() => setOpen((value) => !value)}
+          >
+            {open ? copy.highlights.less : copy.highlights.more}
+            <ChevronIcon className="pd-highlight-more-chevron" />
+          </button>
+        )}
         <div className="pd-highlight-foot">
           {source.length ? <p className="pd-highlight-source">{source}</p> : null}
           <div className="pd-highlight-actions">

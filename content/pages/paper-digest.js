@@ -110,7 +110,9 @@ export const paperDigestContent = {
       footnote: "AI summaries may contain errors, so please check the original papers. Preprints have not been peer-reviewed.",
       rss: "RSS feed",
       // Highlights: the week's AI-selected papers above the list.
-      highlights: { title: "Highlights", note: "AI-selected", why: "Why it matters", view: "View AI summary" },
+      // more / less: the card's button under Why it matters, shown when the
+      // text runs past its two lines.
+      highlights: { title: "Highlights", note: "AI-selected", why: "Why it matters", view: "View AI summary", more: "Show more", less: "Show less" },
       // Filters: the Domain and Method panel. prefix is read before a paper's
       // topics by screen readers, not shown.
       topics: { label: "Filters", domain: "Domain", method: "Method", allDomains: "All domains", allMethods: "All methods", prefix: "Topics: " },
@@ -252,7 +254,7 @@ export const paperDigestContent = {
       newTab: "（在新标签页打开）",
       footnote: "AI 解读可能有误，请以原文为准。预印本尚未经过同行评审。",
       rss: "RSS 订阅",
-      highlights: { title: "精选文献", note: "AI 精选", why: "推荐理由", view: "查看 AI 解读" },
+      highlights: { title: "精选文献", note: "AI 精选", why: "推荐理由", view: "查看 AI 解读", more: "展开", less: "收起" },
       topics: { label: "筛选", domain: "研究领域", method: "AI 方法", allDomains: "全部领域", allMethods: "全部方法", prefix: "分类：" },
       taxonomy: {
         domains: {

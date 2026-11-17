@@ -88,7 +88,7 @@ components/
   paper-digest-feed.js    # Paper Digest list — client; filters, day/week/month groups, 30 papers per page, empty states, deep-link focus and highlight
   paper-digest-toolbar.js # Search, Time and edition, and Filters (Domain, Method); the buttons name what is in force
   paper-digest-panel.js   # ToolbarPanel: one toolbar button and its <dialog> (below the button row; a bottom sheet with a sticky Done bar at ≤560px)
-  paper-digest-highlights.js # Highlights: the week's AI-selected papers (≤3 cards) above the list; a pick shows only with Why It Matters in both languages
+  paper-digest-highlights.js # Highlights: the week's AI-selected papers (≤3 cards) above the list; a pick shows only with Why It Matters in both languages; Why it matters shows two lines, then Show more
   paper-actions.js        # Save and Copy link (check in place), shared by list rows, Saved papers and Highlights cards
   paper-row.js            # One paper (list and Saved papers): badge, dates, actions, title, summary, byline, Domains and Methods, reading; exports PaperTitle, byline, etAl, topicNames, NameList (shared with the Highlights card)
   saved-papers-view.js    # Saved papers view: newest save first, JSON backup export and import
@@ -169,7 +169,7 @@ styles/
     - 打开这类链接时，只清除和这篇冲突的筛选，然后定位、展开解读、移动焦点，并短暂高亮阅读栏（淡蓝底 1.5 秒渐隐；减少动态效果时静态 2 秒）。本页所有控件获得焦点时都会避开固定页头。
     - 期刊名、标题、作者名里的 HTML 编码和多余空白，在 `normalizePapers` 里用 `cleanText` 清理。
   - **精选与分类**（④，2026-11-17；数据来自 WP#5，2026-11-16 起发布：每天 08:10 罗马时间给新文献补分类，精选每周更新）：
-    - **精选区**（`#highlights`，首屏和列表之间）：最多 3 张卡片。推荐理由中英文都有，这篇才算有效精选（`normalizePapers` 在去重和"最多 3 篇"之前就过滤，所以两个页面的精选永远相同）；没有可显示的精选时，整块不渲染。卡片内容：类型徽章和领域、标题（和列表标题同一字体、同样宽）、推荐理由（完整显示，不截断）、来源行（第一作者和日期不折行）、"查看 AI 解读"（跳到列表里那篇，展开解读；地址栏已是这篇的链接时也会再跳一次，`revisit(hash)`）、收藏和复制链接。
+    - **精选区**（`#highlights`，首屏和列表之间）：最多 3 张卡片。推荐理由中英文都有，这篇才算有效精选（`normalizePapers` 在去重和"最多 3 篇"之前就过滤，所以两个页面的精选永远相同）；没有可显示的精选时，整块不渲染。卡片内容：类型徽章和领域、标题（和列表标题同一字体；卡片内容区 40rem）、推荐理由（先显示 2 行，下面是「Show more / 展开」；两行放得下时没有按钮；2026-11-17 精修）、来源行（第一作者和日期不折行）、"查看 AI 解读"（跳到列表里那篇，展开解读；地址栏已是这篇的链接时也会再跳一次，`revisit(hash)`）、收藏和复制链接。
     - **分类标签**：每篇文献在作者行下面另起一行，先写领域、再写方法，是纯文字，不是徽章；名称不会在中间折行（`NameList`）。13 个分类的中英文名在 `content/pages/paper-digest.js` 的 `feed.taxonomy`。
     - **Filters**：工具栏第三个按钮，领域、方法各一个单选下拉框。选项只列数据里出现过的值，按合约顺序排列。按钮上写所选名称，并显示数量小标；桌面上最宽 16rem，手机上搜索框、时间按钮、Filters 各占一行。两个面板都对齐按钮行的右边缘。数据里没有任何分类时，不显示这个按钮。
     - 和设计稿不一样的地方（不放 Highlight 徽章、标签用纯文字、单选等）都记在 `design/paper-digest-v2/DESIGN_SUMMARY.md` §2.2、§2.3 的"实现说明（2026-11 ④）"里。
