@@ -39,6 +39,13 @@ export const CalendarIcon = ({ size = 16, className }) => (
   </Icon>
 );
 
+// Filters (Domain and Method): three lines, each shorter than the last.
+export const FilterIcon = ({ size = 16, className }) => (
+  <Icon size={size} className={className}>
+    <path d="M3 6h14M6 10h8M8.5 14h3" {...LINE} />
+  </Icon>
+);
+
 export const ChevronIcon = ({ className }) => (
   <Icon width={10} height={6} viewBox="0 0 10 6" className={className}>
     <path d="M1 1l4 4 4-4" {...LINE} />

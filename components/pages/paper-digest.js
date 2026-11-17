@@ -1,4 +1,5 @@
 import { PaperDigestFeed } from "@/components/paper-digest-feed";
+import { PaperDigestHighlights } from "@/components/paper-digest-highlights";
 import { PaperDigestViews } from "@/components/paper-digest-views";
 import { SavedPapersLink } from "@/components/saved-papers-link";
 import { SiteShell } from "@/components/shell";
@@ -33,11 +34,12 @@ export function paperDigestMetadata(lang) {
   };
 }
 
-// One page in three parts: the hero (what the digest is, the latest edition
-// and the two actions), every public paper read from papers.json at build
-// time, and the navy sign-up band. Only the page language's text goes to the
-// client, and the papers only once: PaperDigestViews renders <main>, switches
-// to Saved papers (#saved) and hands the papers to the list.
+// One page in four parts: the hero (what the digest is, the latest edition
+// and the two actions), the week's Highlights (when there are any), every
+// public paper read from papers.json at build time, and the navy sign-up
+// band. Only the page language's text goes to the client, and the papers only
+// once: PaperDigestViews renders <main>, switches to Saved papers (#saved)
+// and hands the papers to the list and the Highlights through context.
 export function PaperDigestPageContent({ lang = "en" }) {
   const c = paperDigestContent[lang] || paperDigestContent.en;
   const data = localizeDigest(loadPaperDigest(), lang);
@@ -101,6 +103,7 @@ export function PaperDigestPageContent({ lang = "en" }) {
             </dl>
           </aside>
         </section>
+        <PaperDigestHighlights highlights={data.highlights} />
         <section className="content-section pd-section" id="latest" aria-labelledby="pd-feed-title">
           <div className="pd-head">
             <h2 id="pd-feed-title">{c.feed.title}</h2>

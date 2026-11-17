@@ -1,8 +1,8 @@
 "use client";
 
-import { memo, useEffect, useId, useState } from "react";
+import { Fragment, memo, useId } from "react";
 import { dayLabel } from "@/lib/paper-digest.mjs";
-import { BookmarkIcon, CheckIcon, LinkIcon } from "./icons";
+import { PaperActions } from "./paper-actions";
 
 const CJK = /[㐀-鿿]/;
 
@@ -14,9 +14,61 @@ function localDay(stamp) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
+// Names joined by " · ", where a name never splits across lines and its dot
+// stays with it: a line breaks only between "name ·" and the next name. The
+// text reads exactly as names.join(" · "). Also used by the Highlights card.
+export function NameList({ names }) {
+  return names.map((name, i) => (
+    <Fragment key={name}>
+      {i ? " " : null}
+      <span className="pd-nowrap">{i < names.length - 1 ? `${name} ·` : name}</span>
+    </Fragment>
+  ));
+}
+
+// A paper's title, a link to the paper (new tab) when it has a URL. Titles
+// stay in their original language: an English one is marked on the zh page.
+// The list's rows set it as an h4, a Highlights card as an h3, both in the
+// same class (the face, size and spacing are the row's).
+export function PaperTitle({ as: Heading = "h4", className = "pd-paper-title", id, paper, lang, copy }) {
+  const titleLang = lang === "zh" && !CJK.test(paper.title) ? "en" : undefined;
+  return (
+    <Heading className={className} id={id} lang={titleLang}>
+      {paper.url ? (
+        <a href={paper.url} target="_blank" rel="noopener noreferrer">
+          {paper.title}
+          <span className="pd-ext" aria-hidden="true">↗</span>
+          <span className="pd-sr">{copy.newTab}</span>
+        </a>
+      ) : (
+        paper.title
+      )}
+    </Heading>
+  );
+}
+
+// Venue · authors · date, what is missing left out. The date never splits
+// across lines ("2026-08-" / "01"). Also used by the Highlights card.
+export function byline(venue, authors, date) {
+  return [venue, authors, date && <span className="pd-nowrap">{date}</span>]
+    .filter(Boolean)
+    .flatMap((part, i) => (i ? [" · ", part] : [part]));
+}
+
+// " et al." (zh: the count) after the `named` authors, when the paper has more.
+export function etAl(paper, copy, named) {
+  return paper.authorsTotal > named ? copy.moreAuthors.replace("{n}", String(paper.authorsTotal)) : "";
+}
+
+// The names of a paper's Domains, then Methods (or of either, by `keys`), in
+// the data's order; an id the copy does not name is left out.
+export function topicNames(paper, names, keys = ["domains", "methods"]) {
+  return keys.flatMap((k) => (paper[k] ?? []).map((id) => names[k][id])).filter(Boolean);
+}
+
 // One paper: type and dates, then Save and Copy link; the title (opens the
-// paper); the AI summary; venue, authors and date; and the reading behind a
-// disclosure. Used by the list and by Saved papers.
+// paper); the AI summary; venue, authors and date; its Domains and Methods;
+// and the reading behind a disclosure. Used by the list and by Saved papers.
 // - anchor: the list's copy carries id="brief-<id>", which shared links target;
 //   Saved papers passes false, so ids stay unique on the page.
 // - onShare: left out for a paper no longer in the digest (no link to share).
@@ -26,29 +78,12 @@ function localDay(stamp) {
 // - onToggleSave(paper), onShare(id): the list passes the page's own Save and
 //   Copy link, which never change, so a row re-renders only when its own
 //   props do (memo): saving one paper does not redraw the others. onShare
-//   resolves to whether the link was copied.
+//   resolves to whether the link was copied (PaperActions shows the check).
 export const PaperRow = memo(function PaperRow({ paper, lang, copy, saved, onToggleSave, onShare, savedAt, anchor = true, note, highlighted = false }) {
   const titleId = useId();
-  // A copied link: the button shows a check and says so for 2.5 s; copying
-  // again starts the 2.5 s over.
-  const [copied, setCopied] = useState(0);
-  useEffect(() => {
-    if (!copied) return undefined;
-    const timer = window.setTimeout(() => setCopied(0), 2500);
-    return () => window.clearTimeout(timer);
-  }, [copied]);
-  const copyLink = async () => {
-    if (await onShare(paper.id)) setCopied((n) => n + 1);
-  };
-  const authors =
-    paper.authors.join(", ") +
-    (paper.authorsTotal > paper.authors.length ? copy.moreAuthors.replace("{n}", String(paper.authorsTotal)) : "");
-  // The date never splits across lines ("2026-08-" / "01").
-  const byline = [paper.venue, authors, paper.date && <span className="pd-nowrap">{paper.date}</span>]
-    .filter(Boolean)
-    .flatMap((part, i) => (i ? [" · ", part] : [part]));
-  // Titles stay in their original language; mark English ones on the zh page.
-  const titleLang = lang === "zh" && !CJK.test(paper.title) ? "en" : undefined;
+  const source = byline(paper.venue, paper.authors.join(", ") + etAl(paper, copy, paper.authors.length), paper.date);
+  // Domains, then Methods, by name: quiet text, not chips (they are not controls).
+  const topics = topicNames(paper, copy.taxonomy);
 
   return (
     <li className={highlighted ? "pd-paper is-target" : "pd-paper"} id={anchor ? `brief-${paper.id}` : undefined} tabIndex={-1}>
@@ -60,39 +95,17 @@ export const PaperRow = memo(function PaperRow({ paper, lang, copy, saved, onTog
           ) : null}
           {savedAt ? <time dateTime={savedAt}>{copy.savedOn.replace("{date}", dayLabel(localDay(savedAt), lang))}</time> : null}
         </div>
-        <div className="pd-paper-actions">
-          <button type="button" className="pd-icon-button pd-save" aria-pressed={saved} aria-describedby={titleId} title={copy.save} onClick={() => onToggleSave(paper)}>
-            <BookmarkIcon />
-            <span className="pd-sr">{copy.save}</span>
-          </button>
-          {onShare ? (
-            <button
-              type="button"
-              className="pd-icon-button pd-copy"
-              data-copied={copied ? "" : undefined}
-              aria-describedby={titleId}
-              title={copied ? copy.copied : copy.share}
-              onClick={copyLink}
-            >
-              {copied ? <CheckIcon /> : <LinkIcon />}
-              <span className="pd-sr">{copied ? copy.copied : copy.share}</span>
-            </button>
-          ) : null}
-        </div>
+        <PaperActions paper={paper} copy={copy} saved={saved} onToggleSave={onToggleSave} onShare={onShare} describedBy={titleId} />
       </div>
-      <h4 className="pd-paper-title" id={titleId} lang={titleLang}>
-        {paper.url ? (
-          <a href={paper.url} target="_blank" rel="noopener noreferrer">
-            {paper.title}
-            <span className="pd-ext" aria-hidden="true">↗</span>
-            <span className="pd-sr">{copy.newTab}</span>
-          </a>
-        ) : (
-          paper.title
-        )}
-      </h4>
+      <PaperTitle id={titleId} paper={paper} lang={lang} copy={copy} />
       {paper.summary ? <p className="pd-paper-summary">{paper.summary}</p> : null}
-      {byline.length ? <p className="pd-paper-byline">{byline}</p> : null}
+      {source.length ? <p className="pd-paper-byline">{source}</p> : null}
+      {topics.length ? (
+        <p className="pd-paper-topics">
+          <span className="pd-sr">{copy.topics.prefix}</span>
+          <NameList names={topics} />
+        </p>
+      ) : null}
       {note ? (
         <p className="pd-no-ai">{note}</p>
       ) : paper.details || paper.limitations ? (

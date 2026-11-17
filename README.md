@@ -86,12 +86,15 @@ components/
   subscribe-form.js       # Paper Digest sign-up — client; digest language + POST to the Brevo form for it
   paper-digest-views.js   # Paper Digest <main> — client; home ⇄ Saved papers (#saved), the page's one hash listener, toast, live region, Save and Copy link; papers reach the list through context
   paper-digest-feed.js    # Paper Digest list — client; filters, day/week/month groups, 30 papers per page, empty states, deep-link focus and highlight
-  paper-digest-toolbar.js # Search and the Time and edition panel (<dialog>; a bottom sheet with a sticky Done bar at ≤560px)
-  paper-row.js            # One paper (list and Saved papers): badge, dates, Save, Copy link (check in place), title, summary, reading
+  paper-digest-toolbar.js # Search, Time and edition, and Filters (Domain, Method); the buttons name what is in force
+  paper-digest-panel.js   # ToolbarPanel: one toolbar button and its <dialog> (below the button row; a bottom sheet with a sticky Done bar at ≤560px)
+  paper-digest-highlights.js # Highlights: the week's AI-selected papers (≤3 cards) above the list; a pick shows only with Why It Matters in both languages
+  paper-actions.js        # Save and Copy link (check in place), shared by list rows, Saved papers and Highlights cards
+  paper-row.js            # One paper (list and Saved papers): badge, dates, actions, title, summary, byline, Domains and Methods, reading; exports PaperTitle, byline, etAl, topicNames, NameList (shared with the Highlights card)
   saved-papers-view.js    # Saved papers view: newest save first, JSON backup export and import
   saved-papers-link.js    # Header entry to Saved papers with the count (SiteShell headerAction)
   saved-papers-store.js   # The only localStorage reader and writer (useSyncExternalStore); follows other tabs
-  icons.js                # Paper Digest line icons (bookmark, calendar, chevron, link, check), one 1.6px stroke at every size
+  icons.js                # Paper Digest line icons (bookmark, calendar, filter, chevron, link, check), one 1.6px stroke at every size
   subscribed-notice.js    # Paper Digest ?subscribed=1 banner after Brevo's confirmation link
 
 content/
@@ -113,7 +116,7 @@ public/assets/            # Static assets for the Next app — see ASSETS_GUIDE.
 archive/figures/          # Unreferenced source figures — kept in git, NOT deployed (30 MB)
 
 lib/
-  paper-digest.mjs        # Pure functions: validate and clean papers.json, day/week/month groups, editions, filters, paging, deep-link plan, labels, plurals, search (server + client)
+  paper-digest.mjs        # Pure functions: validate and clean papers.json, day/week/month groups, editions, filters (incl. Domain, Method), taxonomy options, highlights in both languages, paging, deep-link plan, labels, plurals, search (server + client)
   paper-digest.test.mjs   # node:test suite (npm test)
   saved-papers.mjs        # Saved papers, pure: checks, snapshot, toggle, backup build and merge (+ .test.mjs)
   load-paper-digest.js    # Build-time loader: PAPER_DIGEST_DATA / .digest-data / sample fallback (not in CI)
@@ -165,6 +168,12 @@ styles/
     - "复制链接"复制的是 `https://hydroagentlab.com/(zh/)paper-digest/#brief-<ID>`；成功时按钮就地变成对勾 2.5 秒，并由页面里常驻的 `role="status"` 区域播报，不再弹提示条；复制失败时把链接放进地址栏。
     - 打开这类链接时，只清除和这篇冲突的筛选，然后定位、展开解读、移动焦点，并短暂高亮阅读栏（淡蓝底 1.5 秒渐隐；减少动态效果时静态 2 秒）。本页所有控件获得焦点时都会避开固定页头。
     - 期刊名、标题、作者名里的 HTML 编码和多余空白，在 `normalizePapers` 里用 `cleanText` 清理。
+  - **精选与分类**（④，2026-11-17；数据来自 WP#5，2026-11-16 起发布：每天 08:10 罗马时间给新文献补分类，精选每周更新）：
+    - **精选区**（`#highlights`，首屏和列表之间）：最多 3 张卡片。推荐理由中英文都有，这篇才算有效精选（`normalizePapers` 在去重和"最多 3 篇"之前就过滤，所以两个页面的精选永远相同）；没有可显示的精选时，整块不渲染。卡片内容：类型徽章和领域、标题（和列表标题同一字体、同样宽）、推荐理由（完整显示，不截断）、来源行（第一作者和日期不折行）、"查看 AI 解读"（跳到列表里那篇，展开解读；地址栏已是这篇的链接时也会再跳一次，`revisit(hash)`）、收藏和复制链接。
+    - **分类标签**：每篇文献在作者行下面另起一行，先写领域、再写方法，是纯文字，不是徽章；名称不会在中间折行（`NameList`）。13 个分类的中英文名在 `content/pages/paper-digest.js` 的 `feed.taxonomy`。
+    - **Filters**：工具栏第三个按钮，领域、方法各一个单选下拉框。选项只列数据里出现过的值，按合约顺序排列。按钮上写所选名称，并显示数量小标；桌面上最宽 16rem，手机上搜索框、时间按钮、Filters 各占一行。两个面板都对齐按钮行的右边缘。数据里没有任何分类时，不显示这个按钮。
+    - 和设计稿不一样的地方（不放 Highlight 徽章、标签用纯文字、单选等）都记在 `design/paper-digest-v2/DESIGN_SUMMARY.md` §2.2、§2.3 的"实现说明（2026-11 ④）"里。
+    - 数据方面（2026-11-17）：WP#5 部署后，证据局限全部为空，中文解读正在逐日补回（每天约 40 篇）；推荐理由偏长（英文 526 个字符），待请 WP#5 控制在两三句。
   - **配色与尺寸**：颜色都取自 `styles/tokens.css`，另有 7 个本页专用变量写在 `styles/pages/paper-digest.css` 开头（`--pd-navy` 等订阅区用色、`--pd-evidence-*` 证据局限用色，注释里有对比度；`--pd-measure: 55ch` 是正文行长，实测约 70–75 个英文字符或 40 个汉字——`ch` 是数字 0 的宽度，75ch 实际会排到 90–100 个字符）。解读卡为了圆角设了 `overflow: hidden`，所以它的焦点框画在标题条**内侧**（`outline-offset: -2px`），否则会被裁掉。可点击元素的触控区都不小于 44px。实心 `--accent` 只给两个"订阅"按钮；激活的筛选用 `--accent` 描边 + `--accent-wash`；暖色底只用于"证据局限"；深蓝区里的焦点框是白色（站内默认的 `--accent-hover` 在深蓝上只有 1.85:1）。zh 首屏标题在所有宽度都用 `word-break: keep-all`，强调短语整体不换行（不出现"水文 / 学"或"LLM × / 水文学"），所以强调短语要保持在 256px 以内（320px 屏上的栏宽，28px 字号）。订阅表单（`components/subscribe-form.js`）只出现在深蓝订阅区，所以它的颜色直接按深蓝底写，没有浅色底的样式；以后要放到浅色底上，需要先补一套。单选框用浅蓝的 `accent-color`：默认的深色圆点在深蓝底上会让"选中"看起来比"未选中"更空。两个语言选项包在一个 `span` 里作为整体换行，不会被拆到两行。
   - **订阅**：Brevo 托管表单，每种邮件语言一个（`content/pages/paper-digest.js` 的 `paperDigestEndpoints`，公开地址；**为空时表单显示"订阅功能即将开放"**）。提交 `EMAIL` + 空的蜜罐字段 `email_address_check` + `locale`（字段名需按 Brevo 的 Simple HTML 嵌入代码核对）。成功判定沿用"必须有明确证据"：`ok` 的 Response 且 JSON 不是 `success:false`。成功文案是"请查收确认邮件"（双重确认，点链接前不在名单里）；GA4 记 `digest_subscribe`，参数只有 `site_language` 与 `digest_language`，从不记邮箱。Brevo 确认链接回跳 `/(zh/)paper-digest/?subscribed=1`，顶部 `role="status"` 横幅提示后用 `history.replaceState` 去掉参数（不用 `useSearchParams`，静态导出会要求 Suspense）。原有的水合前禁用、16px 输入框、`noValidate`、按钮宽度不跳等规则保留。
   - **RSS 与分享**：`app/(zh/)paper-digest/feed.xml/route.js`（`force-static`，最近 50 篇）；页面 metadata 带 RSS alternate、**本页自己的 canonical**，以及本页自己的 `openGraph` / `twitter`（"HydroAgent Paper Digest — LLM × Hydrology" /「水利大模型文献日报 — LLM × 水文学」，本页网址，zh 页 `zh_CN`）。两条路由的 metadata 都由 `components/pages/paper-digest.js` 的 `paperDigestMetadata(lang)` 生成，标题文案在 `content/pages/paper-digest.js` 的 `meta`。页面级 `openGraph` 会整体替换 layout 的那一份，所以 siteName / type 在这个函数里重写了一遍；layout 以后加字段（如 og:image）时，改这一处即可。已知遗留 ① 在这一页已修。

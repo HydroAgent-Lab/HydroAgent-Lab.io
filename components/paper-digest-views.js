@@ -7,7 +7,8 @@ import { useSavedPapers } from "./saved-papers-store";
 
 const PaperDigestContext = createContext(null);
 
-// The papers, the list's copy, a shared paper's link, and Save and Copy link.
+// The papers, the list's copy, a shared paper's link (and a count of the
+// times it was asked for again), and Save, Copy link and revisit.
 export const usePaperDigest = () => useContext(PaperDigestContext);
 
 // The Clipboard API first; where it is missing or refused, the older copy
@@ -47,6 +48,8 @@ async function copyText(text) {
 export function PaperDigestViews({ papers, aliases, lang, copy, savedCopy, currentYear, children }) {
   const { toggle, normalize } = useSavedPapers();
   const [hash, setHash] = useState("");
+  // Bumped by revisit (below): the same paper's link asked for again.
+  const [linkSeq, setLinkSeq] = useState(0);
   const [toast, setToast] = useState("");
   const [announcement, setAnnouncement] = useState("");
   const toastTimer = useRef(0);
@@ -154,13 +157,23 @@ export function PaperDigestViews({ papers, aliases, lang, copy, savedCopy, curre
     [lang, announce, notify, copy, savedCopy]
   );
 
+  // A paper's link (Highlights' View AI summary) clicked while the address
+  // already holds it: the browser fires no hashchange, so the link is taken
+  // from the call and the list is asked to go to the paper (again, when the
+  // page had followed it; for the first time, when Copy link's fallback had
+  // put it in the address bar).
+  const revisit = useCallback((target) => {
+    setHash(target);
+    setLinkSeq((n) => n + 1);
+  }, []);
+
   // Only a shared paper's link matters to the list. Other hash changes
   // (#saved, #latest, #subscribe) leave the context as it was, so the list
   // and its rows do not re-render for them.
   const linkHash = isBriefHash(hash) ? hash : "";
   const value = useMemo(
-    () => ({ papers, aliases, lang, copy, currentYear, linkHash, save, share }),
-    [papers, aliases, lang, copy, currentYear, linkHash, save, share]
+    () => ({ papers, aliases, lang, copy, currentYear, linkHash, linkSeq, save, share, revisit }),
+    [papers, aliases, lang, copy, currentYear, linkHash, linkSeq, save, share, revisit]
   );
 
   return (

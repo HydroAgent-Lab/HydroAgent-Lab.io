@@ -1,6 +1,34 @@
 # Work Log
 
+## 2026-11-17
+
+### Paper Digest V2 ④：精选、分类标签、Filters（分支 `feat/paper-digest-v2-highlights`）
+
+- **执行方式**：用户选子代理执行，每个任务一个新子代理；我在任务之间用 `review.mjs` 逐字比对仓库和计划，并跑 `npm test`。子代理不动 git；全部改完由用户一次提交。分支从 main `a778c8c` 建出。
+- **任务 1–8**：lib（6 个筛选条件、`taxonomyOptions`、规则 A）、文案和 `FilterIcon`、抽出 `ToolbarPanel`（回归和 main 一致）、Filters 按钮和面板、抽出 `PaperActions`（条目 DOM 逐字节相同）、标签行、`linkSeq`/`revisit`、精选区。
+- **任务 4 的 CSS 改了三轮**：原计划让两个按钮按比例收缩，手机上 Filters 被截成"F…"；第一轮"Filters 不收缩"在 561–768px 选长条件时超出工具栏；第二轮 `flex-shrink: 0.001` 不行（Flexbox §9.7：收缩系数之和小于 1 只分摊相应比例）；第三轮"不收缩 + 最大宽度"用注入样式的探针在 10 种宽度 × 中英文实测后才改代码。
+- **验证（任务 9，main 对分支，都用 11-17 数据）**：`check_p4` 真实数据 95/95、测试数据 35/35（3 篇精选里缺中文的那篇两边都不出现）、无数据 3/3；第二阶段回归脚本的失败都在 main 上同样失败（期望值过时）或是有意的新增，把精选区、标签行、Filters 从页面剥离后 1005 个元素位置和 main 一致；其他 9 个页面完全相同；RSS 逐字节相同；文献数据没有多出一份。
+- **Hallmark 独立审查**：1 critical（时间面板在 561–860px 选长条件时伸出屏幕）、2 major（手机上时间按钮文字被截断；卡片 h3 被全站 h1–h3 规则换成 Inter Tight）、9 minor。用户决定全部修，分 3 批，每批先加检查确认失败再改：两个面板改为对齐按钮行；手机上三个控件各占一行、桌面 Filters 最宽 16rem；卡片标题改用列表标题字体并同宽；徽章同高；`text-wrap: pretty`；说明紧跟标题；中文「推荐理由」13px；"查看 AI 解读"改灰色下划线；分类名不在中间折行（`NameList`）；Filters 生效时显示数量小标。
+- **`/simplify`（4 个角度并行审查，26 条去重为 13 条，用户批准 A、B 两类共 11 条）**：抽出 `PaperTitle`、`byline`、`etAl`、`topicNames` 让卡片和条目共用；`SelectField`；feed 用 rest-spread 回写筛选；工具栏 CSS 删掉互相抵消的规则；数量小标和页头计数共用样式；`.pd-badge` 自己设 `line-height`；两处死规则删除；卡片宽度改 content-box。两处行为改动：规则 A 移到 `normalizePapers` 的去重和截断之前（`[A 缺中文, B, C, D]` 现在显示 B、C、D，加测试）；`revisit(hash)` 带目标，修复复制失败后 `replaceState` 改了地址栏而 React 里 hash 没跟上的落点错误（加浏览器检查）。另按用户要求，卡片来源行里第一作者不折行；中文解读卡的小标题随卡片一起改为 13px。效率类 4 条不改（都在 1 ms 内）。
+- **最终验证（cleanup 之后）**：`check_p4` 192/192、78/78、3/3；回归和上一轮一致（唯一新差异是中文解读标签 +2px，已批准）；`npm test` 37/37，pytest 30；页面体积英文 +3.2%、中文 +4.2%。
+- **数据**：今天的 papers.json 中文解读 69 篇（11-16 为 29，每天约 +40，对应 WP#5 的 `--limit 40`）；证据局限仍全为空；本周精选 1 篇（TP-Agent）两种语言都有解读。
+- **改动的文件**（相对 main，15 个）：`lib/paper-digest.mjs`、`lib/paper-digest.test.mjs`；`components/paper-digest-panel.js`、`paper-actions.js`、`paper-digest-highlights.js`（新建）；`paper-digest-toolbar.js`、`paper-digest-feed.js`、`paper-digest-views.js`、`paper-row.js`、`icons.js`、`pages/paper-digest.js`；`content/pages/paper-digest.js`；`styles/pages/paper-digest.css`；`README.md`、`design/paper-digest-v2/DESIGN_SUMMARY.md`、本文件。
+- **下一步**：用户提交、推送、开 PR（Squash）；合并后确认部署真的执行，在 `smoke_live.mjs` 里加精选和 Filters 的检查跑线上冒烟测试，回复 davidanan；请 WP#5 把推荐理由控制在两三句；证据局限全为空是否符合预期待 WP#5 确认。
+
+## 2026-11-16
+
+### WP#5 合并，带分类和精选的数据到达；④ 设计与计划
+
+- 09:45 UTC 在 WP#5 PR 下留言（目标层面，不写做法）；davidanan 11:40 合并并部署（`0be8141`），修了 `&amp;` 期刊名匹配（`cc36bea`），11:54 发布第一份带 `domains`、`methods`、`highlights` 的 papers.json（paper-digest-data `4c5e7f4`）。
+- 用网站解析器核对：230 篇全部读入，203 篇有领域、197 篇有方法，精选 1 篇，推荐理由英文 526 字符、中文 181 字。对比 07:30 版发现中文摘要从 210 篇降到 19 篇、证据局限从 201 条降到 0，已告知用户。
+- ④ 的设计用 brainstorming 流程四节逐段通过。用户的决定：精选和分类一起做；标题 Highlights /「精选文献」；单独的 Filters 按钮，面板逻辑和时间面板共用；推荐理由缺任一种语言则两页都不显示（规则 A）；Hallmark 对原型的审查（1 critical · 5 major · 10 minor）全部采纳，含去掉每张卡的 Highlight 徽章、预印本卡用实线。设计说明和实施计划只放本地 `.claude/plans/`。
+- 计划里的代码在临时 worktree 上预先套用：每处替换恰好匹配一次，SWC 解析通过，`npm test` 36/36，真实数据构建成功。
+
 ## 2026-11-15
+
+### 补记：PR #20 合并与上线
+
+- PR #20 于 14:46 UTC 以 Squash 合并（`a778c8c`）；部署 run 43726178095 的 test、build、deploy 三步都执行了，没有被跳过。线上冒烟测试（`smoke_live.mjs`：收藏、复制链接、分享链接、收藏页、手机抽屉、中文页）6/6；用户真机测试"时间与期次"抽屉正常。
 
 ### Paper Digest V2 第二阶段：文本清理、收藏与分享、工具栏（分支 `feat/paper-digest-v2-interactions`）
 
