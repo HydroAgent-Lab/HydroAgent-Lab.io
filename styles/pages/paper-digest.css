@@ -1262,10 +1262,21 @@ html:has(.pd-paper:target) {
   background-size: 100% 1px;
 }
 
+/* After a linked title: Lucide's arrow-up-right (icons.js, its view cropped
+   to the arrow), in the page's line weight and sized by the title's type: a
+   0.5em box on the baseline, so the arrow stands on the title's bottom line
+   with the letters. Muted at rest; on hover it takes the link's colour.
+   PaperTitle keeps it on the line of the title's last character. */
 .pd-ext {
-  margin-left: 0.3em;
-  font-size: 0.8em;
+  width: 0.5em;
+  height: 0.5em;
+  margin-left: 0.25em;
+  vertical-align: baseline;
   color: var(--text-muted);
+}
+
+.pd-paper-title a:hover .pd-ext {
+  color: inherit;
 }
 
 .pd-sr,

@@ -52,6 +52,17 @@ export const ChevronIcon = ({ className }) => (
   </Icon>
 );
 
+// After a paper's title: the link opens the paper on its own site, in a new
+// tab. An arrow up and to the right on a 24-unit grid, after Lucide's
+// "arrow-up-right" but with the head's two arms each two thirds of the
+// arrow's square (6.667 of 10 units), the same length. The view is cropped
+// to the arrow, so the page's CSS sizes it by the title's own type.
+export const ExternalIcon = ({ className }) => (
+  <Icon size={12} viewBox="6 6 12 12" className={className}>
+    <path d="M7 17 17 7M10.333 7H17v6.667" {...LINE} />
+  </Icon>
+);
+
 // Copy link, and the check it shows once the link is copied (Lucide's "link"
 // and "check", on their 24-unit grid).
 export const LinkIcon = ({ size = 20 }) => (

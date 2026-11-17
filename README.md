@@ -90,11 +90,11 @@ components/
   paper-digest-panel.js   # ToolbarPanel: one toolbar button and its <dialog> (below the button row; a bottom sheet with a sticky Done bar at ≤560px)
   paper-digest-highlights.js # Highlights: the week's AI-selected papers (≤3 cards) above the list; a pick shows only with Why It Matters in both languages; Why it matters shows two lines, then Show more
   paper-actions.js        # Save and Copy link (check in place), shared by list rows, Saved papers and Highlights cards
-  paper-row.js            # One paper (list and Saved papers): badge, dates, actions, title, summary, byline, Domains and Methods, reading; exports PaperTitle, byline, etAl, topicNames, NameList (shared with the Highlights card)
+  paper-row.js            # One paper (list and Saved papers): badge, dates, actions, title, summary, byline, Domains and Methods, reading; exports PaperTitle (a linked title ends in the external-link icon, kept on its last character's line), byline, etAl, topicNames, NameList (shared with the Highlights card)
   saved-papers-view.js    # Saved papers view: newest save first, JSON backup export and import
   saved-papers-link.js    # Header entry to Saved papers with the count (SiteShell headerAction)
   saved-papers-store.js   # The only localStorage reader and writer (useSyncExternalStore); follows other tabs
-  icons.js                # Paper Digest line icons (bookmark, calendar, filter, chevron, link, check), one 1.6px stroke at every size
+  icons.js                # Paper Digest line icons (bookmark, calendar, filter, chevron, external link, link, check), one 1.6px stroke at every size
   subscribed-notice.js    # Paper Digest ?subscribed=1 banner after Brevo's confirmation link
 
 content/

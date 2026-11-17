@@ -2,6 +2,7 @@
 
 import { Fragment, memo, useId } from "react";
 import { dayLabel } from "@/lib/paper-digest.mjs";
+import { ExternalIcon } from "./icons";
 import { PaperActions } from "./paper-actions";
 
 const CJK = /[㐀-鿿]/;
@@ -29,15 +30,24 @@ export function NameList({ names }) {
 // A paper's title, a link to the paper (new tab) when it has a URL. Titles
 // stay in their original language: an English one is marked on the zh page.
 // The list's rows set it as an h4, a Highlights card as an h3, both in the
-// same class (the face, size and spacing are the row's).
+// same class (the face, size and spacing are the row's). A linked title ends
+// in the external-link icon (an icon, not "↗": the web font has no arrows,
+// so each device drew that in a system font). The title's last character
+// goes with the icon in a span that never wraps: a line may break before any
+// inline icon, and the icon must never start a line on its own.
 export function PaperTitle({ as: Heading = "h4", className = "pd-paper-title", id, paper, lang, copy }) {
   const titleLang = lang === "zh" && !CJK.test(paper.title) ? "en" : undefined;
+  const head = Array.from(paper.title);
+  const last = head.pop();
   return (
     <Heading className={className} id={id} lang={titleLang}>
       {paper.url ? (
         <a href={paper.url} target="_blank" rel="noopener noreferrer">
-          {paper.title}
-          <span className="pd-ext" aria-hidden="true">↗</span>
+          {head.join("")}
+          <span className="pd-nowrap">
+            {last}
+            <ExternalIcon className="pd-ext" />
+          </span>
           <span className="pd-sr">{copy.newTab}</span>
         </a>
       ) : (
