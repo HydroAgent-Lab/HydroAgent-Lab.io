@@ -1,5 +1,68 @@
 # Work Log
 
+## 2026-11-18
+
+### 列表默认 10 篇，加"收起更早的文献"（分支 `feat/paper-digest-paging`）
+
+- **起因**（yqingypolimi 提出）：打开页面显示的文献太多，要很久才能拉到底部；"显示更早的文献"只能展开，不能收起。
+- **改前实测**（11-18 数据 232 篇，headless Edge）：默认 5 周 36 篇（`PAGE_SIZE = 30` 按整周补足）。页面高度：桌面 1440×900 为 15.4 屏，手机 390×844 为 21.4 屏，订阅区在手机第 20 屏左右。每篇中位高度桌面 323px、手机 414px。点 2 次"显示更早"后，手机为 55 屏。筛选和搜索不分页（Preprint 67 篇、`agents_tool_use` 90 篇一次全出）。
+- **决定**（yqingypolimi，逐项确认）：
+  - 保留"按篇数分页、按整组显示"，默认值和每次增加的篇数都改为 10（同一个常量）；
+  - 显示的多于默认时，出现「收起更早的文献 / Hide earlier papers」。点击一次回到默认篇数；按钮行留在点击时的屏幕位置，焦点移到"显示更早"；
+  - 两个按钮样式相同、并排，"显示"在前，放不下时上下排列；全部显示完时只剩"收起"；
+  - 筛选和搜索的结果也分页，"找到 N 篇"仍报全部匹配数；工具栏里改任何条件都回到默认篇数；分享链接照旧展开到目标；
+  - 单篇高度这次不动，摘要是否折叠以后再议；
+  - 走分支和 PR，请 ttxingmi 审。
+- **实现**：
+  - `lib/paper-digest.mjs`：`PAGE_SIZE` 30 → 10；新增 `listPage(groups, count)`，返回要显示的组，以及两个按钮是否出现（复用 `groupsToShow`）。`planBriefLink` 不改，它本来就按筛选后的分组计算。
+  - `components/paper-digest-feed.js`：
+    - 不再区分是否筛选，统一用 `listPage`；
+    - `change()` 回到默认篇数；
+    - 按钮行里加 `.pd-more-actions` 和"收起"按钮；
+    - 收起时先记下按钮行的位置，在 `useLayoutEffect` 里用 `scrollBy(…, "instant")` 补回位置，再把焦点移到"显示更早"。在布局之后再量，浏览器自带的滚动锚定已经计算在内。
+  - `content/pages/paper-digest.js`：加 `less` 文案。
+  - `styles/pages/paper-digest.css`：`.pd-more` 的定位移到 `.pd-more-actions`（flex 换行，间距 12px，和首屏、工具栏的按钮间距一致）。
+- **验证**：
+  - 单元测试先在旧代码上失败（找不到 `listPage`），改后 `npm test` 38/38；pytest 30。
+  - 浏览器检查脚本（headless Edge，中英文 × 1440/768/390/320），基线 main `6b4d2aa` 用同一份数据构建：
+    - main 64/128，失败的都是新功能；分支 136/136。
+    - 默认 2 周 11 篇。页面高度：桌面 15.4 → 6.3 屏，768 宽 14.2 → 6.0 屏，手机 390 宽 21.4 → 8.9 屏，320 宽 32.9 → 13.3 屏（英文；中文 14.5 → 6.0、19.4 → 8.1）。
+    - 点"显示更早"至少多 10 篇；从下方点"收起"后回到 11 篇，按钮行位置差 ≤ 2px，焦点在"显示更早"。
+    - 全部显示时只剩"收起"，并且在第一个位置。
+    - 展开后切换成按月分组，回到第一页。
+    - 搜 LLM（英文 128 篇，中文 81 篇）和筛 Preprint（67 篇）都分页，可以展开、收起。
+    - 打开最早一篇（6-20）的分享链接：展开全部 232 篇，目标在导航下方，解读已打开，"收起"后回到 11 篇。
+    - 控制台没有报错，四种宽度都没有横向滚动。
+    - 按钮排列：桌面和 768 宽并排；390 宽英文上下排列、中文并排；320 宽上下排列。
+  - 构建对比：除中英文 Paper Digest 两页外，其余页面去掉构建 ID 和资源路径后完全相同；两份 `feed.xml` 逐字节相同。页面 HTML 体积：英文 418 → 347 KB，中文 336 → 265 KB（服务端只渲染第一页）。
+- **改动的文件**：
+  - 代码：`lib/paper-digest.mjs`、`lib/paper-digest.test.mjs`、`components/paper-digest-feed.js`、`content/pages/paper-digest.js`、`styles/pages/paper-digest.css`
+  - 文档：`README.md`、`design/paper-digest-v2/DESIGN_SUMMARY.md`、本文件
+- **请审阅时留意**：
+  - 没有 JS 的读者只能看到默认的 11 篇（原来是 36 篇）；
+  - ttxingmi 本地的 `check_p4`、`smoke_live.mjs` 不在仓库里，这次没有跑，里面"默认 30 篇"的期望需要更新。
+
+### PR #22 审阅后修改（ttxingmi 审阅，同一分支）
+
+- **起因**：用 Hallmark 审 PR #22，结果 0 critical · 0 major · 3 minor，三条都改。
+- **改动**：
+  - 焦点：最后一次点"显示更早的文献"后，这个按钮消失，焦点原来会落到页面本身（`<body>`），读屏软件会丢失位置。现在焦点移到"收起"，页面不滚动。`components/paper-digest-feed.js`：`showEarlier()` 先记一个标记，`useLayoutEffect` 里发现"显示更早"已经不在，就把焦点交给"收起"（`preventScroll`），和"收起 → 显示更早"对称。
+  - 等宽：≤560px 时两个按钮一行一个、一样宽，都等于较宽的那个，文字居中（`styles/pages/paper-digest.css`）。原来英文叠放时宽 180px 和 173.5px，右边不齐。中文在 390–560 宽原来并排，现在也上下排列。
+  - 文案：「收起更早的文献 / Hide earlier papers」改为「收起全部更早的文献 / Hide all earlier papers」（`content/pages/paper-digest.js`）：一次就回到默认篇数，而"显示"每次只加一页。
+- **验证**（headless Edge，11-18 数据 232 篇，中英文 × 1440/768/414/390/375/320；测试脚本不在仓库里）：
+  - 先在 PR 原版 `2a2b797` 上跑：141/197，失败的正是这三点（焦点落到 `BODY` 12/12；手机等宽 8 项里 6 项不过；文案）。改后 197/197。
+  - 和原版对比：打开页面时的按钮、页面高度、首屏按钮都没变；桌面和 768 宽仍然并排，"显示更早"的位置和宽度不变。手机上两个按钮英文都是 192.3px，中文都是 172px。
+  - 键盘：一直按 Enter 展开到底，最后焦点在"收起"上，有焦点框；每次按"显示更早"页面都不滚动（0px）。"收起"后按钮行位移 ≤ 0.5px，焦点回到"显示更早"。
+  - 最早一篇的分享链接：展开全部 232 篇，焦点在该文献上，只剩"收起"；点"收起"回到 11 篇，焦点到"显示更早"。
+  - 没有横向滚动，按钮文字都是单行，控制台没有报错。`npm test` 38/38，pytest 30。
+  - 构建只有一条旧警告：`styles/pages/demo.css` 第 119 行的 autoprefixer 提示，与本次无关。
+- **改动的文件**：
+  - 代码：`components/paper-digest-feed.js`、`styles/pages/paper-digest.css`、`content/pages/paper-digest.js`
+  - 文档：`README.md`、`design/paper-digest-v2/DESIGN_SUMMARY.md`、本文件
+- **下一步**：
+  - 推送前告诉 Qingyi：这次改了 Qingyi 确认过的两项（"放不下时上下排列"和按钮文案）；PR 描述里的按钮文案也要同步。
+  - 本地 `check_p4`、`smoke_live.mjs` 除了"默认 30 篇"，如果检查按钮文案，也要改成新文案。
+
 ## 2026-11-17
 
 ### 标题外链箭头改为 SVG（直接在 main 上改）

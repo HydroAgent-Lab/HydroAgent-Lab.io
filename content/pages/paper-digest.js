@@ -94,6 +94,7 @@ export const paperDigestContent = {
       emptySaved: "You haven’t saved any papers yet.",
       clearFilters: "Clear all filters",
       more: "Show earlier papers",
+      less: "Hide all earlier papers",
       addedOn: "Added {date}",
       savedOn: "Saved {date}",
       // The two icon buttons on each paper. Save keeps its name when pressed
@@ -242,6 +243,7 @@ export const paperDigestContent = {
       emptySaved: "你还没有收藏文献。",
       clearFilters: "清除全部筛选",
       more: "显示更早的文献",
+      less: "收起全部更早的文献",
       addedOn: "{date}收录",
       savedOn: "{date}收藏",
       save: "收藏",

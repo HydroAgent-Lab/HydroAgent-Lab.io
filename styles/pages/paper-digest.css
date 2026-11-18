@@ -1451,7 +1451,8 @@ html:has(.pd-paper:target) {
   margin-top: 16px;
 }
 
-/* "Show earlier" lines up with the papers, not with the date column. */
+/* "Show earlier" and "Hide earlier" line up with the papers, not with the
+   date column. */
 .pd-more-row {
   display: grid;
   grid-template-columns: 172px minmax(0, 1fr);
@@ -1460,10 +1461,15 @@ html:has(.pd-paper:target) {
   border-top: 1px solid var(--border);
 }
 
-/* A .pd-button (below); here only its place in the grid. */
-.pd-more {
+/* Two .pd-button (below), side by side, Show first; where both do not fit
+   they stack, Show on top. At 560px and below they always stack, as wide as
+   each other (see there). Alone, either one takes the first place. */
+.pd-more-actions {
   grid-column: 2;
   justify-self: start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 /* The small print under the list, and Saved papers' "How saving works". */
@@ -1649,7 +1655,7 @@ html:has(.pd-paper:target) {
     margin-bottom: 18px;
   }
 
-  .pd-more {
+  .pd-more-actions {
     grid-column: 1;
   }
 
@@ -1698,6 +1704,19 @@ html:has(.pd-paper:target) {
   .pd-hero-actions .secondary-action {
     width: 100%;
     min-height: 48px;
+  }
+
+  /* "Show earlier" and "Hide earlier" one per row, both as wide as the
+     wider: the box keeps to its content (justify-self: start, above), so its
+     one column is the wider button's width, and both fill it. */
+  .pd-more-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pd-more-actions .pd-button {
+    justify-content: center;
+    width: 100%;
   }
 
   .pd-edition {
