@@ -1462,7 +1462,8 @@ html:has(.pd-paper:target) {
 }
 
 /* Two .pd-button (below), side by side, Show first; where both do not fit
-   they stack, Show on top. Alone, either one takes the first place. */
+   they stack, Show on top. At 560px and below they always stack, as wide as
+   each other (see there). Alone, either one takes the first place. */
 .pd-more-actions {
   grid-column: 2;
   justify-self: start;
@@ -1703,6 +1704,19 @@ html:has(.pd-paper:target) {
   .pd-hero-actions .secondary-action {
     width: 100%;
     min-height: 48px;
+  }
+
+  /* "Show earlier" and "Hide earlier" one per row, both as wide as the
+     wider: the box keeps to its content (justify-self: start, above), so its
+     one column is the wider button's width, and both fill it. */
+  .pd-more-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pd-more-actions .pd-button {
+    justify-content: center;
+    width: 100%;
   }
 
   .pd-edition {

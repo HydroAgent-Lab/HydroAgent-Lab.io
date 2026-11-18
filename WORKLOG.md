@@ -42,6 +42,27 @@
   - 没有 JS 的读者只能看到默认的 11 篇（原来是 36 篇）；
   - ttxingmi 本地的 `check_p4`、`smoke_live.mjs` 不在仓库里，这次没有跑，里面"默认 30 篇"的期望需要更新。
 
+### PR #22 审阅后修改（ttxingmi 审阅，同一分支）
+
+- **起因**：用 Hallmark 审 PR #22，结果 0 critical · 0 major · 3 minor，三条都改。
+- **改动**：
+  - 焦点：最后一次点"显示更早的文献"后，这个按钮消失，焦点原来会落到页面本身（`<body>`），读屏软件会丢失位置。现在焦点移到"收起"，页面不滚动。`components/paper-digest-feed.js`：`showEarlier()` 先记一个标记，`useLayoutEffect` 里发现"显示更早"已经不在，就把焦点交给"收起"（`preventScroll`），和"收起 → 显示更早"对称。
+  - 等宽：≤560px 时两个按钮一行一个、一样宽，都等于较宽的那个，文字居中（`styles/pages/paper-digest.css`）。原来英文叠放时宽 180px 和 173.5px，右边不齐。中文在 390–560 宽原来并排，现在也上下排列。
+  - 文案：「收起更早的文献 / Hide earlier papers」改为「收起全部更早的文献 / Hide all earlier papers」（`content/pages/paper-digest.js`）：一次就回到默认篇数，而"显示"每次只加一页。
+- **验证**（headless Edge，11-18 数据 232 篇，中英文 × 1440/768/414/390/375/320；测试脚本不在仓库里）：
+  - 先在 PR 原版 `2a2b797` 上跑：141/197，失败的正是这三点（焦点落到 `BODY` 12/12；手机等宽 8 项里 6 项不过；文案）。改后 197/197。
+  - 和原版对比：打开页面时的按钮、页面高度、首屏按钮都没变；桌面和 768 宽仍然并排，"显示更早"的位置和宽度不变。手机上两个按钮英文都是 192.3px，中文都是 172px。
+  - 键盘：一直按 Enter 展开到底，最后焦点在"收起"上，有焦点框；每次按"显示更早"页面都不滚动（0px）。"收起"后按钮行位移 ≤ 0.5px，焦点回到"显示更早"。
+  - 最早一篇的分享链接：展开全部 232 篇，焦点在该文献上，只剩"收起"；点"收起"回到 11 篇，焦点到"显示更早"。
+  - 没有横向滚动，按钮文字都是单行，控制台没有报错。`npm test` 38/38，pytest 30。
+  - 构建只有一条旧警告：`styles/pages/demo.css` 第 119 行的 autoprefixer 提示，与本次无关。
+- **改动的文件**：
+  - 代码：`components/paper-digest-feed.js`、`styles/pages/paper-digest.css`、`content/pages/paper-digest.js`
+  - 文档：`README.md`、`design/paper-digest-v2/DESIGN_SUMMARY.md`、本文件
+- **下一步**：
+  - 推送前告诉 Qingyi：这次改了 Qingyi 确认过的两项（"放不下时上下排列"和按钮文案）；PR 描述里的按钮文案也要同步。
+  - 本地 `check_p4`、`smoke_live.mjs` 除了"默认 30 篇"，如果检查按钮文案，也要改成新文案。
+
 ## 2026-11-17
 
 ### 标题外链箭头改为 SVG（直接在 main 上改）

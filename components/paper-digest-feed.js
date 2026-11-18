@@ -23,6 +23,9 @@ export function PaperDigestFeed() {
   const statusRef = useRef(null);
   const moreRowRef = useRef(null);
   const earlierRef = useRef(null);
+  const lessRef = useRef(null);
+  // Set when "Show earlier" is pressed, until the list has grown.
+  const showing = useRef(false);
   // Where the button row stood when "Hide earlier" was pressed (null: not hiding).
   const hideFrom = useRef(null);
   const view = useRef(null);
@@ -77,6 +80,14 @@ export function PaperDigestFeed() {
     setVisibleCount(PAGE_SIZE);
   };
 
+  // "Show earlier" adds the next page above the buttons; the screen stays
+  // where it is. Its last press removes it, and the focus, which would drop
+  // to the page, moves to "Hide earlier", now in its place.
+  const showEarlier = () => {
+    showing.current = true;
+    setVisibleCount((n) => n + PAGE_SIZE);
+  };
+
   // "Hide earlier" removes the papers above the buttons. The row stays where
   // the reader pressed it (measured after layout, so the browser's own scroll
   // anchoring is already counted), and the focus moves to "Show earlier",
@@ -87,6 +98,11 @@ export function PaperDigestFeed() {
   };
 
   useLayoutEffect(() => {
+    if (showing.current) {
+      showing.current = false;
+      if (!earlierRef.current) lessRef.current?.focus({ preventScroll: true });
+      return;
+    }
     if (hideFrom.current === null) return;
     const before = hideFrom.current;
     hideFrom.current = null;
@@ -159,12 +175,12 @@ export function PaperDigestFeed() {
         <div className="pd-more-row" ref={moreRowRef}>
           <div className="pd-more-actions">
             {earlier ? (
-              <button type="button" ref={earlierRef} className="secondary-action pd-button pd-more" onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}>
+              <button type="button" ref={earlierRef} className="secondary-action pd-button pd-more" onClick={showEarlier}>
                 {copy.more}
               </button>
             ) : null}
             {hide ? (
-              <button type="button" className="secondary-action pd-button pd-less" onClick={hideEarlier}>
+              <button type="button" ref={lessRef} className="secondary-action pd-button pd-less" onClick={hideEarlier}>
                 {copy.less}
               </button>
             ) : null}
