@@ -120,7 +120,7 @@ export const PaperRow = memo(function PaperRow({ paper, lang, copy, saved, onTog
         <p className="pd-no-ai">{note}</p>
       ) : paper.details || paper.limitations ? (
         <details className="pd-paper-more">
-          <summary>{copy.details.summary}</summary>
+          <summary>{paper.limitations ? copy.details.summary : copy.details.summaryOnly}</summary>
           <dl>
             {paper.details ? (
               <div className="pd-reading-part">
